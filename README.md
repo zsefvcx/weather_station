@@ -30,3 +30,4 @@ UART (RTS), SPI (CS)  |	D8 	| JPIO-15 |        | GND| Общий             |
 Вход питания 	      | 3V3 |	      |        | 5V | Вход питания      |
 
 https://alexgyver.ru/lessons/esp8266/
+https://arduino.esp8266.com/stable/package_esp8266com_index.json.
