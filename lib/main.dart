@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather_station/core/core.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Weather Station'.hardcoded),
     );
   }
 }
@@ -50,9 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
+            Text('Weather Station'.hardcoded),
             Text(
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
