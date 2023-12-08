@@ -4,6 +4,12 @@
 #include <DHT.h>
 #include <DHT_U.h>
 #include <WiFiUdp.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+#include <ESP8266WiFi.h>
+#include <ArduinoJson.h>
+#include <SimplePortal.h>
+
 
 #define BMP_SCK  (13)
 #define BMP_MISO (12)
@@ -36,6 +42,37 @@ int8_t src;
 } statusFW;
 #pragma pack(pop)
 
+//Дом
+const char* ssid2 = "Keenetic-8413";
+const char* password2 = "xxxxxxxx";
+
+//Работа
+const char* ssid = "RT-WiFi-BC77";
+const char* password = "xxxxxxxxx";
+
+ESP8266WebServer server(80);
+
+unsigned int localPort = 8088; 
+WiFiUDP Udp;
+
+void handleRoot() {
+  server.send(200, "text/plain", "hello from esp8266!");
+}
+
+void handleNotFound(){
+  String message = "File Not Found\n\n";
+  message += "URI: ";
+  message += server.uri();
+  message += "\nMethod: ";
+  message += (server.method() == HTTP_GET)?"GET":"POST";
+  message += "\nArguments: ";
+  message += server.args();
+  message += "\n";
+  for (uint8_t i=0; i<server.args(); i++){
+    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  }
+  server.send(404, "text/plain", message);
+}
 
 void setup() {
   Serial.begin(115200);
@@ -79,6 +116,65 @@ void setup() {
   delayMS = sensor.min_delay / 1000;
   Serial.print(F("delayMS")); Serial.println(delayMS);
   Serial.println(F("-START-LOOP-------------------------"));
+
+
+    portalRun();  // запустить с таймаутом 60с
+  //portalRun(30000); // запустить с кастомным таймаутом
+  Serial.println(portalStatus());
+  // статус: 0 error, 1 connect, 2 ap, 3 local, 4 exit, 5 timeout
+  
+  if (portalStatus() == SP_SUBMIT) {
+    Serial.println(portalCfg.SSID);
+    Serial.println(portalCfg.pass);
+    // забираем логин-пароль
+    WiFi.begin(portalCfg.SSID, portalCfg.pass);
+    Serial.println("");
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+  } else {
+    WiFi.begin(ssid, password);
+    int i = 0;
+    bool chek = false;
+    while (WiFi.status() != WL_CONNECTED) {
+      i++;
+      delay(500);
+      Serial.print(".");
+      if(i > 20){
+        Serial.println();
+        i = 0; 
+        chek = !chek;
+        if (chek) WiFi.begin(ssid2, password2);
+        else WiFi.begin(ssid, password);
+      }
+    
+    }
+  }
+
+  // Wait for connection
+
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  if (MDNS.begin("esp8266")) {
+    Serial.println("MDNS responder started");
+  }
+
+  server.on("/", handleRoot);
+
+  server.on("/inline", [](){
+    server.send(200, "text/plain", "this works as well");
+  });
+
+  server.onNotFound(handleNotFound);
+
+  server.begin();
+  Serial.println("HTTP server started");
+  Udp.begin(localPort);
 }
 
 float tBmpInt=-255, tAthInt=-255, tDhtExt=-255; 
@@ -162,6 +258,7 @@ void setStatusFW(){
   statusFW.src = getHash((byte*)&statusFW, sizeof(statusFW));
 }
 
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE + 1]; 
 
 void loop() {
   static int i  = 0; i++;  
@@ -175,14 +272,84 @@ void loop() {
   getDhtData();
   Serial.println(F("-setStatusFW------------------------"));
   setStatusFW();
-
   Serial.println(F("------------------------------------"));
-  delay(2000);delay(delayMS);
   
+  
+  StaticJsonDocument<200> jsonDocument; 
+  jsonDocument["ID"] = "AAAAAB_KEY:16032023";  
+  jsonDocument["alarm"] = statusFW.alarm;    
+  jsonDocument["val0"] = ((long)(statusFW.t*100));
+  jsonDocument["val1"] = ((long)(statusFW.h*100));
+  jsonDocument["err"] = statusFW.err;      
+  jsonDocument["val2"] = ((long)(statusFW.t2*100));
+  jsonDocument["val3"] = ((long)(statusFW.h2*100));
+  jsonDocument["val4"] = ((long)(statusFW.p*100)); 
+  jsonDocument["val5"] = ((long)(statusFW.Altitude*100)); 
+  jsonDocument["err2"] = statusFW.err2;
+  Serial.print(F("Sending: "));
+  serializeJson(jsonDocument, Serial);
+  Serial.println();  
 
+
+Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  int packetSize = Udp.parsePacket();
+  if (packetSize) {
+    memset(&packetBuffer, 0x00, UDP_TX_PACKET_MAX_SIZE);
+    int n = Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+    packetBuffer[n] = 0;
+    String stringpacketBuffer =  String(packetBuffer);
+    Serial.println("Contents:");
+    Serial.println(packetBuffer);
+    Serial.println(Udp.remoteIP().toString());
+static String IP_Ban[20]; 
+static int i = 0;
+
+    for(int j = 0; j < i; j++ ){
+      Serial.println(IP_Ban[j]);
+      if(IP_Ban[j] == Udp.remoteIP().toString()){
+        Serial.println("IP_Ban:");
+        Serial.println(IP_Ban[j]);
+        return;
+      }
+    }
+    
+    if(stringpacketBuffer != "AAAAAB_KEY:16032023"){
+      
+           
+      IP_Ban[i] = Udp.remoteIP().toString();      
+      /*Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+      Udp.write("ErrorPacket");
+      Udp.println();
+      Udp.endPacket();*/
+      i++;
+      if(i > 20) i = 0;
+    } else {
+      Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+      serializeJson(jsonDocument, Udp);
+      Udp.println();
+      Udp.endPacket();      
+    }
+    
+  } else {
+    server.handleClient();
+    IPAddress broadcastIp(255,255,255,255);//239, 255, 255, 250);
+    Udp.beginPacket(broadcastIp,localPort);
+    serializeJson(jsonDocument, Udp);
+    Udp.println();
+    Udp.endPacket();
+  }
+
+
+
+  delay(2000);delay(delayMS);
 
   if (i >= 5){
-    Serial.println(F("-Sleep-600e6--------------------------"));
+    Serial.println(F("-deepSleep-600e6--------------------"));
+    //Замкнуть пины D0 на RST
     ESP.deepSleep(600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно
     i =  0;
   }
