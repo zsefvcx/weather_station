@@ -4,7 +4,6 @@ Weather Station.
 
 ## Getting Started
 
-
 Модуль датчика температуры, давления, влажности AHT20 + BMP280:
     Датчик температуры и влажности: AHT20;
     Датчик давления: BMP280;
@@ -13,9 +12,9 @@ Weather Station.
     Размеры платы: 16 мм * 16 мм.
 
 https://arduinolab.pw/index.php/2021/07/06/datchik-temperatury-i-vlazhnosti-aht20-i-aht21/
-https://github.com/enjoyneering/AHT10
 https://3d-diy.ru/wiki/arduino-datchiki/sensor-bmp280/
 https://github.com/adafruit/Adafruit_BMP280_Library
+https://github.com/adafruit/Adafruit_AHTX0
  
 Контроллер ESP8266 4Mb D1 Mini
 Распиновка:
@@ -30,4 +29,4 @@ UART (RTS), SPI (CS)  |	D8 	| JPIO-15 |        | GND| Общий             |
 Вход питания 	      | 3V3 |	      |        | 5V | Вход питания      |
 
 https://alexgyver.ru/lessons/esp8266/
-https://arduino.esp8266.com/stable/package_esp8266com_index.json.
+https://arduino.esp8266.com/stable/package_esp8266com_index.json
