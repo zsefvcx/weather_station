@@ -9,7 +9,7 @@
 #include <ESP8266WiFi.h>
 #include <ArduinoJson.h>
 #include <SimplePortal.h>
-
+#include <EEPROM.h>
 
 #define BMP_SCK  (13)
 #define BMP_MISO (12)
@@ -42,13 +42,13 @@ int8_t src;
 } statusFW;
 #pragma pack(pop)
 
-//Дом
-const char* ssid2 = "Keenetic-8413";
-const char* password2 = "xxxxxxxx";
-
-//Работа
-const char* ssid = "RT-WiFi-BC77";
-const char* password = "xxxxxxxxx";
+#pragma pack(push, 1)
+struct APData{
+  char key;
+  char ssid[32];
+  char pass[32];
+} currentAPData;
+#pragma pack(pop)
 
 ESP8266WebServer server(80);
 
@@ -117,46 +117,53 @@ void setup() {
   Serial.print(F("delayMS")); Serial.println(delayMS);
   Serial.println(F("-START-LOOP-------------------------"));
 
+  EEPROM.begin(512);
+    char buffer[sizeof(currentAPData)];  
+    memset(&buffer, 0x00, sizeof(currentAPData));
+    for(unsigned int add=0; add < sizeof(currentAPData); add++){
+      buffer[add] = EEPROM.read(add);
+    }
+    memcpy((char *)&currentAPData, buffer, sizeof(currentAPData));
+  EEPROM.end();
 
-    portalRun();  // запустить с таймаутом 60с
-  //portalRun(30000); // запустить с кастомным таймаутом
-  Serial.println(portalStatus());
-  // статус: 0 error, 1 connect, 2 ap, 3 local, 4 exit, 5 timeout
-  
-  if (portalStatus() == SP_SUBMIT) {
-    Serial.println(portalCfg.SSID);
-    Serial.println(portalCfg.pass);
-    // забираем логин-пароль
-    WiFi.begin(portalCfg.SSID, portalCfg.pass);
+  if(currentAPData.key == 0xAB){
+    WiFi.begin(currentAPData.ssid, currentAPData.pass);
     Serial.println("");
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".");
     }
   } else {
-    WiFi.begin(ssid, password);
-    int i = 0;
-    bool chek = false;
-    while (WiFi.status() != WL_CONNECTED) {
-      i++;
-      delay(500);
-      Serial.print(".");
-      if(i > 20){
-        Serial.println();
-        i = 0; 
-        chek = !chek;
-        if (chek) WiFi.begin(ssid2, password2);
-        else WiFi.begin(ssid, password);
+    portalRun();  // запустить с таймаутом 60с
+    //portalRun(30000); // запустить с кастомным таймаутом
+    Serial.println(portalStatus());
+    // статус: 0 error, 1 connect, 2 ap, 3 local, 4 exit, 5 timeout
+    if (portalStatus() == SP_SUBMIT) {
+      Serial.println(portalCfg.SSID);
+      Serial.println(portalCfg.pass);
+      EEPROM.begin(512);
+      char buffer[sizeof(currentAPData)];  
+      memset(&buffer, 0x00, sizeof(currentAPData));
+      currentAPData.key = 0xAB; 
+      memcpy(&(currentAPData.ssid), (char *)&(portalCfg.SSID), sizeof(portalCfg.SSID));
+      memcpy(&(currentAPData.pass), (char *)&(portalCfg.pass), sizeof(portalCfg.pass));
+      memcpy(&buffer, (char *)&currentAPData, sizeof(currentAPData));
+      for(unsigned int add=0; add<sizeof(portalCfg); add++){
+        EEPROM.write(add, buffer[add]);
+        EEPROM.commit();
       }
-    
+      EEPROM.end();
+      // забираем логин-пароль
+      WiFi.begin(portalCfg.SSID, portalCfg.pass);
+      Serial.println("");
+      while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+      }
     }
   }
 
-  // Wait for connection
-
   Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
@@ -289,10 +296,6 @@ void loop() {
   Serial.print(F("Sending: "));
   serializeJson(jsonDocument, Serial);
   Serial.println();  
-
-
-Serial.print("Connected to ");
-  Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
@@ -344,13 +347,12 @@ static int i = 0;
   }
 
 
-
   delay(2000);delay(delayMS);
 
   if (i >= 5){
-    Serial.println(F("-deepSleep-600e6--------------------"));
+    Serial.println(F("-deepSleep-3600e6-------------------"));
     //Замкнуть пины D0 на RST
-    ESP.deepSleep(600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно
+    ESP.deepSleep(3600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно
     i =  0;
   }
 }
