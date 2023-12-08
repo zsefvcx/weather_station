@@ -18,6 +18,8 @@
 #define DHTPIN    D4
 #define DHTTYPE   DHT22 
 #define SEALEVELPRESSURE_HPA (1013.25)
+#define RESETWIFI D8
+
 
 Adafruit_AHTX0 aht;
 Adafruit_BMP280 bmp; // I2C
@@ -126,15 +128,19 @@ void setup() {
     memcpy((char *)&currentAPData, buffer, sizeof(currentAPData));
   EEPROM.end();
 
-  if(currentAPData.key == 0xAB){
+  pinMode(RESETWIFI, INPUT_PULLUP);
+
+  if(currentAPData.key == 0xAB && digitalRead(RESETWIFI) == LOW){
     WiFi.begin(currentAPData.ssid, currentAPData.pass);
     Serial.println("");
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".");
     }
-  } else {
-    portalRun();  // запустить с таймаутом 60с
+  } 
+  else
+  {
+    portalRun(300000);  // запустить с таймаутом 60с
     //portalRun(30000); // запустить с кастомным таймаутом
     Serial.println(portalStatus());
     // статус: 0 error, 1 connect, 2 ap, 3 local, 4 exit, 5 timeout
@@ -352,7 +358,7 @@ static int i = 0;
   if (i >= 5){
     Serial.println(F("-deepSleep-3600e6-------------------"));
     //Замкнуть пины D0 на RST
-    ESP.deepSleep(3600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно
+    ESP.deepSleep(600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно
     i =  0;
   }
 }
