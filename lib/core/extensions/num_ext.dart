@@ -15,4 +15,6 @@ extension NumberTypeExtensions on num {
     width: double.parse(toString()),
   );
 
+  num? get abs => this<0?-this:this;
+
 }
