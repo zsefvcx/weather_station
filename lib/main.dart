@@ -3,7 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:weather_station/core/core.dart';
+
+
+
+
 
 
 void main() {
@@ -45,8 +50,17 @@ void main() {
                             host: '${dg.address.host}:${dg.port}',
                           );
                           Logger.print(data.toString());
+                          final directory = await getApplicationDocumentsDirectory();
+                          final path = directory.path;
+                          final localPath = '$path/receive_data.txt';
+                          Logger.print(localPath);
+                          final file = File(localPath);
+                          await file.writeAsString('$data\n');
                         } on EnvironmentalConditionsException catch(e){
                           Logger.print(e.errorMessageText);
+                        } on Exception catch(e, t){
+                          Logger.print(e.toString());
+                          Logger.print(t.toString());
                         }
                       }
                       udpSocket.close();
