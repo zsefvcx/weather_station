@@ -204,6 +204,7 @@ void getBmpData(){
       aBmpInt =  bmp.readAltitude(SEALEVELPRESSURE_HPA);
       Serial.print(F("Temperature = ")); Serial.print(tBmpInt); Serial.println(" *C");
       Serial.print(F("Pressure = ")); Serial.print(pBmpInt); Serial.println(" mmHh");
+      Serial.print(F("Approx altitude = ")); Serial.print(aBmpInt); Serial.println(" m");
     } else {
       Serial.println("Forced measurement failed!");
       tBmpInt=-255;
@@ -271,12 +272,28 @@ void setStatusFW(){
   statusFW.src = getHash((byte*)&statusFW, sizeof(statusFW));
 }
 
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE + 1]; 
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE + 1];
+StaticJsonDocument<400> jsonDocument;
+
+void statusToJson(int sending){
+    jsonDocument["key"] = "AAAAAB_KEY:16032023";
+    jsonDocument["sending"] = sending+1;
+    jsonDocument["alarm"] = statusFW.alarm;
+    jsonDocument["temperature"] = ((long)(statusFW.t*100));
+    jsonDocument["humidity"] = ((long)(statusFW.h*100));
+    jsonDocument["error"] = statusFW.err;
+    jsonDocument["temperature2"] = ((long)(statusFW.t2*100));
+    jsonDocument["humidity2"] = ((long)(statusFW.h2*100));
+    jsonDocument["pressure"] = ((long)(statusFW.p*100));
+    jsonDocument["altitude"] = ((long)(statusFW.Altitude*100));
+    jsonDocument["error2"] = statusFW.err2;
+}
+
 
 void loop() {
-  static int i  = 0; i++;  
-  Serial.println(F("------------------------------------"));
-  Serial.print("Packet:"); Serial.println(i);
+
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
   Serial.println(F("-getBmpData-------------------------"));
   getBmpData();
   Serial.println(F("-getAhtData-------------------------"));
@@ -285,80 +302,63 @@ void loop() {
   getDhtData();
   Serial.println(F("-setStatusFW------------------------"));
   setStatusFW();
-  Serial.println(F("------------------------------------"));
-  
-  
-  StaticJsonDocument<200> jsonDocument; 
-  jsonDocument["ID"] = "AAAAAB_KEY:16032023";  
-  jsonDocument["alarm"] = statusFW.alarm;    
-  jsonDocument["temperature"] = ((long)(statusFW.t*100));
-  jsonDocument["humidity"] = ((long)(statusFW.h*100));
-  jsonDocument["error"] = statusFW.err;
-  jsonDocument["temperature2"] = ((long)(statusFW.t2*100));
-  jsonDocument["humidity2"] = ((long)(statusFW.h2*100));
-  jsonDocument["pressure"] = ((long)(statusFW.p*100));
-  jsonDocument["altitude"] = ((long)(statusFW.Altitude*100));
-  jsonDocument["error1"] = statusFW.err2;
-  Serial.print(F("Sending: "));
-  serializeJson(jsonDocument, Serial);
-  Serial.println();  
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-
-  int packetSize = Udp.parsePacket();
-  if (packetSize) {
-    memset(&packetBuffer, 0x00, UDP_TX_PACKET_MAX_SIZE);
-    int n = Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-    packetBuffer[n] = 0;
-    String stringpacketBuffer =  String(packetBuffer);
-    Serial.println("Contents:");
-    Serial.println(packetBuffer);
-    Serial.println(Udp.remoteIP().toString());
-static String IP_Ban[20]; 
-static int i = 0;
-
-    for(int j = 0; j < i; j++ ){
-      Serial.println(IP_Ban[j]);
-      if(IP_Ban[j] == Udp.remoteIP().toString()){
-        Serial.println("IP_Ban:");
+  Serial.println(F("-statusToJson--To-Serial------------"));
+  statusToJson(-1);
+  Serial.println(F("-serializeJson----------------------"));
+  serializeJson(jsonDocument, Serial);Serial.println();
+  Serial.println(F("-SendRecvData-----------------------"));
+  int i = 0;
+  do{
+    Serial.println(F("------------------------------------"));
+    Serial.print("Packet:"); Serial.println(i+1);
+    statusToJson(i);
+    Serial.println(F("-serializeJson-To-Serial------------"));
+    serializeJson(jsonDocument, Serial);Serial.println();
+    int packetSize = Udp.parsePacket();
+    if (packetSize) {
+      static String IP_Ban[20];
+      static int i = 0;
+      memset(&packetBuffer, 0x00, UDP_TX_PACKET_MAX_SIZE);
+      int n = Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+      packetBuffer[n] = 0;
+      String stringpacketBuffer =  String(packetBuffer);
+      Serial.println("Contents:");
+      Serial.println(packetBuffer);
+      Serial.println(Udp.remoteIP().toString());
+      for(int j = 0; j < i; j++){
         Serial.println(IP_Ban[j]);
-        return;
+        if(IP_Ban[j] == Udp.remoteIP().toString()){
+          Serial.println("IP_Ban:");
+          Serial.println(IP_Ban[j]);
+          return;
+        }
       }
-    }
-    
-    if(stringpacketBuffer != "AAAAAB_KEY:16032023"){
-      
-           
-      IP_Ban[i] = Udp.remoteIP().toString();      
-      /*Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-      Udp.write("ErrorPacket");
-      Udp.println();
-      Udp.endPacket();*/
-      i++;
-      if(i > 20) i = 0;
-    } else {
-      Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-      serializeJson(jsonDocument, Udp);
-      Udp.println();
-      Udp.endPacket();      
-    }
-    
-  } else {
-    server.handleClient();
-    IPAddress broadcastIp(255,255,255,255);//239, 255, 255, 250);
-    Udp.beginPacket(broadcastIp,localPort);
-    serializeJson(jsonDocument, Udp);
-    Udp.println();
-    Udp.endPacket();
-  }
-
-
-  delay(2000);delay(delayMS);
-
-  if (i >= 5){
-    Serial.println(F("-deepSleep-3600e6-------------------"));
-    //Замкнуть пины D0 на RST
-    ESP.deepSleep(600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно
-    i =  0;
-  }
+      if(stringpacketBuffer != "AAAAAB_KEY:16032023"){
+        IP_Ban[i] = Udp.remoteIP().toString();
+        Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+        Udp.write("ErrorPacket");
+        Udp.println();
+        Udp.endPacket();
+        i++;
+        if(i > 20) i = 0;
+        } else {
+          Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+          serializeJson(jsonDocument, Udp);
+          Udp.println();
+          Udp.endPacket();
+        }
+      } else {
+          server.handleClient();
+          IPAddress broadcastIp(255,255,255,255);//239, 255, 255, 250);
+          Udp.beginPacket(broadcastIp,localPort);
+          serializeJson(jsonDocument, Udp);
+          Udp.println();
+          Udp.endPacket();
+      }
+   delay(delayMS);
+   i++;
+  } while(i < 5);
+  Serial.println(F("-deepSleep-3600e6-------------------"));
+  //Замкнуть пины D0 на RST
+  ESP.deepSleep(600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно
 }

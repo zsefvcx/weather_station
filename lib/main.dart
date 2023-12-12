@@ -1,11 +1,68 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:weather_station/core/core.dart';
-import 'package:http/http.dart' as http;
+
 
 void main() {
+  Future<void> multicastUDPClient() async {
+    Timer.periodic(const Duration(seconds: 10),
+            (timer) async {
+              Logger.print('${DateTime.now()}:${timer.tick}:-----------------.');
+              void onError(e){
+                Logger.print('Error streamController.listen: $e');
+              }
+              const port = 8088;
+              final udpSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, port);
+              final streamController = udpSocket.timeout(const Duration(seconds: 5), onTimeout: (sink) {
+                Logger.print('${DateTime.now()}:Time Out Received.');
+                sink.close();
+              });
+              udpSocket.broadcastEnabled = true;
+              final streamSubscription =
+                  streamController.listen((rawSocketEvent) async {
+                    final dg = udpSocket.receive();
+                    if (dg != null) {
+                      // if (dg.address == InternetAddress(ipAddress))
+                      {
+                        Logger.print('${DateTime.now()}:Received:${dg.data.length}');
+                        final str =
+                        utf8.decode(dg.data).replaceAll('\n','').replaceAll('\r','');
+                        final result = [
+                          DateTime.now(),
+                          dg.address,
+                          dg.port.toString(),
+                          str,
+                        ];
+                        Logger.print(result.toString());
+                        final json = jsonDecode(str) as Map<String, dynamic>;
+                        try {
+                          final data = EnvironmentalConditions.fromJson(
+                            json,
+                            time: DateTime.now(),
+                            host: '${dg.address.host}:${dg.port}',
+                          );
+                          Logger.print(data.toString());
+                        } on EnvironmentalConditionsException catch(e){
+                          Logger.print(e.errorMessageText);
+                        }
+                      }
+                      udpSocket.close();
+                    }
+                  },
+                  onDone: udpSocket.close,
+                  onError: onError,
+                  );
 
-
-
+              // Wait for the socket to be done listening for a response
+              await streamSubscription.asFuture<void>();
+              await streamSubscription.cancel();
+              udpSocket.close();
+    });
+  }
+  multicastUDPClient();
 
 
 

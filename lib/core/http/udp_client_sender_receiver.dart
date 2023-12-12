@@ -9,14 +9,11 @@ class UDPClientSenderReceiver {
   String ipAddress = '127.0.0.1';
   int port = 8088;
   int timeOutUDP = 5;
-  TypeDataReceiver type = TypeDataReceiver.type0;
+
   int listDataValueLength = 1440;
   double calibrationPressure = 10.3;
   double calibrationTemperature1    = 0;
   double calibrationTemperature2    = 0;
-
-  late EnvConditions evnState;
-  late List<DataValue> listDataValue;
 
   bool vDebugMode = false;
   bool broadcast = false;
@@ -58,23 +55,6 @@ class UDPClientSenderReceiver {
             ];
             Logger.print(result.toString());
 
-            if (type == TypeDataReceiver.type1) {
-              //single
-              evnState.errorStatSingle++;
-              if (evnState.errorStatSingle > 3) evnState.errorStatSingle = 3;
-            } else if (type == TypeDataReceiver.type2) {
-              //multicast
-              evnState.errorStateBroadCast++;
-              if (evnState.errorStateBroadCast > 3) {
-                evnState.errorStateBroadCast = 3;
-              }
-            } else {
-              // ничего не делаем
-            }
-            if (evnState.errorStatSingle >= 3 ||
-                evnState.errorStateBroadCast >= 3) {
-              evnState.type = TypeDataReceiver.type0; // потеря связи
-            }
             sink.close();
             repeatMulticastReceiver = false;
           });
@@ -102,58 +82,9 @@ class UDPClientSenderReceiver {
                 ];
                 Logger.print(result.toString());
                 final json = jsonDecode(str) as Map<String, dynamic>;
-                if (json['ID'] != EnvConditions.id) {
+                if (json['key'] != Settings.key) {
                   throw FormatException(
                       '${DateTime.now()}: Expected ID code is not received or wrong!');
-                }
-
-                evnState.fromJson(json, ipAddress, DateTime.now());
-                if (type == TypeDataReceiver.type1) {
-                  //single
-                  evnState.errorStatSingle--;
-                  if (evnState.errorStatSingle <= 0) {
-                    evnState..errorStatSingle = 0
-                            ..type = TypeDataReceiver.type1;
-                  }
-                } else if (type == TypeDataReceiver.type2) {
-                  //multicast
-                  evnState.errorStateBroadCast--;
-                  if (evnState.errorStateBroadCast <= 0) {
-                    evnState..errorStateBroadCast = 0
-                            ..type = TypeDataReceiver.type2;
-                  }
-                } else {
-                  // ничего не делаем
-                }
-                if(evnState.press!=null) {
-                  evnState.press = evnState.press! + calibrationPressure;
-                }
-                if(evnState.temp1!=null) {
-                  evnState.temp1 = evnState.temp1! + calibrationTemperature1;
-                }
-                if(evnState.temp2!=null) {
-                  evnState.temp2 = evnState.temp2! + calibrationTemperature2;
-                }
-                Logger.print('$evnState\n');
-                listDataValue.add(DataValue(
-                  time: evnState.time,
-                  t1: evnState.temp1,
-                  h1: evnState.temp2,
-                  t2: evnState.humid1,
-                  h2: evnState.humid2,
-                  t3: evnState.temp3,
-                  h3: evnState.humid3,
-                  p3: evnState.press3,
-                  p1: evnState.press,
-                ));
-                if (listDataValue.length > listDataValueLength) {
-                  listDataValue.removeAt(0);
-                }
-
-                evnState.notify();
-
-                if (listDataValue.length%10==0){//сохраняем каждые 10 сообщений
-                  await evnState.safeToDisk();
                 }
 
               }
@@ -196,10 +127,6 @@ class UDPClientSenderReceiver {
       await _streamSubscription.asFuture<void>();
     } on Exception catch (e) {
       Logger.print('err localReceiveDate function: $e');
-      evnState.errorStatSingle++;
-      if (evnState.errorStatSingle >= 3) {
-        evnState.type = TypeDataReceiver.type0;
-      }
     }
   }
 
@@ -212,10 +139,6 @@ class UDPClientSenderReceiver {
       await _streamSubscription.asFuture<void>();
     } on Exception catch (e) {
       Logger.print('err multicastReceiverDate function: $e');
-      evnState.errorStateBroadCast++;
-      if (evnState.errorStateBroadCast >= 5) {
-        evnState.type = TypeDataReceiver.type0; // потеря связи
-      }
     }
   }
 
