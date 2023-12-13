@@ -35,7 +35,7 @@ class UDPClientSenderReceiverException implements Exception {
   });
 
   String errorMessage() {
-    return 'Environmental Conditions Exception: $errorMessageText';
+    return 'UDP Client Sender Receiver Exception: $errorMessageText';
   }
 }
 
@@ -54,9 +54,12 @@ class UDPClientSenderReceiver {
   final Duration periodic;
   // Type aata receiver
   final TypeDataRcv type;
+  // chaker network Status
+  final NetworkInfo networkInfo;
 
   const UDPClientSenderReceiver({
     required this.stackDEC,
+    required this.networkInfo,
     required this.type,
     this.address = Settings.address,
     this.bindPort = Settings.bindPort,
@@ -173,6 +176,9 @@ class UDPClientSenderReceiver {
     String key = Settings.key
   }) async {
     try {
+      if(!(await networkInfo.isConnected)) {
+        Logger.print('${DateTime.now()}:type:$type:No Network Info Status');
+      }
       final udpSocket = await _bind();
       final streamController = _timeOut(udpSocket: udpSocket);
       udpSocket.broadcastEnabled = broadcastEnabled;

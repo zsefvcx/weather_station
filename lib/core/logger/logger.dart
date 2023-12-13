@@ -14,6 +14,8 @@ abstract class Logger {
   /// - [name] (optional) is the name of the source of the log message
   /// - [level] (optional) is the severity level (a value between 0 and 2000);
   /// - [error] (optional) an error bool associated with this log event
+  /// - [context] (optional) for SnackBsr
+  /// - [safeToDisk] (optional) for safe data to disk
   ///@Deprecated('Print status message')
   static void print(String message, {
       String name = 'log',
@@ -39,14 +41,18 @@ abstract class Logger {
 
     if(safeToDisk){
       Future<void> function() async {
-        final directory = await getApplicationDocumentsDirectory();
-        final path = directory.path;
-        final localPath = '$path/logger_data.txt';
-        Logger.print(localPath);
-        final file = File(localPath);
-        await file.writeAsString('$msg\n', mode: FileMode.append);
+          final directory = await getApplicationDocumentsDirectory();
+          final path = directory.path;
+          final localPath = '$path/logger_data.txt';
+          Logger.print(localPath);
+          final file = File(localPath);
+          await file.writeAsString('$msg\n', mode: FileMode.append);
       }
-      function();
+      try {
+        function();
+      } on Exception catch(e, t) {
+        Exception('Logger->print->safeToDisk Exception with:\n$e\n$t');
+      }
     }
   }
 }

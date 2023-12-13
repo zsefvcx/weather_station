@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:weather_station/core/http/environmental_conditions.dart';
+import 'package:weather_station/core/core.dart';
 
 GlobalKey globalKey = GlobalKey();
 
