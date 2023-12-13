@@ -24,7 +24,9 @@ class StackDataEnvironmentalConditions extends ChangeNotifier{
     if(_data.length>=_maxCount){
       _data.removeLast();
     }
-    _data.add(value);
+    _data.add(value.copyWith(
+      id: _data.length
+    ));
     notifyListeners();
   }
 }
@@ -35,6 +37,7 @@ class EnvironmentalConditions {
   final int? id;
   final DateTime time;
   final String host;
+  final TypeDataRcv type;
   final bool alarm;
   final bool error;
   final bool error2;
@@ -48,6 +51,7 @@ class EnvironmentalConditions {
   const EnvironmentalConditions._({
     required this.time,
     required this.host,
+    required this.type,
     required this.alarm,
     required this.error,
     required this.error2,
@@ -83,6 +87,7 @@ class EnvironmentalConditions {
     required int? id,
     required DateTime time,
     required String host,
+    required TypeDataRcv type,
     required bool alarm,
     required bool error,
     required bool error2,
@@ -105,6 +110,7 @@ class EnvironmentalConditions {
       id: id,
       time: time,
       host: host,
+      type: type,
       alarm: alarm,
       error: error,
       error2: error2,
@@ -125,6 +131,7 @@ class EnvironmentalConditions {
           id == other.id &&
           time == other.time &&
           host == other.host &&
+          type == other.type &&
           alarm == other.alarm &&
           error == other.error &&
           error2 == other.error2 &&
@@ -140,6 +147,7 @@ class EnvironmentalConditions {
       id.hashCode ^
       time.hashCode ^
       host.hashCode ^
+      type.hashCode ^
       alarm.hashCode ^
       error.hashCode ^
       error2.hashCode ^
@@ -156,6 +164,7 @@ class EnvironmentalConditions {
         'id: $id, '
         'time: $time, '
         'host: $host, '
+        'type: $type, '
         'alarm: $alarm, '
         'error: $error, '
         'error2: $error2, '
@@ -171,6 +180,7 @@ class EnvironmentalConditions {
     int? id,
     DateTime? time,
     String? host,
+    TypeDataRcv? type,
     bool? alarm,
     bool? error,
     bool? error2,
@@ -186,6 +196,7 @@ class EnvironmentalConditions {
       id: id ?? this.id,
       time: time ?? this.time,
       host: host ?? this.host,
+      type: type ?? this.type,
       alarm: alarm ?? this.alarm,
       error: error ?? this.error,
       error2: error2 ?? this.error2,
@@ -203,6 +214,7 @@ class EnvironmentalConditions {
       'id': id,
       'time': time.toString(),
       'host': host,
+      'type: ${type.index}, '
       'alarm': alarm,
       'error': error,
       'error2': error2,
@@ -216,15 +228,16 @@ class EnvironmentalConditions {
   }
 
   factory EnvironmentalConditions.fromJson(Map<String, dynamic> map, {
-    DateTime? time, String? host,
+    DateTime? time, String? host, TypeDataRcv? type,
   }) {
     return EnvironmentalConditions.initiate(
-      id:           map['id']           as int?,
+      id:           map['id']            as int?,
       time:         time ?? DateTime.parse(map['time'] as String),
-      host:         host ?? map['host'] as String,
-      alarm:        map['alarm']        as bool,
-      error:        map['error']        as bool,
-      error2:       map['error2']       as bool,
+      host:         host ?? map['host']  as String,
+      type:         type ?? TypeDataRcv.values.elementAt(map['type'] as int),
+      alarm:        map['alarm']         as bool,
+      error:        map['error']         as bool,
+      error2:       map['error2']        as bool,
       temperature:  (map['temperature']  as int).toDouble()/100,
       humidity:     (map['humidity']     as int).toDouble()/100,
       pressure:     (map['pressure']     as int).toDouble()/100,

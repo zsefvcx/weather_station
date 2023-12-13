@@ -4,6 +4,29 @@ import 'dart:io';
 
 import 'package:weather_station/core/core.dart';
 
+enum TypeDataRcv{
+  multy,
+  syngl,
+  type2,
+  type3;
+
+  @override
+  String toString(){
+    switch (index){
+      case 0:
+        return 'multycast';
+      case 1:
+        return 'singlcast';
+      case 2:
+        return 'type2Broadcast';
+      case 3:
+        return 'type2Broadcast2';
+      default:
+        return name;
+    }
+  }
+}
+
 class UDPClientSenderReceiverException implements Exception {
   final String errorMessageText;
 
@@ -29,14 +52,17 @@ class UDPClientSenderReceiver {
   final Duration timeLimit;
   //periodic - frequency of requests
   final Duration periodic;
+  // Type aata receiver
+  final TypeDataRcv type;
 
   const UDPClientSenderReceiver({
     required this.stackDEC,
-    this.address = '127.0.0.1',
-    this.bindPort = 8088,
-    this.senderPort = 8088,
-    this.timeLimit = const Duration(seconds: 5),
-    this.periodic = const Duration(seconds: 10),
+    required this.type,
+    this.address = Settings.address,
+    this.bindPort = Settings.bindPort,
+    this.senderPort = Settings.senderPort,
+    this.timeLimit = Settings.timeLimit,
+    this.periodic = Settings.periodic,
   });
 
   Future<RawDatagramSocket> _bind() async {
@@ -49,23 +75,23 @@ class UDPClientSenderReceiver {
       return udpSocket;
     } on Exception catch(e, t){
       throw UDPClientSenderReceiverException(
-          errorMessageText: 'Error bind Socket with:\n$e\n$t'
+          errorMessageText: 'type:$type: Error bind Socket with:\n$e\n$t'
       );
     }
   }
 
   Stream<RawSocketEvent> _timeOut({required RawDatagramSocket udpSocket}){
     try{
-      final streamController = udpSocket.timeout(const Duration(seconds: 5),
+      final streamController = udpSocket.timeout(timeLimit,
         onTimeout: (sink) {
-          Logger.print('${DateTime.now()}:Time Out Received.');
+          Logger.print('${DateTime.now()}:Time Out Received. type:$type');
           sink.close();
         },
       );
       return streamController;
     } on Exception catch(e, t){
       throw UDPClientSenderReceiverException(
-          errorMessageText: 'Error timeOut Socket with:\n$e\n$t'
+          errorMessageText: 'type:$type: Error timeOut Socket with:\n$e\n$t'
       );
     }
   }
@@ -75,12 +101,12 @@ class UDPClientSenderReceiver {
   }) async {
     try {
       final serverAddress = (await InternetAddress.lookup(address)).first;
-      Logger.print('${DateTime.now()}:Send Data to server...');
+      Logger.print('${DateTime.now()}:Send Data to server. type:$type');
       return udpSocket.send(
           utf8.encode(key), serverAddress, senderPort);
     } on Exception catch (e, t) {
       throw UDPClientSenderReceiverException(
-          errorMessageText: 'Error send Socket with:\n$e\n$t'
+          errorMessageText: 'type:$type: Error send Socket with:\n$e\n$t'
       );
     }
   }
@@ -90,8 +116,10 @@ class UDPClientSenderReceiver {
     required Stream<RawSocketEvent> streamController,
     required RawDatagramSocket udpSocket
   }){
-    void onError(e){
-      Logger.print('Error streamController.listen: $e');
+    void onError(e, t){
+      throw UDPClientSenderReceiverException(
+          errorMessageText: 'type:$type: Error streamController.listen with:\n$e\n$t'
+      );
     }
 
     try{
@@ -100,7 +128,7 @@ class UDPClientSenderReceiver {
         if (dg != null) {
           // if (dg.address == InternetAddress(ipAddress))
           {
-            Logger.print('${DateTime.now()}:Received:${dg.data.length}');
+            Logger.print('${DateTime.now()}:type:$type:Received:${dg.data.length}');
             final str =
             utf8.decode(dg.data).replaceAll('\n','').replaceAll('\r','');
             final result = [
@@ -116,6 +144,7 @@ class UDPClientSenderReceiver {
                 json,
                 time: DateTime.now(),
                 host: '${dg.address.host}:${dg.port}',
+                type: type,
               );
               Logger.print(data.toString(), safeToDisk: true);
               stackDEC.add(data);
@@ -134,7 +163,7 @@ class UDPClientSenderReceiver {
       );
     } on Exception catch(e,t){
       throw UDPClientSenderReceiverException(
-          errorMessageText: 'Error listen Socket with:\n$e\n$t'
+          errorMessageText: 'type:$type: Error listen Socket with:\n$e\n$t'
       );
     }
   }
@@ -143,26 +172,37 @@ class UDPClientSenderReceiver {
     bool broadcastEnabled = true,
     String key = Settings.key
   }) async {
-    final udpSocket = await _bind();
-    final streamController = _timeOut(udpSocket: udpSocket);
-    udpSocket.broadcastEnabled = broadcastEnabled;
-    final streamSubscription = _listen(
-      streamController: streamController,
-      udpSocket: udpSocket,
-    );
-    if(bindPort == 0) await _send(key, udpSocket: udpSocket);
-    await streamSubscription.asFuture<void>();
-    await streamSubscription.cancel();
-    udpSocket.close();
+    try {
+      final udpSocket = await _bind();
+      final streamController = _timeOut(udpSocket: udpSocket);
+      udpSocket.broadcastEnabled = broadcastEnabled;
+      final streamSubscription = _listen(
+        streamController: streamController,
+        udpSocket: udpSocket,
+      );
+      if (bindPort == 0) await _send(key, udpSocket: udpSocket);
+      await streamSubscription.asFuture<void>();
+      await streamSubscription.cancel();
+      udpSocket.close();
+    } on Exception catch(e, t) {
+      throw UDPClientSenderReceiverException(
+          errorMessageText: 'type:$type: Error startRcvUdp Socket with:\n$e\n$t'
+      );
+    }
   }
-
 
   Future<Timer> run({
     bool broadcastEnabled = true
   }) async {
-    await _startRcvUdp(broadcastEnabled: broadcastEnabled);
-    return Timer.periodic(periodic, (timer) async =>
-        _startRcvUdp(broadcastEnabled: broadcastEnabled),
-    );
+    try {
+      await _startRcvUdp(broadcastEnabled: broadcastEnabled);
+      return Timer.periodic(periodic, (timer) async =>
+          _startRcvUdp(broadcastEnabled: broadcastEnabled),
+      );
+    } on Exception catch(e, t) {
+      throw UDPClientSenderReceiverException(
+          errorMessageText: 'type:$type: Error run Socket with:\n$e\n$t'
+      );
+    }
   }
 }
