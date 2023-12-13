@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather_station/core/core.dart';
 
 class EnvironmentalConditionsException implements Exception {
   final String errorMessageText;
@@ -9,6 +10,22 @@ class EnvironmentalConditionsException implements Exception {
 
   String errorMessage() {
     return 'Environmental Conditions Exception: $errorMessageText';
+  }
+}
+
+class StackDataEnvironmentalConditions extends ChangeNotifier{
+  static final _data = <EnvironmentalConditions>[];
+  static const _maxCount = Settings.maxCountStack;
+
+  int get length => _data.length;
+  EnvironmentalConditions elementAt(int index) => _data.elementAt(index);
+
+  void add(EnvironmentalConditions value){
+    if(_data.length>=_maxCount){
+      _data.removeLast();
+    }
+    _data.add(value);
+    notifyListeners();
   }
 }
 

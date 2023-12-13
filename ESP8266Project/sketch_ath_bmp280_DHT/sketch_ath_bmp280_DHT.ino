@@ -334,6 +334,7 @@ void loop() {
         }
       }
       if(stringpacketBuffer != "AAAAAB_KEY:16032023"){
+        Serial.println(F("-serializeJson-To-UDP-ErrorPacket---"));
         IP_Ban[i] = Udp.remoteIP().toString();
         Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
         Udp.write("ErrorPacket");
@@ -342,12 +343,16 @@ void loop() {
         i++;
         if(i > 20) i = 0;
         } else {
+          Serial.println(F("-serializeJson-To-UDP-CLIENT------"));
+          Serial.println(Udp.remoteIP());
+          Serial.println(Udp.remotePort());
           Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
           serializeJson(jsonDocument, Udp);
           Udp.println();
           Udp.endPacket();
         }
       } else {
+          Serial.println(F("-serializeJson-To-UDP-MULTYCAST------"));
           server.handleClient();
           IPAddress broadcastIp(255,255,255,255);//239, 255, 255, 250);
           Udp.beginPacket(broadcastIp,localPort);
@@ -358,7 +363,7 @@ void loop() {
    delay(delayMS);
    i++;
   } while(i < 5);
-  Serial.println(F("-deepSleep-3600e6-------------------"));
+  //Serial.println(F("-deepSleep-3600e6-------------------"));
   //Замкнуть пины D0 на RST
-  ESP.deepSleep(600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно
+  //ESP.deepSleep(600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно
 }

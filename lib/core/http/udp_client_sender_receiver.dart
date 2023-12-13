@@ -1,149 +1,168 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:weather_station/core/core.dart';
 
+class UDPClientSenderReceiverException implements Exception {
+  final String errorMessageText;
+
+  const UDPClientSenderReceiverException({
+    required this.errorMessageText,
+  });
+
+  String errorMessage() {
+    return 'Environmental Conditions Exception: $errorMessageText';
+  }
+}
+
 class UDPClientSenderReceiver {
-  String ipAddress = '127.0.0.1';
-  int port = 8088;
-  int timeOutUDP = 5;
+  //stack data
+  final StackDataEnvironmentalConditions stackDEC;
+  //Internr addres in text format: 'pool.ntp.org' or '127.0.0.1'
+  final String address;
+  //UDP bindPort = 0 as sender, = anyOther as resiver
+  final int bindPort;
+  //UDP senderPort = 8088 as sender, = anyOther as resiver
+  final int senderPort;
+  //timeLimit - limit await udp response
+  final Duration timeLimit;
+  //periodic - frequency of requests
+  final Duration periodic;
 
-  int listDataValueLength = 1440;
-  double calibrationPressure = 10.3;
-  double calibrationTemperature1    = 0;
-  double calibrationTemperature2    = 0;
+  const UDPClientSenderReceiver({
+    required this.stackDEC,
+    this.address = '127.0.0.1',
+    this.bindPort = 8088,
+    this.senderPort = 8088,
+    this.timeLimit = const Duration(seconds: 5),
+    this.periodic = const Duration(seconds: 10),
+  });
 
-  bool vDebugMode = false;
-  bool broadcast = false;
-
-  UDPClientSenderReceiver();
-
-  //нужно для повтора приема мультикаст сообщений...
-  bool repeatMulticastReceiver = false;
-
-  late RawDatagramSocket _udpSocket;
-  late Stream<RawSocketEvent> _streamController;
-  late StreamSubscription<dynamic> _streamSubscription;
-
-  Future<void> _bind({int port = 0}) async {
+  Future<RawDatagramSocket> _bind() async {
     try {
-      _udpSocket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, port);
-    } on Exception catch(e) {
-      Logger.print('err bind function: $e', name: 'err', error: true, );
-      //ignore: avoid_catches_without_on_clauses
-    } catch(ee, t){
-      Logger.print('$ee\n$t', name: 'err', error: true);
+      final serverAddress = (await InternetAddress.lookup(address)).first;
+      final udpSocket = await RawDatagramSocket.bind(
+          serverAddress.type == InternetAddressType.IPv6
+              ? InternetAddress.anyIPv6
+              : InternetAddress.anyIPv4, bindPort);
+      return udpSocket;
+    } on Exception catch(e, t){
+      throw UDPClientSenderReceiverException(
+          errorMessageText: 'Error bind Socket with:\n$e\n$t'
+      );
     }
   }
 
-  Future<void> _broadcastEnabled(bool value) async {
-    _udpSocket.broadcastEnabled = value;
+  Stream<RawSocketEvent> _timeOut({required RawDatagramSocket udpSocket}){
+    try{
+      final streamController = udpSocket.timeout(const Duration(seconds: 5),
+        onTimeout: (sink) {
+          Logger.print('${DateTime.now()}:Time Out Received.');
+          sink.close();
+        },
+      );
+      return streamController;
+    } on Exception catch(e, t){
+      throw UDPClientSenderReceiverException(
+          errorMessageText: 'Error timeOut Socket with:\n$e\n$t'
+      );
+    }
   }
 
-  void _setTimeOut() {
+  Future<int?> _send(String key, {
+    required RawDatagramSocket udpSocket,
+  }) async {
     try {
-      _streamController =
-          _udpSocket.timeout(Duration(seconds: timeOutUDP), onTimeout: (sink) {
-            Logger.print('${DateTime.now()}:Time Out Received.');
+      final serverAddress = (await InternetAddress.lookup(address)).first;
+      Logger.print('${DateTime.now()}:Send Data to server...');
+      return udpSocket.send(
+          utf8.encode(key), serverAddress, senderPort);
+    } on Exception catch (e, t) {
+      throw UDPClientSenderReceiverException(
+          errorMessageText: 'Error send Socket with:\n$e\n$t'
+      );
+    }
+  }
+
+
+  StreamSubscription<RawSocketEvent> _listen({
+    required Stream<RawSocketEvent> streamController,
+    required RawDatagramSocket udpSocket
+  }){
+    void onError(e){
+      Logger.print('Error streamController.listen: $e');
+    }
+
+    try{
+      return streamController.listen((rawSocketEvent) async {
+        final dg = udpSocket.receive();
+        if (dg != null) {
+          // if (dg.address == InternetAddress(ipAddress))
+          {
+            Logger.print('${DateTime.now()}:Received:${dg.data.length}');
+            final str =
+            utf8.decode(dg.data).replaceAll('\n','').replaceAll('\r','');
             final result = [
               DateTime.now(),
-              ipAddress,
-              port.toString(),
-              'Time Out Received.',
+              dg.address,
+              dg.port.toString(),
+              str,
             ];
             Logger.print(result.toString());
-
-            sink.close();
-            repeatMulticastReceiver = false;
-          });
-    } on Exception catch (e) {
-      Logger.print('err setTimeOut function: $e');
-    }
-  }
-
-  void _listenRawSocketEvent() {
-    try {
-      _streamSubscription =
-          _streamController.listen((rawSocketEvent) async {
-            final dg = _udpSocket.receive();
-            if (dg != null) {
-              if (dg.address == InternetAddress(ipAddress))
-              {
-                Logger.print('${DateTime.now()}:Received:');
-                final str =
-                utf8.decode(dg.data).replaceAll('\n', '').replaceAll('\r', '');
-                final result = [
-                  DateTime.now(),
-                  ipAddress,
-                  port.toString(),
-                  str,
-                ];
-                Logger.print(result.toString());
-                final json = jsonDecode(str) as Map<String, dynamic>;
-                if (json['key'] != Settings.key) {
-                  throw FormatException(
-                      '${DateTime.now()}: Expected ID code is not received or wrong!');
-                }
-
-              }
-              _udpSocket.close();
-              repeatMulticastReceiver = false;
+            final json = jsonDecode(str) as Map<String, dynamic>;
+            try {
+              final data = EnvironmentalConditions.fromJson(
+                json,
+                time: DateTime.now(),
+                host: '${dg.address.host}:${dg.port}',
+              );
+              Logger.print(data.toString(), safeToDisk: true);
+              stackDEC.add(data);
+            } on EnvironmentalConditionsException catch(e){
+              Logger.print(e.errorMessageText);
+            } on Exception catch(e, t){
+              Logger.print(e.toString());
+              Logger.print(t.toString());
             }
-          });
-    } on Exception catch (e) {
-      Logger.print('err setTimeOut function: $e');
-      _udpSocket.close();
-      repeatMulticastReceiver = false;
+          }
+          udpSocket.close();
+        }
+      },
+        onDone: udpSocket.close,
+        onError: onError,
+      );
+    } on Exception catch(e,t){
+      throw UDPClientSenderReceiverException(
+          errorMessageText: 'Error listen Socket with:\n$e\n$t'
+      );
     }
   }
 
-  Future<int?> _send(String data) async {
-    try {
-      Logger.print('${DateTime.now()}:Send Data to server...');
-      final result = [
-        DateTime.now(),
-        ipAddress,
-        port.toString(),
-        'Send Data to server...',
-      ];
-      Logger.print(result.toString());
-      return _udpSocket.send(
-          utf8.encode(data), InternetAddress(ipAddress), port);
-    } on Exception catch (e) {
-      Logger.print('err send function: $e');
-    }
-    return null;
+  Future<void> _startRcvUdp({
+    bool broadcastEnabled = true,
+    String key = Settings.key
+  }) async {
+    final udpSocket = await _bind();
+    final streamController = _timeOut(udpSocket: udpSocket);
+    udpSocket.broadcastEnabled = broadcastEnabled;
+    final streamSubscription = _listen(
+      streamController: streamController,
+      udpSocket: udpSocket,
+    );
+    if(bindPort == 0) await _send(key, udpSocket: udpSocket);
+    await streamSubscription.asFuture<void>();
+    await streamSubscription.cancel();
+    udpSocket.close();
   }
 
-  Future<void> sendAndReceiveDate({required String data}) async {
-    try {
-      await _bind();
-      _setTimeOut();
-      await _broadcastEnabled(broadcast);
-      _listenRawSocketEvent();
-      await _send(data);
-      await _streamSubscription.asFuture<void>();
-    } on Exception catch (e) {
-      Logger.print('err localReceiveDate function: $e');
-    }
-  }
 
-  Future<void> multicastReceiverDate() async {
-    try {
-      await _bind(port: port);
-      _setTimeOut();
-      await _broadcastEnabled(broadcast);
-      _listenRawSocketEvent();
-      await _streamSubscription.asFuture<void>();
-    } on Exception catch (e) {
-      Logger.print('err multicastReceiverDate function: $e');
-    }
-  }
-
-  void dispose() {
-    _streamSubscription.cancel();
-    _udpSocket.close();
+  Future<Timer> run({
+    bool broadcastEnabled = true
+  }) async {
+    await _startRcvUdp(broadcastEnabled: broadcastEnabled);
+    return Timer.periodic(periodic, (timer) async =>
+        _startRcvUdp(broadcastEnabled: broadcastEnabled),
+    );
   }
 }

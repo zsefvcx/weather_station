@@ -1,7 +1,9 @@
 import 'dart:developer' as dev;
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:weather_station/core/core.dart';
 
 
@@ -18,6 +20,7 @@ abstract class Logger {
       int level = 0,
       bool error = false,
       BuildContext? context,
+      bool safeToDisk = false,
     }) {
     final msg = message;
     if (kDebugMode || Settings.showLogData) {
@@ -33,5 +36,17 @@ abstract class Logger {
     //   return true;
     // }());
     if (context != null)  CustomShowSnackBar.showSnackBar(msg, context);
+
+    if(safeToDisk){
+      Future<void> function() async {
+        final directory = await getApplicationDocumentsDirectory();
+        final path = directory.path;
+        final localPath = '$path/logger_data.txt';
+        Logger.print(localPath);
+        final file = File(localPath);
+        await file.writeAsString('$msg\n', mode: FileMode.append);
+      }
+      function();
+    }
   }
 }
