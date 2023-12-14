@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:weather_station/common/common.dart';
 import 'package:weather_station/core/core.dart';
 
 class OpenWeatherClientException implements Exception {
