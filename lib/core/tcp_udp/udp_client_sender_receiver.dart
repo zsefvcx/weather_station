@@ -64,8 +64,8 @@ class UDPClientSenderReceiver {
     this.address = Settings.address,
     this.bindPort = Settings.bindPort,
     this.senderPort = Settings.senderPort,
-    this.timeLimit = Settings.timeLimit,
-    this.periodic = Settings.periodic,
+    this.timeLimit = Settings.timeLimitEC,
+    this.periodic = Settings.periodicEC,
   });
 
   Future<RawDatagramSocket> _bind() async {
@@ -176,9 +176,6 @@ class UDPClientSenderReceiver {
     String key = Settings.key
   }) async {
     try {
-      if(!(await networkInfo.isConnected)) {
-        Logger.print('${DateTime.now()}:type:$type:No Network Info Status');
-      }
       final udpSocket = await _bind();
       final streamController = _timeOut(udpSocket: udpSocket);
       udpSocket.broadcastEnabled = broadcastEnabled;

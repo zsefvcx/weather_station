@@ -18,11 +18,12 @@ class OpenWeatherClientException implements Exception {
 }
 
 class OpenWeatherClient {
-
-  final String _baseUrl = 'https://api.openweathermap.org/';
-  final String _geo = 'geo/1.0/direct';
-  final String _data = 'data/2.5/weather';
-  final String _unit = '&units=metric';
+  static const String _baseUrl = 'https://api.openweathermap.org/';
+  static const String _geo = 'geo/1.0/direct';
+  static const String _data = 'data/2.5/weather';
+  static const String _unit = '&units=metric';
+  //stack data
+  final StackDataOpenWeather stackDOW;
   //timeLimit - limit await udp response
   final Duration timeLimit;
   //periodic - frequency of requests
@@ -31,24 +32,40 @@ class OpenWeatherClient {
   final NetworkInfo networkInfo;
 
   const OpenWeatherClient({
+    required this.stackDOW,
     required this.networkInfo,
-    this.timeLimit = Settings.timeLimit,
-    this.periodic = Settings.periodic,
+    this.timeLimit = Settings.timeLimitWD,
+    this.periodic = Settings.periodicWD,
   });
 
-  Uri get uriGeoPosition => Uri.parse(
-      '$_baseUrl$_geo?q${Settings.sCity}&appid${Settings.appid}'
-  );
+  Uri _getUriGeoPosition() {
+    //'https://api.openweathermap.org/geo/1.0/direct?'
+    //'q=$sCity'
+    //'&appid=$appid'
+    final url =  '$_baseUrl$_geo?q=${Settings.sCity}&appid=${Settings.appid}';
+    Logger.print('uriGeoPosition: $url');
+    return Uri.parse(
+      url
+    );
+  }
 
-  Uri get uriWeatherStatus => Uri.parse(
-      '$_baseUrl$_data?lat${Settings.lat}&lon${Settings.lon}$_unit&appid${Settings.appid}'
-  );
+  Uri _getUriWeatherStatus({required double lat, required double lon}) {
+    //'https://api.openweathermap.org/data/2.5/weather?'
+    //         'lat=$lat'
+    //         '&lon=$lon'
+    //         '&units=metric'
+    //         '&appid=$appid'
+    final url = '$_baseUrl$_data?lat=${Settings.lat}&lon=${Settings.lon}$_unit&appid=${Settings.appid}';
+    Logger.print('uriWeatherStatus: $url');
+    return Uri.parse(
+      url
+    );
+  }
 
-  Future<({double lat, double lon})> _getPosition() async {
+  Future<({double lat, double lon})> _getPosition({required Uri uri}) async {
     try {
       var lat = Settings.lat;
       var lon = Settings.lon;
-      final uri = uriGeoPosition;
       final response = await http.get(uri);
       Logger.print('Response status: ${response.statusCode}');
       if (response.statusCode == 200){
@@ -58,9 +75,15 @@ class OpenWeatherClient {
           Logger.print('Response body_json: $jsonMap');
           lat = (jsonMap['lat'] as double?)??lat;
           lon = (jsonMap['lon'] as double?)??lon;
+          return (lat: lat, lon: lon);
         }
+        throw OpenWeatherClientException(
+          errorMessageText: 'Wrong getPosition response date: ${response.statusCode}'
+        );
       }
-      return ({lat: lat, lon: lon});
+      throw OpenWeatherClientException(
+        errorMessageText: 'Wrong getPosition status code: ${response.statusCode}'
+      );
     } on Exception catch(e, t) {
       throw OpenWeatherClientException(
           errorMessageText: 'Error getPosition OpenWeatherClient with:\n$e\n$t'
@@ -68,15 +91,49 @@ class OpenWeatherClient {
     }
   }
 
+  Future<Map<String, dynamic>> _getWeather({required Uri uri}) async {
+    try {
+      final response = await http.get(uri);
+      Logger.print('Response status: ${response.statusCode}');
+      if (response.statusCode == 200){
+        final jsonList0 = jsonDecode(response.body) as Map<String, dynamic>?;
+        if(jsonList0 != null){
+          return jsonList0;
+        }
+        throw OpenWeatherClientException(
+            errorMessageText: 'Wrong getWeather response date: ${response.statusCode}'
+        );
+      }
+      throw OpenWeatherClientException(
+            errorMessageText: 'Wrong getWeather status code: ${response.statusCode}'
+      );
+    } on Exception catch(e, t) {
+      throw OpenWeatherClientException(
+          errorMessageText: 'Error getPosition OpenWeatherClient with:\n$e\n$t'
+      );
+    }
+  }
 
   Future<void> _startRcvWeather() async {
     try {
       if(!(await networkInfo.isConnected)) {
         Logger.print('${DateTime.now()}:WeatherClient: No Network Info Status');
+        return;
       }
-
-
-
+      final uriGeo = _getUriGeoPosition();
+      Logger.print('uriGeo.path: ${uriGeo.path}');
+      final position = await _getPosition(uri: uriGeo);
+      Logger.print('position{Lat:${position.lat},Lon:${position.lon}}');
+      final uriWeather = _getUriWeatherStatus(
+          lat:position.lat,
+          lon:position.lon
+      );
+      Logger.print('uriWeather.path: ${uriWeather.path}');
+      final weatherJson = await _getWeather(uri: uriWeather);
+      Logger.print('Weather: $weatherJson');
+      final weatherDate = WeatherDate.fromJson(weatherJson);
+      Logger.print('weatherDate: ${weatherDate.toJson()}');
+      stackDOW.add(weatherDate);
     } on Exception catch(e, t) {
       throw OpenWeatherClientException(
           errorMessageText: 'Error getPosition OpenWeatherClient with:\n$e\n$t'

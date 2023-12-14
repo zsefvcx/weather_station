@@ -17,35 +17,50 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final stackDEC = context.watch<StackDataEnvironmentalConditions>();
-
+    final stackDOW = context.watch<StackDataOpenWeather>();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget._title),
       ),
       body: SafeArea(
-        child: Center(
-          child: Container(
-            color: Colors.white,
-            width: double.infinity,
-            height: double.infinity,
-            child: ListView.builder(
-              key: globalKey,
-              controller: ScrollController(),
-              itemCount: stackDEC.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
-                    child: Center(
-                      child: Text('$index:${stackDEC.elementAt(index).toJson()}',
-                        overflow: TextOverflow.fade,
+        child: Padding(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if(stackDOW.length>0)Card(child: Padding(
+                padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                child: Text('${stackDOW.last}'.hardcoded),
+              )),
+              if(stackDEC.length>0)Card(child: Padding(
+                padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                child: Text('${stackDEC.last}'.hardcoded),
+              )),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                child: Text('History:'.hardcoded),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  key: globalKey,
+                  controller: ScrollController(),
+                  itemCount: stackDEC.length,
+                  itemBuilder: (context, index) {
+                    return Card(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
+                        child: Center(
+                          child: Text('$index:${stackDEC.elementAt(index).toJson()}',
+                            overflow: TextOverflow.fade,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
