@@ -8,6 +8,9 @@ class StackDataEnvironmentalConditions extends ChangeNotifier{
   static const _maxCount = Settings.maxCountStackEC;
 
   int get length => _data.length;
+  bool get isEmpty => _data.isEmpty;
+  bool get isNotEmpty => _data.isNotEmpty;
+
   EnvironmentalConditions elementAt(int index) => _data.elementAt(index);
   EnvironmentalConditions get first => _data.first;
   EnvironmentalConditions get last => _data.last;
@@ -28,6 +31,9 @@ class StackDataOpenWeather extends ChangeNotifier{
   static const _maxCount = Settings.maxCountStackWD;
 
   int get length => _data.length;
+  bool get isEmpty => _data.isEmpty;
+  bool get isNotEmpty => _data.isNotEmpty;
+
   WeatherDate elementAt(int index) => _data.elementAt(index);
   WeatherDate get first => _data.first;
   WeatherDate get last => _data.last;

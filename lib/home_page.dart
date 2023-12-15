@@ -22,7 +22,11 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget._title),
+        centerTitle: true,
+        title: Padding(
+          padding: const EdgeInsets.only(left: 25, right: 25),
+          child: Text(widget._title),
+        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -30,11 +34,11 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if(stackDOW.length>0)Card(child: Padding(
+              if(stackDOW.isNotEmpty)Card(child: Padding(
                 padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
                 child: Text('${stackDOW.last}'.hardcoded),
               )),
-              if(stackDEC.length>0)Card(child: Padding(
+              if(stackDEC.isNotEmpty)Card(child: Padding(
                 padding: const EdgeInsets.fromLTRB(15, 5, 15, 5),
                 child: Text('${stackDEC.last}'.hardcoded),
               )),
