@@ -6,9 +6,10 @@ abstract class Settings {
   static const String key = 'AAAAAB_KEY:16032023';
 
   ///Число логов на основных
+  ///Дефолтное значение для всех
+  static const int maxCountStack = 40000;
   ///Для метеостанции
   static const int maxCountStackEC = 40000;
-
   ///Для погодного клиента
   static const int maxCountStackWD = 100;
 
@@ -39,7 +40,11 @@ abstract class Settings {
 
   ///Часы
   ///переодичность
-  static const Duration periodic = Duration(seconds: 60);
+  static const Duration periodicDT = Duration(seconds: 60);
+
+  ///Переодичность дефолтная
+  static const Duration periodic = Duration(seconds: 30);
+
 
   ///Параметры OpenWeather
   ///город

@@ -27,8 +27,6 @@
 //   Widget build(BuildContext context) {
 //     List<DataValue> listDataValue = Provider.of<List<DataValue>>(context);
 //
-//     EnvConditions evnState = context.watch<EnvConditions>();
-//
 //     return Column(children: [
 //       SizedBox(
 //         height: widget._height,

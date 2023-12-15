@@ -17,7 +17,7 @@ class CurrentDateTime extends ChangeNotifier {
 
   void run() {
     update();
-    _timer = Timer.periodic(Settings.periodic, (timer) => update());
+    _timer = Timer.periodic(Settings.periodicDT, (timer) => update());
   }
 
   @override
