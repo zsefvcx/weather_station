@@ -1,5 +1,12 @@
 {
     "configurations": [
+        
+        {
+            "name": "Flutter",
+            "request": "launch",
+            "type": "dart",
+            "program": "lib/main.dart"
+        },
         {
             "name": "Launch Chrome",
             "request": "launch",
