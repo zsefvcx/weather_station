@@ -124,11 +124,15 @@ startNext:
   EEPROM.begin(512);
     char buffer[sizeof(currentAPData)];  
     memset(&buffer, 0x00, sizeof(currentAPData));
-    for(unsigned int add=sizeof(currentAPData)*i; add < sizeof(currentAPData)*(i+1); add++){
-      buffer[add] = EEPROM.read(add);
+    for(unsigned int add=0; add < sizeof(currentAPData); add++){
+      buffer[add] = EEPROM.read(add+sizeof(currentAPData)*i);
     }
     memcpy((char *)&currentAPData, buffer, sizeof(currentAPData));
   EEPROM.end();
+Serial.print  (F("i: ")); Serial.println(i);
+Serial.print  (F("currentAPData.key: ")); Serial.println(currentAPData.key);
+Serial.print  (F("currentAPData.ssid: ")); Serial.println(currentAPData.ssid);
+Serial.print  (F("currentAPData.pass: ")); Serial.println(currentAPData.pass);
 
   pinMode(RESETWIFI, INPUT_PULLUP);
 
@@ -159,8 +163,8 @@ startNext:
       memcpy(&(currentAPData.ssid), (char *)&(portalCfg.SSID), sizeof(portalCfg.SSID));
       memcpy(&(currentAPData.pass), (char *)&(portalCfg.pass), sizeof(portalCfg.pass));
       memcpy(&buffer, (char *)&currentAPData, sizeof(currentAPData));
-      for(unsigned int add=0; add<sizeof(portalCfg); add++){
-        EEPROM.write(add, buffer[add]);
+      for(unsigned int add=0; add<sizeof(currentAPData); add++){
+        EEPROM.write(add+sizeof(currentAPData)*i, buffer[add]);
         EEPROM.commit();
       }
       EEPROM.end();
@@ -274,7 +278,7 @@ void setStatusFW(){
   statusFW.Altitude= aBmpInt;
   statusFW.t2      = tDhtExt;
   statusFW.h2      = hDhtEct;
-  statusFW.src = getHash((byte*)&statusFW, sizeof(statusFW));
+  statusFW.src     = getHash((byte*)&statusFW, sizeof(statusFW));
 }
 
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE + 1];
