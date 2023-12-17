@@ -14,12 +14,12 @@ void main() {
   final networkInfo =
       NetworkInfoImp(internetConnectionChecker: internetConnectionChecker);
 
-  final udpMultyCastReceiver = UDPClientSenderReceiver(
+  final odpMultiCastReceiver = UDPClientSenderReceiver(
     stackDEC: stackDEC,
     type: TypeDataRcv.multy,
     networkInfo: networkInfo,
   );
-  unawaited(udpMultyCastReceiver.run());
+  unawaited(odpMultiCastReceiver.run());
   //final timer = await udpClientSenderReceiver.run();
   //timer.cancel();
 
