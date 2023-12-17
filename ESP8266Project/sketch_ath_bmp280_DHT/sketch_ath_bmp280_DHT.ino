@@ -118,11 +118,13 @@ void setup() {
   delayMS = sensor.min_delay / 1000;
   Serial.print(F("delayMS")); Serial.println(delayMS);
   Serial.println(F("-START-LOOP-------------------------"));
-
+  int i = -1;
+startNext:
+  i++; if(i>=4)i=0;
   EEPROM.begin(512);
     char buffer[sizeof(currentAPData)];  
     memset(&buffer, 0x00, sizeof(currentAPData));
-    for(unsigned int add=0; add < sizeof(currentAPData); add++){
+    for(unsigned int add=sizeof(currentAPData)*i; add < sizeof(currentAPData)*(i+1); add++){
       buffer[add] = EEPROM.read(add);
     }
     memcpy((char *)&currentAPData, buffer, sizeof(currentAPData));
@@ -133,9 +135,12 @@ void setup() {
   if(currentAPData.key == 0xAB && digitalRead(RESETWIFI) == LOW){
     WiFi.begin(currentAPData.ssid, currentAPData.pass);
     Serial.println("");
+    int i = 0;
     while (WiFi.status() != WL_CONNECTED) {
       delay(500);
       Serial.print(".");
+      i++;
+      if(i >= 25) goto startNext;
     }
   } 
   else
