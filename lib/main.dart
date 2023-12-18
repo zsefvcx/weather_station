@@ -18,7 +18,7 @@ void main() {
   final odpMultiCastReceiver = UDPClientSenderReceiver(
     stackDEC: stackDEC,
     stackCDV: stackCDV,
-    type: TypeDataRcv.multy,
+    type: TypeDataRcv.multi,
     networkInfo: networkInfo,
   );
   unawaited(odpMultiCastReceiver.run());
@@ -28,7 +28,7 @@ void main() {
   final udpClient = UDPClientSenderReceiver(
     stackDEC: stackDEC,
     stackCDV: stackCDV,
-    type: TypeDataRcv.syngl,
+    type: TypeDataRcv.single,
     networkInfo: networkInfo,
     address: Settings.remoutAddress,
     bindPort: 0,

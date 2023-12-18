@@ -6,8 +6,8 @@ import 'package:weather_station/common/common.dart';
 import 'package:weather_station/core/core.dart';
 
 enum TypeDataRcv{
-  multy,
-  syngl,
+  multi,
+  single,
   type2,
   type3;
 
@@ -15,9 +15,9 @@ enum TypeDataRcv{
   String toString(){
     switch (index){
       case 0:
-        return 'multycast';
+        return 'multicast';
       case 1:
-        return 'singlcast';
+        return 'singlecast';
       case 2:
         return 'type2Broadcast';
       case 3:
