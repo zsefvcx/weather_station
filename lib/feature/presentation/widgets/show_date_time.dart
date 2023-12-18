@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:weather_station/core/data/current_date_time.dart';
+import 'package:weather_station/core/timer/current_date_time.dart';
 
 class ShowDateTime extends StatelessWidget {
   const ShowDateTime({
