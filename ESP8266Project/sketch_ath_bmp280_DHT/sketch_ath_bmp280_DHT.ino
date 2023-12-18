@@ -149,6 +149,7 @@ Serial.print  (F("currentAPData.pass: ")); Serial.println(currentAPData.pass);
   } 
   else
   {
+startNextPortalRun:
     portalRun(300000);  // запустить с таймаутом 60с
     //portalRun(30000); // запустить с кастомным таймаутом
     Serial.println(portalStatus());
@@ -171,10 +172,15 @@ Serial.print  (F("currentAPData.pass: ")); Serial.println(currentAPData.pass);
       // забираем логин-пароль
       WiFi.begin(portalCfg.SSID, portalCfg.pass);
       Serial.println("");
+      int j = 0;
       while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
+        i++;
+        if(i >= 25) goto startNextPortalRun;
       }
+    } else {
+      goto startNextPortalRun;
     }
   }
 
