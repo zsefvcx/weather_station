@@ -30,10 +30,22 @@ void main() {
     stackCDV: stackCDV,
     type: TypeDataRcv.single,
     networkInfo: networkInfo,
-    address: Settings.remoutAddress,
+    address: Settings.remoteAddress,
     bindPort: 0,
   );
   unawaited(udpClient.run(broadcastEnabled: false));
+  //final timer = await udpClient.run();
+  //timer.cancel();
+
+  final udpClient2 = UDPClientSenderReceiver(
+    stackDEC: stackDEC,
+    stackCDV: stackCDV,
+    type: TypeDataRcv.single,
+    networkInfo: networkInfo,
+    address: Settings.remoteAddress2,
+    bindPort: 0,
+  );
+  unawaited(udpClient2.run(broadcastEnabled: false));
   //final timer = await udpClient.run();
   //timer.cancel();
 

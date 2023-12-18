@@ -151,7 +151,7 @@ Serial.print  (F("currentAPData.pass: ")); Serial.println(currentAPData.pass);
   {
 startNextPortalRun:
     portalRun(300000);  // запустить с таймаутом 60с
-    //portalRun(30000); // запустить с кастомным таймаутом
+    //portalRun(30000); // запустить с кастомных таймаутом
     Serial.println(portalStatus());
     // статус: 0 error, 1 connect, 2 ap, 3 local, 4 exit, 5 timeout
     if (portalStatus() == SP_SUBMIT) {
@@ -321,7 +321,7 @@ void loop() {
   statusToJson(-1);
   Serial.println(F("-serializeJson----------------------"));
   serializeJson(jsonDocument, Serial);Serial.println();
-  Serial.println(F("-SendRecvData-----------------------"));
+  Serial.println(F("-SendReceiveData-----------------------"));
   int i = 0;
   do{
     Serial.println(F("------------------------------------"));
@@ -367,7 +367,7 @@ void loop() {
           Udp.endPacket();
         }
       } else {
-          Serial.println(F("-serializeJson-To-UDP-MULTYCAST------"));
+          Serial.println(F("-serializeJson-To-UDP-MULTICAST------"));
           server.handleClient();
           IPAddress broadcastIp(255,255,255,255);//239, 255, 255, 250);
           Udp.beginPacket(broadcastIp,localPort);

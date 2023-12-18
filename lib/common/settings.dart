@@ -20,9 +20,10 @@ abstract class Settings {
   static const String address = '127.0.0.1';
   static const int bindPort = 8088;
 
-  ///удаленный ip адресс для принудительного опроса
-  static const String remoutAddress = '192.168.100.12';
-
+  ///удаленный ip адрес для принудительного опроса
+  static const String remoteAddress = '192.168.100.12';
+  static const String remoteAddress2 = '192.168.2.149';
+  //
   ///порт принудительного опроса
   static const int senderPort = 8088;
 
@@ -30,21 +31,21 @@ abstract class Settings {
   ///лимит опроса
   static const Duration timeLimitEC = Duration(seconds: 5);
 
-  ///переодичность
+  ///периодичность
   static const Duration periodicEC = Duration(seconds: 10);
 
   ///Опрос для погодного клиента
   ///лимит опроса
   static const Duration timeLimitWD = Duration(seconds: 5);
 
-  ///переодичность
+  ///периодичность
   static const Duration periodicWD = Duration(minutes: 30);
 
   ///Часы
-  ///переодичность
+  ///периодичность
   static const Duration periodicDT = Duration(seconds: 60);
 
-  ///Переодичность дефолтная
+  ///Периодичность дефолтная
   static const Duration periodic = Duration(seconds: 30);
 
 
@@ -69,6 +70,6 @@ abstract class Settings {
     Colors.deepOrangeAccent,
   ];
 
-  //Константа для перевода давленияя в мм рт.ст.
+  //Константа для перевода давления в мм рт.ст.
   static const toMmHg = 0.00750063755419211;
 }

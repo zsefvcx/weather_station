@@ -78,12 +78,12 @@ class _ChartWidgetState extends State<ChartWidget> {
                       if(_isCheckedTemperature1){
                         return victims.t1;
                       }
-                      // if(_isCheckedAirHumidity2){
-                      //   return victims.h1;
-                      // }
-                      // if(_isCheckedPressure3){
-                      //   return victims.p1;
-                      // }
+                      if(_isCheckedAirHumidity2){
+                        return victims.h1;
+                      }
+                      if(_isCheckedPressure3){
+                        return victims.p1;
+                      }
                       throw UnimplementedError();
                     },
                     animationDuration: 0,
@@ -101,12 +101,12 @@ class _ChartWidgetState extends State<ChartWidget> {
                       if(_isCheckedTemperature1){
                         return victims.t2;
                       }
-                      // if(_isCheckedAirHumidity2){
-                      //   return victims.h2;
-                      // }
-                      // if(_isCheckedPressure3){
-                      //   return victims.p2;
-                      // }
+                      if(_isCheckedAirHumidity2){
+                        return victims.h2;
+                      }
+                      if(_isCheckedPressure3){
+                        return victims.p2;
+                      }
                       throw UnimplementedError();
                     },
                     animationDuration: 0,
@@ -124,12 +124,12 @@ class _ChartWidgetState extends State<ChartWidget> {
                         if(_isCheckedTemperature1){
                           return victims.t3;
                         }
-                        // if(_isCheckedAirHumidity2){
-                        //   return victims.h3;
-                        // }
-                        // if(_isCheckedPressure3){
-                        //   return victims.p3;
-                        // }
+                        if(_isCheckedAirHumidity2){
+                          return victims.h3;
+                        }
+                        if(_isCheckedPressure3){
+                          return victims.p3;
+                        }
                         throw UnimplementedError();
                       },
                       animationDuration: 0,
