@@ -9,6 +9,7 @@ import 'package:weather_station/weather_station_app.dart';
 void main() {
   final stackDEC = StackDataEnvironmentalConditions();
   final stackDOW = StackDataOpenWeather();
+  final stackCDV = StackChartDataValue();
   final internetConnectionChecker = InternetConnectionChecker();
 
   final networkInfo =
@@ -16,6 +17,7 @@ void main() {
 
   final odpMultiCastReceiver = UDPClientSenderReceiver(
     stackDEC: stackDEC,
+    stackCDV: stackCDV,
     type: TypeDataRcv.multy,
     networkInfo: networkInfo,
   );
@@ -25,6 +27,7 @@ void main() {
 
   final udpClient = UDPClientSenderReceiver(
     stackDEC: stackDEC,
+    stackCDV: stackCDV,
     type: TypeDataRcv.syngl,
     networkInfo: networkInfo,
     address: Settings.remoutAddress,
@@ -34,8 +37,11 @@ void main() {
   //final timer = await udpClient.run();
   //timer.cancel();
 
-  final openWeatherClient =
-      OpenWeatherClient(stackDOW: stackDOW, networkInfo: networkInfo);
+  final openWeatherClient = OpenWeatherClient(
+    stackDOW: stackDOW,
+    stackCDV: stackCDV,
+    networkInfo: networkInfo
+  );
   unawaited(openWeatherClient.run());
   //final timer = await openWeatherClient.run();
   //timer.cancel();
@@ -46,5 +52,6 @@ void main() {
     currentDateTime: currentDateTime,
     stackDEC: stackDEC,
     stackDOW: stackDOW,
+    stackCDV: stackCDV,
   ));
 }

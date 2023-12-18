@@ -9,15 +9,18 @@ import 'package:weather_station/home_page.dart';
 class WeatherAppStation extends StatelessWidget {
   final StackDataEnvironmentalConditions _stackDEC;
   final StackDataOpenWeather _stackDOW;
+  final StackChartDataValue _stackCDV;
   final CurrentDateTime _currentDateTime;
 
-  const WeatherAppStation(
-      {required StackDataEnvironmentalConditions stackDEC,
-      required StackDataOpenWeather stackDOW,
-      required CurrentDateTime currentDateTime,
-      super.key})
-      : _stackDEC = stackDEC,
+  const WeatherAppStation({
+    required StackDataEnvironmentalConditions stackDEC,
+    required StackDataOpenWeather stackDOW,
+    required StackChartDataValue stackCDV,
+    required CurrentDateTime currentDateTime,
+    super.key
+    }): _stackDEC = stackDEC,
         _stackDOW = stackDOW,
+        _stackCDV = stackCDV,
         _currentDateTime = currentDateTime;
 
   @override
@@ -27,6 +30,7 @@ class WeatherAppStation extends StatelessWidget {
         ChangeNotifierProvider<StackDataEnvironmentalConditions>(
             create: (_) => _stackDEC),
         ChangeNotifierProvider<StackDataOpenWeather>(create: (_) => _stackDOW),
+        ChangeNotifierProvider<StackChartDataValue>(create: (_) => _stackCDV),
         ChangeNotifierProvider<CurrentDateTime>(
             create: (_) => _currentDateTime),
       ],

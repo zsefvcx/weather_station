@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 abstract class Settings {
   ///Показывать логи
   static bool showLogData = true;
@@ -58,4 +60,15 @@ abstract class Settings {
 
   ///долгота
   static double lon = 42.075169;
+
+  ///Цвета для графиков
+  static const List<Color> color = [
+    Colors.black,
+    Colors.deepPurpleAccent,
+    Colors.green,
+    Colors.deepOrangeAccent,
+  ];
+
+  //Константа для перевода давленияя в мм рт.ст.
+  static const toMmHg = 0.00750063755419211;
 }

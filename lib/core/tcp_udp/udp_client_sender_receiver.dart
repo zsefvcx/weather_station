@@ -43,6 +43,8 @@ class UDPClientSenderReceiverException implements Exception {
 class UDPClientSenderReceiver {
   //stack data
   final StackDataEnvironmentalConditions stackDEC;
+  //stack data for chart
+  final StackChartDataValue stackCDV;
   //Internr addres in text format: 'pool.ntp.org' or '127.0.0.1'
   final String address;
   //UDP bindPort = 0 as sender, = anyOther as resiver
@@ -60,6 +62,7 @@ class UDPClientSenderReceiver {
 
   const UDPClientSenderReceiver({
     required this.stackDEC,
+    required this.stackCDV,
     required this.networkInfo,
     required this.type,
     this.address = Settings.address,
@@ -144,14 +147,17 @@ class UDPClientSenderReceiver {
             Logger.print(result.toString());
             final json = jsonDecode(str) as Map<String, dynamic>;
             try {
-              final data = EnvironmentalConditions.fromJson(
+              final dataEC = EnvironmentalConditions.fromJson(
                 json,
                 time: DateTime.now(),
                 host: '${dg.address.host}:${dg.port}',
                 type: type,
               );
-              Logger.print(data.toString(), safeToDisk: true);
-              stackDEC.add(data);
+              Logger.print(dataEC.toString(), safeToDisk: true);
+              stackDEC.add(dataEC);
+              final dataChart = ChartDataValue.fromEnvironmentalConditions(dataEC);
+              Logger.print(dataChart.toString());
+              stackCDV.add(dataChart);
             } on EnvironmentalConditionsException catch(e){
               Logger.print(e.errorMessageText);
             } on Exception catch(e, t){
@@ -202,6 +208,11 @@ class UDPClientSenderReceiver {
       await _startRcvUdp(broadcastEnabled: broadcastEnabled);
       return Timer.periodic(periodic, (timer) async =>
           _startRcvUdp(broadcastEnabled: broadcastEnabled),
+      );
+    }  on UDPClientSenderReceiverException catch(e){
+      Logger.print(e.errorMessageText);
+      throw UDPClientSenderReceiverException(
+          errorMessageText: e.errorMessageText
       );
     } on Exception catch(e, t) {
       throw UDPClientSenderReceiverException(

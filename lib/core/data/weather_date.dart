@@ -1,5 +1,6 @@
 
 import 'package:flutter/cupertino.dart';
+import 'package:weather_station/common/common.dart';
 
 @immutable
 class WeatherDate{
@@ -293,14 +294,14 @@ class Weather {
 
 @immutable
 class MainStatus{
-  final double? temp;
-  final double? feelsLike;
-  final double? tempMin;
-  final double? tempMax;
-  final int? pressure;
-  final int? humidity;
-  final int? seaLevel;
-  final int? grndLevel;
+  final num? temp;
+  final num? feelsLike;
+  final num? tempMin;
+  final num? tempMax;
+  final num? pressure;
+  final num? humidity;
+  final num? seaLevel;
+  final num? grndLevel;
 
   const MainStatus({
     this.temp,
@@ -352,14 +353,14 @@ class MainStatus{
   }
 
   MainStatus copyWith({
-    double? temp,
-    double? feelsLike,
-    double? tempMin,
-    double? tempMax,
-    int? pressure,
-    int? humidity,
-    int? seaLevel,
-    int? grndLevel,
+    num? temp,
+    num? feelsLike,
+    num? tempMin,
+    num? tempMax,
+    num? pressure,
+    num? humidity,
+    num? seaLevel,
+    num? grndLevel,
   }) {
     return MainStatus(
       temp: temp ?? this.temp,
@@ -374,12 +375,13 @@ class MainStatus{
   }
 
   Map<String, dynamic> toJson() {
+    final pressureThis = pressure;
     return {
       'temp': temp,
       'feelsLike': feelsLike,
       'tempMin': tempMin,
       'tempMax': tempMax,
-      'pressure': pressure,
+      'pressure': pressureThis!=null?(pressureThis~/(Settings.toMmHg*100)):null,
       'humidity': humidity,
       'seaLevel': seaLevel,
       'grndLevel': grndLevel,
@@ -387,24 +389,25 @@ class MainStatus{
   }
 
   factory MainStatus.fromJson(Map<String, dynamic> map) {
+    final pressure = map['pressure'] as num?;
     return MainStatus(
-      temp: map['temp'] as double?,
-      feelsLike: map['feels_like'] as double?,
-      tempMin: map['temp_min'] as double?,
-      tempMax: map['temp_max'] as double?,
-      pressure: map['pressure'] as int?,
-      humidity: map['humidity'] as int?,
-      seaLevel: map['sea_level'] as int?,
-      grndLevel: map['grnd_level'] as int?,
+      temp: map['temp'] as num?,
+      feelsLike: map['feels_like'] as num?,
+      tempMin: map['temp_min'] as num?,
+      tempMax: map['temp_max'] as num?,
+      pressure: pressure!=null?((pressure*100*Settings.toMmHg).toInt()):null,
+      humidity: map['humidity'] as num?,
+      seaLevel: map['sea_level'] as num?,
+      grndLevel: map['grnd_level'] as num?,
     );
   }
 }
 
 @immutable
 class Wind {
-  final double? speed;
-  final int? deg;
-  final double? gust;
+  final num? speed;
+  final num? deg;
+  final num? gust;
 
   const Wind({
     this.speed,
@@ -430,9 +433,9 @@ class Wind {
   }
 
   Wind copyWith({
-    double? speed,
-    int? deg,
-    double? gust,
+    num? speed,
+    num? deg,
+    num? gust,
   }) {
     return Wind(
       speed: speed ?? this.speed,
@@ -451,9 +454,9 @@ class Wind {
 
   factory Wind.fromJson(Map<String, dynamic> map) {
     return Wind(
-      speed: map['speed'] as double?,
-      deg: map['deg'] as int?,
-      gust: map['gust'] as double?,
+      speed: map['speed'] as num?,
+      deg: map['deg'] as num?,
+      gust: map['gust'] as num?,
     );
   }
 
@@ -461,7 +464,7 @@ class Wind {
 
 @immutable
 class Clouds {
-  final int? all;
+  final num? all;
 
   const Clouds({
     this.all,
@@ -496,7 +499,7 @@ class Clouds {
 
   factory Clouds.fromJson(Map<String, dynamic> map) {
     return Clouds(
-      all: map['all'] as int?,
+      all: map['all'] as num?,
     );
   }
 
@@ -505,8 +508,8 @@ class Clouds {
 @immutable
 class Sys {
   final String? country;
-  final int? sunrise;
-  final int? sunset;
+  final num? sunrise;
+  final num? sunset;
 
   const Sys({
     this.country,
@@ -533,8 +536,8 @@ class Sys {
 
   Sys copyWith({
     String? country,
-    int? sunrise,
-    int? sunset,
+    num? sunrise,
+    num? sunset,
   }) {
     return Sys(
       country: country ?? this.country,
@@ -554,8 +557,8 @@ class Sys {
   factory Sys.fromJson(Map<String, dynamic> map) {
     return Sys(
       country: map['country'] as String?,
-      sunrise: map['sunrise'] as int?,
-      sunset: map['sunset'] as int?,
+      sunrise: map['sunrise'] as num?,
+      sunset: map['sunset'] as num?,
     );
   }
 }

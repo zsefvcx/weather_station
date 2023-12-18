@@ -16,6 +16,7 @@ dependencies:
   internet_connection_checker: ^1.0.0+1
   http: ^1.1.2
   dual_screen: ^1.0.4
+  syncfusion_flutter_charts: ^24.1.41
 
 dev_dependencies:
   flutter_test:

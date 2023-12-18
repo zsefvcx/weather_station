@@ -25,6 +25,8 @@ class OpenWeatherClient {
   static const String _unit = '&units=metric';
   //stack data
   final StackDataOpenWeather stackDOW;
+  //stack data for chart
+  final StackChartDataValue stackCDV;
   //timeLimit - limit await udp response
   final Duration timeLimit;
   //periodic - frequency of requests
@@ -34,6 +36,7 @@ class OpenWeatherClient {
 
   const OpenWeatherClient({
     required this.stackDOW,
+    required this.stackCDV,
     required this.networkInfo,
     this.timeLimit = Settings.timeLimitWD,
     this.periodic = Settings.periodicWD,
@@ -135,6 +138,12 @@ class OpenWeatherClient {
       final weatherDate = WeatherDate.fromJson(weatherJson);
       Logger.print('weatherDate: ${weatherDate.toJson()}');
       stackDOW.add(weatherDate);
+      final dataChart = ChartDataValue.fromWeatherDate(
+          weatherDate,
+          time: DateTime.now(),
+      );
+      Logger.print(dataChart.toString());
+      stackCDV.add(dataChart);
     } on Exception catch(e, t) {
       throw OpenWeatherClientException(
           errorMessageText: 'Error getPosition OpenWeatherClient with:\n$e\n$t'
@@ -147,6 +156,11 @@ class OpenWeatherClient {
       await _startRcvWeather();
       return Timer.periodic(periodic, (timer) async =>
           _startRcvWeather(),
+      );
+    } on OpenWeatherClientException catch(e){
+      Logger.print(e.errorMessageText);
+      throw OpenWeatherClientException(
+          errorMessageText: e.errorMessageText
       );
     } on Exception catch(e, t) {
       throw OpenWeatherClientException(

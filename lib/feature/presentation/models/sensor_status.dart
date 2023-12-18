@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 @immutable
 class SensorStatus {
-  final double temp;
+  final num temp;
   final num humid;
   final num? press;
   final int numberWidget;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:weather_station/common/common.dart';
 
-abstract class CustomStack<T> with ChangeNotifier{
+abstract class CustomStack<T> extends ChangeNotifier{
   final Set<T> _data = <T>{};
   final int maxCount;
 
@@ -9,6 +8,7 @@ abstract class CustomStack<T> with ChangeNotifier{
     required this.maxCount
   });
 
+  List<T> get toList => _data.toList();
   int get length => _data.length;
   bool get isEmpty => _data.isEmpty;
   bool get isNotEmpty => _data.isNotEmpty;

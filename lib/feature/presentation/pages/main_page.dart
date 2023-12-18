@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:weather_station/core/core.dart';
 import 'package:weather_station/feature/presentation/presentation.dart';
+import 'package:weather_station/feature/presentation/widgets/chart_widget.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({
@@ -74,6 +75,9 @@ class _MainPageState extends State<MainPage> {
                 typeSensor: 'External',
                 temp: stackDEC.last.temperature2,
                 humid: stackDEC.last.humidity2,),
+              ),
+              const Expanded(
+                child: ChartWidget(),
               ),
             ],
           ),
