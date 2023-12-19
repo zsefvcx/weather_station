@@ -65,11 +65,11 @@ class UDPClientSenderReceiver {
     required this.stackCDV,
     required this.networkInfo,
     required this.type,
-    this.address = Settings.address,
-    this.bindPort = Settings.bindPort,
-    this.senderPort = Settings.senderPort,
-    this.timeLimit = Settings.timeLimitEC,
-    this.periodic = Settings.periodicEC,
+    this.address = Constants.address,
+    this.bindPort = Constants.bindPort,
+    this.senderPort = Constants.senderPort,
+    this.timeLimit = Constants.timeLimitEC,
+    this.periodic = Constants.periodicEC,
   });
 
   Future<RawDatagramSocket> _bind() async {
@@ -180,7 +180,7 @@ class UDPClientSenderReceiver {
 
   Future<void> _startRcvUdp({
     bool broadcastEnabled = true,
-    String key = Settings.key
+    String key = Constants.key
   }) async {
     try {
       final udpSocket = await _bind();

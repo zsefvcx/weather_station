@@ -4,6 +4,6 @@ import 'package:weather_station/core/core.dart';
 
 class StackDataOpenWeather  extends CustomStack<WeatherDate>{
 
-  StackDataOpenWeather({super.maxCount = Settings.maxCountStackWD});
+  StackDataOpenWeather({super.maxCount = Constants.maxCountStackWD});
 
 }

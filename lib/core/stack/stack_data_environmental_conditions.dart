@@ -4,6 +4,6 @@ import 'package:weather_station/core/core.dart';
 
 class StackDataEnvironmentalConditions extends CustomStack<EnvironmentalConditions>{
 
-  StackDataEnvironmentalConditions({super.maxCount = Settings.maxCountStackEC});
+  StackDataEnvironmentalConditions({super.maxCount = Constants.maxCountStackEC});
 
 }

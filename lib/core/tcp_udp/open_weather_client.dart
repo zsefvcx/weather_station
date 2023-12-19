@@ -38,8 +38,8 @@ class OpenWeatherClient {
     required this.stackDOW,
     required this.stackCDV,
     required this.networkInfo,
-    this.timeLimit = Settings.timeLimitWD,
-    this.periodic = Settings.periodicWD,
+    this.timeLimit = Constants.timeLimitWD,
+    this.periodic = Constants.periodicWD,
   });
 
   Uri _getUriGeoPosition() {

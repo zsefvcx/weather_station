@@ -77,7 +77,9 @@ class _MainPageState extends State<MainPage> {
                 humid: stackDEC.last.humidity2,),
               ),
               const Expanded(
-                child: ChartWidget(),
+                child: ChartWidget(
+                  height: 450,
+                ),
               ),
             ],
           ),
