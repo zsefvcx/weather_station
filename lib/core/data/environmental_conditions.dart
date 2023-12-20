@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:weather_station/common/common.dart';
 import 'package:weather_station/core/core.dart';
 
 class EnvironmentalConditionsException implements Exception {
@@ -23,12 +24,13 @@ class EnvironmentalConditions {
   final bool alarm;
   final bool error;
   final bool error2;
-  final double temperature;
-  final double humidity;
-  final double pressure;
-  final double altitude;
-  final double temperature2;
-  final double humidity2;
+  final double? temperature;
+  final double? humidity;
+  final double? pressure;
+  final double? altitude;
+  final double? temperature2;
+  final double? humidity2;
+  final double? pressure2;
 
   const EnvironmentalConditions._({
     required this.time,
@@ -44,6 +46,7 @@ class EnvironmentalConditions {
     required this.altitude,
     required this.temperature2,
     required this.humidity2,
+    required this.pressure2,
   });
 
   static T _checkValueDouble<T>({
@@ -73,20 +76,29 @@ class EnvironmentalConditions {
     required bool alarm,
     required bool error,
     required bool error2,
-    required double temperature,
-    required double humidity,
-    required double pressure,
-    required double altitude,
-    required double temperature2,
-    required double humidity2,
+    required double? temperature,
+    required double? humidity,
+    required double? pressure,
+    required double? altitude,
+    required double? temperature2,
+    required double? humidity2,
+    required double? pressure2,
   }){
 
-    final temperatureDone = _checkValueDouble(value: temperature, min: -75, max: 50);
-    final temperature2Done = _checkValueDouble(value: temperature2, min: -75, max: 50);
-    final humidityDone = _checkValueDouble(value: humidity, min: 0, max: 100);
-    final humidity2Done = _checkValueDouble(value: humidity2, min: 0, max: 100);
-    final pressureDone = _checkValueDouble(value: pressure, min: 720, max: 790);
-    final altitudeDone = _checkValueDouble(value: altitude, min: -3000, max: 3000);
+    final temperatureDone = temperature!=null
+        ?_checkValueDouble(value: temperature, min: -75, max: 50):null;
+    final temperature2Done = temperature2!= null
+        ?_checkValueDouble(value: temperature2, min: -75, max: 50):null;
+    final humidityDone = humidity!=null
+        ?_checkValueDouble(value: humidity, min: 0, max: 100):null;
+    final humidity2Done = humidity2 != null
+        ?_checkValueDouble(value: humidity2, min: 0, max: 100):null;
+    final pressureDone = pressure!=null
+        ?_checkValueDouble(value: pressure, min: 720, max: 790):null;
+    final pressure2Done = pressure2!=null
+        ?_checkValueDouble(value: pressure2, min: 720, max: 790):null;
+    final altitudeDone = altitude!=null
+        ?_checkValueDouble(value: altitude, min: -3000, max: 3000):null;
 
     return EnvironmentalConditions._(
       id: id,
@@ -102,6 +114,7 @@ class EnvironmentalConditions {
       humidity2: humidity2Done,
       pressure: pressureDone,
       altitude: altitudeDone,
+      pressure2: pressure2Done,
     );
   }
 
@@ -122,7 +135,8 @@ class EnvironmentalConditions {
           pressure == other.pressure &&
           altitude == other.altitude &&
           temperature2 == other.temperature2 &&
-          humidity2 == other.humidity2);
+          humidity2 == other.humidity2) &&
+          pressure2 == other.pressure2;
 
   @override
   int get hashCode =>
@@ -138,7 +152,8 @@ class EnvironmentalConditions {
       pressure.hashCode ^
       altitude.hashCode ^
       temperature2.hashCode ^
-      humidity2.hashCode;
+      humidity2.hashCode ^
+      pressure2.hashCode;
 
   @override
   String toString() {
@@ -155,7 +170,9 @@ class EnvironmentalConditions {
         'pressure: $pressure, '
         'altitude: $altitude, '
         'temperature2: $temperature2, '
-        'humidity2: $humidity2}';
+        'humidity2: $humidity2, '
+        'pressure2: $pressure2}';
+
   }
 
   EnvironmentalConditions copyWith({
@@ -173,6 +190,7 @@ class EnvironmentalConditions {
     double? altitude,
     double? temperature2,
     double? humidity2,
+    double? pressure2,
   }) {
     return EnvironmentalConditions.initiate(
       id: id ?? this.id,
@@ -188,10 +206,18 @@ class EnvironmentalConditions {
       altitude: altitude ?? this.altitude,
       temperature2: temperature2 ?? this.temperature2,
       humidity2: humidity2 ?? this.humidity2,
+      pressure2: pressure2 ?? this.pressure2,
     );
   }
 
   Map<String, dynamic> toJson() {
+    int? toInt(double? value){
+      if(value != null){
+        return (value*100).toInt();
+      }
+      return null;
+    }
+
     return {
       'id': id,
       'time': time.toString(),
@@ -200,18 +226,27 @@ class EnvironmentalConditions {
       'alarm': alarm,
       'error': error,
       'error2': error2,
-      'temperature': (temperature*100).toInt(),
-      'humidity': (humidity*100).toInt(),
-      'pressure': (pressure*100).toInt(),
-      'altitude': (altitude*100).toInt(),
-      'temperature2': (temperature2*100).toInt(),
-      'humidity2': (humidity2*100).toInt(),
+      'temperature': toInt(temperature),
+      'humidity': toInt(humidity),
+      'pressure': toInt(pressure),
+      'altitude': toInt(altitude),
+      'temperature2': toInt(temperature2),
+      'humidity2': toInt(humidity2),
+      'pressure2': toInt(pressure2),
     };
   }
 
   factory EnvironmentalConditions.fromJson(Map<String, dynamic> map, {
     DateTime? time, String? host, TypeDataRcv? type,
   }) {
+    double? add(entry, double deltaValue){
+      final val = entry as num?;
+      if(val != null){
+        return val/100 + deltaValue;
+      }
+      return null;
+    }
+
     return EnvironmentalConditions.initiate(
       id:           map['id']            as int?,
       time:         time ?? DateTime.parse(map['time'] as String),
@@ -220,12 +255,13 @@ class EnvironmentalConditions {
       alarm:        map['alarm']         as bool,
       error:        map['error']         as bool,
       error2:       map['error2']        as bool,
-      temperature:  (map['temperature']  as int).toDouble()/100,
-      humidity:     (map['humidity']     as int).toDouble()/100,
-      pressure:     (map['pressure']     as int).toDouble()/100,
-      altitude:     (map['altitude']     as int).toDouble()/100,
-      temperature2: (map['temperature2'] as int).toDouble()/100,
-      humidity2:    (map['humidity2']    as int).toDouble()/100,
+      temperature:  add(map['temperature'], Settings.deltaTemperature),
+      humidity:     add(map['humidity'], 0),
+      pressure:     add(map['pressure'], Settings.deltaPressure),
+      altitude:     add(map['altitude'], 0),
+      temperature2: add(map['temperature2'], Settings.deltaTemperature2),
+      humidity2:    add(map['humidity2'], 0),
+      pressure2:    add(map['pressure2'], Settings.deltaPressure),
     );
   }
 }

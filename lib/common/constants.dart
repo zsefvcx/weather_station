@@ -7,11 +7,12 @@ abstract class Constants {
 
   ///Число логов на основных
   ///Дефолтное значение для всех
-  static const int maxCountStack = 40000;
+  /// //24x60x60 - записывать cтолько раз это по дефолту
+  static const int maxCountStack = 24*60*60;
   ///Для метеостанции
-  static const int maxCountStackEC = 40000;
+  static const int maxCountStackEC = maxCountStack~/periodicECSec;
   ///Для погодного клиента
-  static const int maxCountStackWD = 100;
+  static const int maxCountStackWD = maxCountStack~/periodicWDSec;
   ///Адрес и настройки клиента
   ///данные для получения широковещательных оповещений
   static const String address = '127.0.0.1';
@@ -21,32 +22,35 @@ abstract class Constants {
 
   ///Опрос метеостанции
   ///лимит опроса
-  static const Duration timeLimitEC = Duration(seconds: 5);
+  static const int timeLimitECSec = 5;
+  static const Duration timeLimitEC = Duration(seconds: timeLimitECSec);
 
   ///периодичность
-  static const Duration periodicEC = Duration(seconds: 10);
+  static const int periodicECSec = 10;
+  static const Duration periodicEC = Duration(seconds: periodicECSec);
 
   ///Опрос для погодного клиента
   ///лимит опроса
-  static const Duration timeLimitWD = Duration(seconds: 5);
+  static const int timeLimitWDSec = 5;
+  static const Duration timeLimitWD = Duration(seconds: timeLimitWDSec);
 
   ///периодичность
-  static const Duration periodicWD = Duration(minutes: 30);
+  static const int periodicWDSec = 30;
+  static const Duration periodicWD = Duration(minutes: periodicWDSec);
 
   ///Часы
   ///периодичность
-  static const Duration periodicDT = Duration(seconds: 60);
+  static const int periodicDTSec = 60;
+  static const Duration periodicDT = Duration(seconds: periodicDTSec);
 
   ///Периодичность дефолтная
-  static const Duration periodic = Duration(seconds: 30);
+  static const int periodicSec = 30;
+  static const Duration periodic = Duration(seconds: periodicSec);
 
   ///Цвета для графиков
-  static const List<Color> color = [
-    Colors.black,
-    Colors.deepPurpleAccent,
-    Colors.green,
-    Colors.deepOrangeAccent,
-  ];
+  static const forcastColor = Colors.deepPurpleAccent;
+  static const internalColor = Colors.green;
+  static const externalColor = Colors.deepOrangeAccent;
 
   //Константа для перевода давления в мм рт.ст.
   static const toMmHg = 0.00750063755419211;

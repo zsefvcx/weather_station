@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:weather_station/common/common.dart';
 import 'package:weather_station/core/core.dart';
 import 'package:weather_station/feature/presentation/presentation.dart';
 import 'package:weather_station/feature/presentation/widgets/chart_widget.dart';
@@ -60,6 +61,7 @@ class _MainPageState extends State<MainPage> {
                 temp: stackDOW.last.mainStatus?.temp??-255,
                 humid: stackDOW.last.mainStatus?.humidity??-255,
                 press: stackDOW.last.mainStatus?.pressure??-255,),
+                color: Constants.forcastColor,
               ),
               if(stackDEC.isNotEmpty)ShowStateSingleSensor(
                 sensorStatus: SensorStatus(
@@ -68,6 +70,7 @@ class _MainPageState extends State<MainPage> {
                 temp: stackDEC.last.temperature,
                 humid: stackDEC.last.humidity,
                 press: stackDEC.last.pressure,),
+                color: Constants.internalColor,
               ),
               if(stackDEC.isNotEmpty)ShowStateSingleSensor(
                 sensorStatus: SensorStatus(
@@ -75,6 +78,7 @@ class _MainPageState extends State<MainPage> {
                 typeSensor: 'External',
                 temp: stackDEC.last.temperature2,
                 humid: stackDEC.last.humidity2,),
+                color: Constants.externalColor,
               ),
               const Expanded(
                 child: ChartWidget(

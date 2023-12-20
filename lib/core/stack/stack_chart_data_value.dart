@@ -140,11 +140,48 @@ class StackChartDataValue extends CustomStack<ChartDataValue>{
 
   StackChartDataValue({super.maxCount = Constants.maxCountStack});
 
+  num? _minX;
+  num? get minX {
+    final minX = _minX;
+    return minX!=null?minX-30:null;
+  }
+
+  num? _maxX;
+  num? get maxX {
+    final maxX = _maxX;
+    return maxX!=null?maxX+30:null;
+  }
+
+  num? get intervalX {
+    final maxX = _maxX;
+    final minX = _minX;
+    if(maxX != null && minX != null){
+      return (maxX+30 - minX+30)~/5;
+    }
+    return null;
+  }
+
+  void _valMinMaxX(ChartDataValue value){
+    var minX = _minX;
+    var maxX = _maxX;
+    final time= value.time;
+    if(super.isEmpty){
+      minX = time.second + time.minute*60 + time.hour*60*60;
+      maxX = minX;
+    } else {
+      maxX = time.second + time.minute*60 + time.hour*60*60;
+    }
+    _maxX = maxX;
+    _minX = minX;
+    Logger.print('maxX=$maxX minX=$minX');
+  }
+
   @override
   void add(ChartDataValue value) {
     _valMinMaxYT(value);
     _valMinMaxYH(value);
     _valMinMaxYP(value);
+    _valMinMaxX(value);
     super.add(value);
   }
 }

@@ -19,6 +19,8 @@ abstract class CustomStack<T> extends ChangeNotifier{
   T get first => _data.first;
   T get last => _data.last;
 
+  DateTime? _lastDateTime;
+
   void add(T value){
     if(_data.length>=_maxCount){
       _data.remove(_data.first);
@@ -26,8 +28,18 @@ abstract class CustomStack<T> extends ChangeNotifier{
     if(DateTime.now().day != startStack.day){
       startStack = DateTime.now();
     }
-    _data.add(value);
-    notifyListeners();
+    final nowOnlySeconds = DateTime.now().copyWith(
+      millisecond: 0,
+      microsecond: 0,
+    );
+    final lastDateTime = _lastDateTime;
+
+    if((lastDateTime !=null && lastDateTime != nowOnlySeconds)
+      ||lastDateTime ==null){
+      _lastDateTime = nowOnlySeconds;
+      _data.add(value);
+      notifyListeners();
+    }
   }
 
 }

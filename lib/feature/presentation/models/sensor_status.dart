@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 
 @immutable
 class SensorStatus {
-  final num temp;
-  final num humid;
+  final num? temp;
+  final num? humid;
   final num? press;
   final int numberWidget;
   final String typeSensor;
@@ -38,8 +38,8 @@ class SensorStatus {
 
   @override
   String toString() {
-    return 'SensorStatus{'
-        ' temp: $temp, '
+    return 'SensorStatus{ '
+        'temp: $temp, '
         'humid: $humid, '
         'press: $press, '
         'numberWidget: $numberWidget, '

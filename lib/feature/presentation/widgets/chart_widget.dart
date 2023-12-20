@@ -27,6 +27,16 @@ class _ChartWidgetState extends State<ChartWidget> {
   Widget build(BuildContext context) {
     final listDataValue = context.watch<StackChartDataValue>();
     final data = listDataValue.toSet;
+    final minX = listDataValue.minX?.toDouble()??0;
+    final minY = _isCheckedTemperature1?
+    listDataValue.minYT?.toDouble()??0:_isCheckedAirHumidity2?
+    listDataValue.minYH?.toDouble()??0:
+    listDataValue.minYP?.toDouble()??650;
+    final maxX = listDataValue.maxX?.toDouble()??60*60*24;
+    final maxY = _isCheckedTemperature1?
+    listDataValue.maxYT?.toDouble()??0:_isCheckedAirHumidity2?
+    listDataValue.maxYH?.toDouble()??10:
+    listDataValue.maxYP?.toDouble()??850;
     return Column(children: [
       SizedBox(
         height: widget._height,
@@ -43,7 +53,13 @@ class _ChartWidgetState extends State<ChartWidget> {
                 ),
                 child: LineChart(
                   LineChartData(
-
+                    lineTouchData: const LineTouchData(
+                      touchTooltipData: LineTouchTooltipData(
+                        tooltipBgColor: Colors.white,
+                        tooltipBorder: BorderSide(),
+                        tooltipRoundedRadius: 10,
+                      ),
+                    ),
                     lineBarsData: [
                       LineChartBarData(
                           spots: [
@@ -55,7 +71,8 @@ class _ChartWidgetState extends State<ChartWidget> {
                                   point.p1, point.time)
                           ],
                           isCurved: true,
-                          color: Constants.color[1],
+                          barWidth: 1,
+                          color: Constants.internalColor,
                       ),
                       LineChartBarData(
                         spots: [
@@ -67,7 +84,8 @@ class _ChartWidgetState extends State<ChartWidget> {
                                  point.p2, point.time)
                         ],
                         isCurved: true,
-                        color: Constants.color[2],
+                        barWidth: 1,
+                        color: Constants.externalColor,
                       ),
                       LineChartBarData(
                         spots: [
@@ -79,7 +97,8 @@ class _ChartWidgetState extends State<ChartWidget> {
                                  point.p3, point.time)
                         ],
                           isCurved: true,
-                          color: Constants.color[3],
+                          barWidth: 1,
+                          color: Constants.forcastColor,
                       ),
                     ],
                     // borderData: FlBorderData(
@@ -88,13 +107,15 @@ class _ChartWidgetState extends State<ChartWidget> {
                     titlesData: FlTitlesData(
                       bottomTitles: AxisTitles(sideTitles: SideTitles(
                         showTitles: true,
-                        interval: 60*60*4,
+                        interval: listDataValue.intervalX?.toDouble()??60*60*4,
                         getTitlesWidget: (value, meta) {
                           final h = value.toInt()~/(60*60);
                           final m = value.toInt()~/(60) - h*60;
                           //final s = value.toInt() - h*60 - m*60;
                           final result = '${h<10?'0$h':h}:${m<10?'0$m':m} ';
-
+                          if(value == minX || value == maxX){
+                            return const Text('');
+                          }
                           return Text(result, style: const TextStyle(
                             fontSize: 10
                           ),);
@@ -111,21 +132,22 @@ class _ChartWidgetState extends State<ChartWidget> {
                         listDataValue.intervalYH?.toDouble():
                         listDataValue.intervalYP?.toDouble()
                         ,
-                        getTitlesWidget: (value, meta) => Text(value.toInt().toString(), style: const TextStyle(
+                        getTitlesWidget: (value, meta) {
+                          if(value == minY || value == maxY){
+                            return const Text('');
+                          }
+
+                          return Text(value.toInt().toString(), style: const TextStyle(
                             fontSize: 10
-                        ),),
+                        ),);
+                        },
                       )),
                     ),
-                    minY: _isCheckedTemperature1?
-                    listDataValue.minYT?.toDouble()??0:_isCheckedAirHumidity2?
-                    listDataValue.minYH?.toDouble()??0:
-                    listDataValue.minYP?.toDouble()??650,
-                    maxY: _isCheckedTemperature1?
-                    listDataValue.maxYT?.toDouble()??0:_isCheckedAirHumidity2?
-                    listDataValue.maxYH?.toDouble()??10:
-                    listDataValue.maxYP?.toDouble()??850,
-                    minX: 0,
-                    maxX: 60*60*24
+                    minY: minY,
+                    maxY: maxY,
+                    minX: minX,
+                    maxX: maxX,
+
                   ),
 
                 ),
