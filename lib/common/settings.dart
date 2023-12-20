@@ -21,8 +21,8 @@ abstract class Settings {
   static String remoteAddress2 = '192.168.2.149';
 
   /// Ошибка датчика или поправочный коэффициент x100
-  static double deltaPressure = 967;
-  static double deltaPressure2 = 967;
+  static double deltaPressure = 967+63;
+  static double deltaPressure2 = 967+63;
   static double deltaTemperature = 0;
   static double deltaTemperature2 = 0;
   static double deltahumidity = 0;
