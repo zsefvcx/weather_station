@@ -111,7 +111,6 @@ class _ChartWidgetState extends State<ChartWidget> {
                         getTitlesWidget: (value, meta) {
                           final h = value.toInt()~/(60*60);
                           final m = value.toInt()~/(60) - h*60;
-                          //final s = value.toInt() - h*60 - m*60;
                           final result = '${h<10?'0$h':h}:${m<10?'0$m':m} ';
                           if(value == minX || value == maxX){
                             return const Text('');
@@ -122,7 +121,17 @@ class _ChartWidgetState extends State<ChartWidget> {
                         },
 
                       )),
-                      topTitles: const AxisTitles(),
+                      topTitles: AxisTitles(
+                        axisNameSize: 25,
+                        axisNameWidget: Padding(
+                          padding: const EdgeInsets.only(bottom: 5),
+                          child: Text(_isCheckedTemperature1
+                              ? 'Temperature, °C'
+                              : (_isCheckedAirHumidity2
+                              ? 'Humidity, %'
+                              : 'Pressure, mmHg')),
+                        )
+                      ),
                       rightTitles: const AxisTitles(),
                       leftTitles: AxisTitles(sideTitles: SideTitles(
                         showTitles: true,
@@ -136,7 +145,6 @@ class _ChartWidgetState extends State<ChartWidget> {
                           if(value == minY || value == maxY){
                             return const Text('');
                           }
-
                           return Text(value.toInt().toString(), style: const TextStyle(
                             fontSize: 10
                         ),);

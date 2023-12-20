@@ -242,7 +242,7 @@ class EnvironmentalConditions {
     double? add(entry, double deltaValue){
       final val = entry as num?;
       if(val != null){
-        return val/100 + deltaValue;
+        return ((val+deltaValue).toInt())/100;
       }
       return null;
     }
