@@ -70,6 +70,7 @@ class OpenWeatherClient {
     try {
       var lat = Settings.lat;
       var lon = Settings.lon;
+      if(Settings.gettingPosition)return (lat: lat, lon: lon);
       final response = await http.get(uri);
       Logger.print('Response status: ${response.statusCode}');
       if (response.statusCode == 200){
@@ -79,6 +80,9 @@ class OpenWeatherClient {
           Logger.print('Response body_json: $jsonMap');
           lat = (jsonMap['lat'] as double?)??lat;
           lon = (jsonMap['lon'] as double?)??lon;
+          Settings.gettingPosition = true;
+          Settings.lat = lat;
+          Settings.lon = lon;
           return (lat: lat, lon: lon);
         }
         throw OpenWeatherClientException(

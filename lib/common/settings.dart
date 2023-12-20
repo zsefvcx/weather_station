@@ -27,4 +27,7 @@ abstract class Settings {
   static double deltaTemperature2 = 0;
   static double deltahumidity = 0;
   static double deltahumidity2 = 0;
+
+  ///Статус координат
+  static bool gettingPosition = false;
 }
