@@ -17,6 +17,7 @@ class StackDataOpenWeather  extends CustomStack<WeatherData>{
     }
   }
 
+  @override
   void get listen {
     try{
       stream.listen((event) {

@@ -178,6 +178,7 @@ class StackChartDataValue extends CustomStack<ChartDataValue>{
   Stream<EnvironmentalConditions?> streamEC;
   StackChartDataValue(this.streamWD, this.streamEC, {super.maxCount = Constants.maxCountStack});
 
+  @override
   void get listen {
     try{
       streamWD.listen((event) {

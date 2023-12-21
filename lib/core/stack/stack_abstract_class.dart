@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:weather_station/common/common.dart';
 
 class CustomStackException implements Exception {
   final String errorMessageText;
@@ -63,4 +62,5 @@ abstract class CustomStack<T> extends ChangeNotifier{
     }
   }
 
+  void get listen;
 }
