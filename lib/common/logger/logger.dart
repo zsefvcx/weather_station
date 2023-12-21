@@ -42,7 +42,7 @@ abstract class Logger {
       Future<void> function() async {
         final directory = await getApplicationDocumentsDirectory();
         final path = directory.path;
-        final localPath = '$path/logger_data.txt';
+        final localPath = error?'$path/logger_error.txt':'$path/logger_data.txt';
         Logger.print(localPath);
         final file = File(localPath);
         await file.writeAsString('$msg\n', mode: FileMode.append);

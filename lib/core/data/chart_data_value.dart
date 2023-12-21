@@ -156,7 +156,7 @@ class ChartDataValue{
     );
   }
 
-  factory ChartDataValue.fromWeatherDate(WeatherDate data, {
+  factory ChartDataValue.fromWeatherDate(WeatherData data, {
     DateTime? time,
   }) {
     return ChartDataValue(

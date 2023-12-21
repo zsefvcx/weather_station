@@ -138,8 +138,6 @@ class StackChartDataValue extends CustomStack<ChartDataValue>{
     Logger.print('maxYP=$maxYP minYP=$minYP');
   }
 
-  StackChartDataValue({super.maxCount = Constants.maxCountStack});
-
   num? _minX;
   num? get minX {
     final minX = _minX;
@@ -176,12 +174,40 @@ class StackChartDataValue extends CustomStack<ChartDataValue>{
     Logger.print('maxX=$maxX minX=$minX');
   }
 
+  Stream<WeatherData?> streamWD;
+  StackChartDataValue(this.streamWD, {super.maxCount = Constants.maxCountStack});
+
+  void get listen {
+    try{
+      streamWD.listen((event) {
+        try{
+          if(event != null){
+            add(ChartDataValue.fromWeatherDate(event));
+            Logger.print('length StackChartDataValue: $length');
+          }
+        } on Exception catch(e,t) {
+          Logger.print('Error add StackChartDataValue.streamWD.listen from WeatherData with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+        }
+      },
+        onDone: () => Logger.print('stream StackChartDataValue.onDone from WeatherData'),
+        onError: (e, t) => Logger.print('Error StackChartDataValue.onError from WeatherData with:\n$e\n$t', error: true, name: 'err', safeToDisk: true),
+      );
+    } on Exception catch(e,t) {
+      Logger.print("Error add StackChartDataValue.stream's with:\n$e\n$t", error: true, name: 'err', safeToDisk: true);
+    }
+  }
+
+
   @override
   void add(ChartDataValue value) {
-    _valMinMaxYT(value);
-    _valMinMaxYH(value);
-    _valMinMaxYP(value);
-    _valMinMaxX(value);
-    super.add(value);
+    try {
+      _valMinMaxYT(value);
+      _valMinMaxYH(value);
+      _valMinMaxYP(value);
+      _valMinMaxX(value);
+      super.add(value);
+    } on Exception catch(e,t) {
+      Logger.print('Error add StackChartDataValue with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+    }
   }
 }

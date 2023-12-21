@@ -7,4 +7,13 @@ class StackDataEnvironmentalConditions extends CustomStack<EnvironmentalConditio
     super.maxCount = Constants.maxCountStackEC
   });
 
+  @override
+  void add(EnvironmentalConditions value) {
+    try{
+      super.add(value);
+    } on Exception catch(e,t) {
+      Logger.print('Error add StackDataEnvironmentalConditions with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+    }
+  }
+
 }

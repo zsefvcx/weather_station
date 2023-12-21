@@ -16,8 +16,12 @@ class CurrentDateTime extends ChangeNotifier {
   }
 
   void run() {
+    try{
     update();
     _timer = Timer.periodic(Constants.periodicDT, (timer) => update());
+    } on Exception catch(e,t) {
+      Logger.print('Error run CurrentDateTime with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+    }
   }
 
   @override

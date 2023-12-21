@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:weather_station/common/common.dart';
 
 @immutable
-class WeatherDate{
+class WeatherData{
   final Coord? coord;
   final List<Weather>? weather;
   final String? base;
@@ -18,7 +18,7 @@ class WeatherDate{
   final String? name;
   final int? cod;
 
-  const WeatherDate({
+  const WeatherData({
     this.coord,
     this.weather,
     this.base,
@@ -37,7 +37,7 @@ class WeatherDate{
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is WeatherDate &&
+      (other is WeatherData &&
           runtimeType == other.runtimeType &&
           coord == other.coord &&
           weather == other.weather &&
@@ -86,7 +86,7 @@ class WeatherDate{
         'cod: $cod,}';
   }
 
-  WeatherDate copyWith({
+  WeatherData copyWith({
     Coord? coord,
     List<Weather>? weather,
     String? base,
@@ -101,7 +101,7 @@ class WeatherDate{
     String? name,
     int? cod,
   }) {
-    return WeatherDate(
+    return WeatherData(
       coord: coord ?? this.coord,
       weather: weather ?? this.weather,
       base: base ?? this.base,
@@ -136,8 +136,8 @@ class WeatherDate{
     };
   }
 
-  factory WeatherDate.fromJson(Map<String, dynamic> map) {
-    return WeatherDate(
+  factory WeatherData.fromJson(Map<String, dynamic> map) {
+    return WeatherData(
       coord: map['coord']!=null
           ?Coord.fromJson(map['coord'] as Map<String, dynamic>)
           :null,

@@ -35,7 +35,7 @@ abstract class Constants {
   static const Duration timeLimitWD = Duration(seconds: timeLimitWDSec);
 
   ///периодичность
-  static const int periodicWDSec = 30;
+  static const int periodicWDSec = 1;
   static const Duration periodicWD = Duration(minutes: periodicWDSec);
 
   ///Часы

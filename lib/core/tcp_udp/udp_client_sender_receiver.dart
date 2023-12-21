@@ -206,13 +206,13 @@ class UDPClientSenderReceiver {
   }) async {
     try {
       await _startRcvUdp(broadcastEnabled: broadcastEnabled);
-      return Timer.periodic(periodic, (timer) async =>
-          _startRcvUdp(broadcastEnabled: broadcastEnabled),
-      );
-    }  on UDPClientSenderReceiverException catch(e){
-      Logger.print(e.errorMessageText);
-      throw UDPClientSenderReceiverException(
-          errorMessageText: e.errorMessageText
+      return Timer.periodic(periodic, (timer) async {
+          try {
+            await _startRcvUdp(broadcastEnabled: broadcastEnabled);
+          }  on UDPClientSenderReceiverException catch(e) {
+            Logger.print(e.errorMessageText, error: true, name: 'err', safeToDisk: true);
+          }
+        },
       );
     } on Exception catch(e, t) {
       throw UDPClientSenderReceiverException(

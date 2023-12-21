@@ -6,57 +6,61 @@ import 'package:weather_station/common/common.dart';
 import 'package:weather_station/core/core.dart';
 import 'package:weather_station/weather_station_app.dart';
 
-void main() {
+Future<void> main() async {
   final stackDEC = StackDataEnvironmentalConditions();
-  final stackDOW = StackDataOpenWeather();
-  final stackCDV = StackChartDataValue();
+
+  //final stackCDV = StackChartDataValue();
   final internetConnectionChecker = InternetConnectionChecker();
 
   final networkInfo =
       NetworkInfoImp(internetConnectionChecker: internetConnectionChecker);
 
-  final odpMultiCastReceiver = UDPClientSenderReceiver(
-    stackDEC: stackDEC,
-    stackCDV: stackCDV,
-    type: TypeDataRcv.multi,
-    networkInfo: networkInfo,
-  );
-  unawaited(odpMultiCastReceiver.run());
-  //final timer = await udpClientSenderReceiver.run();
-  //timer.cancel();
-
-  final udpClient = UDPClientSenderReceiver(
-    stackDEC: stackDEC,
-    stackCDV: stackCDV,
-    type: TypeDataRcv.single,
-    networkInfo: networkInfo,
-    address: Settings.remoteAddress,
-    bindPort: 0,
-  );
-  unawaited(udpClient.run(broadcastEnabled: false));
-  //final timer = await udpClient.run();
-  //timer.cancel();
-
-  final udpClient2 = UDPClientSenderReceiver(
-    stackDEC: stackDEC,
-    stackCDV: stackCDV,
-    type: TypeDataRcv.single,
-    networkInfo: networkInfo,
-    address: Settings.remoteAddress2,
-    bindPort: 0,
-  );
-  unawaited(udpClient2.run(broadcastEnabled: false));
+  // final odpMultiCastReceiver = UDPClientSenderReceiver(
+  //   stackDEC: stackDEC,
+  //   stackCDV: stackCDV,
+  //   type: TypeDataRcv.multi,
+  //   networkInfo: networkInfo,
+  // );
+  // unawaited(odpMultiCastReceiver.run());
+  // //final timer = await udpClientSenderReceiver.run();
+  // //timer.cancel();
+  //
+  // final udpClient = UDPClientSenderReceiver(
+  //   stackDEC: stackDEC,
+  //   stackCDV: stackCDV,
+  //   type: TypeDataRcv.single,
+  //   networkInfo: networkInfo,
+  //   address: Settings.remoteAddress,
+  //   bindPort: 0,
+  // );
+  // unawaited(udpClient.run(broadcastEnabled: false));
+  // //final timer = await udpClient.run();
+  // //timer.cancel();
+  //
+  // final udpClient2 = UDPClientSenderReceiver(
+  //   stackDEC: stackDEC,
+  //   stackCDV: stackCDV,
+  //   type: TypeDataRcv.single,
+  //   networkInfo: networkInfo,
+  //   address: Settings.remoteAddress2,
+  //   bindPort: 0,
+  // );
+  // unawaited(udpClient2.run(broadcastEnabled: false));
   //final timer = await udpClient.run();
   //timer.cancel();
 
   final openWeatherClient = OpenWeatherClient(
-    stackDOW: stackDOW,
-    stackCDV: stackCDV,
     networkInfo: networkInfo
   );
-  unawaited(openWeatherClient.run());
-  //final timer = await openWeatherClient.run();
-  //timer.cancel();
+
+//  final streamWD = await streamController.addStream(openWeatherClient.run());
+
+  final serviceWD = StreamServiceWeatherData()..addStream(openWeatherClient.run());
+
+  final stackDOW = StackDataOpenWeather(serviceWD.stream)..listen;
+  final stackCDV = StackChartDataValue(serviceWD.stream)..listen;
+
+
 
   final currentDateTime = CurrentDateTime()..run();
 

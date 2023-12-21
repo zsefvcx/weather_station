@@ -1,4 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:weather_station/common/common.dart';
+
+class CustomStackException implements Exception {
+  final String errorMessageText;
+
+  const CustomStackException({
+    required this.errorMessageText,
+  });
+
+  String errorMessage() {
+    return 'Custom Stack Exception: $errorMessageText';
+  }
+}
 
 abstract class CustomStack<T> extends ChangeNotifier{
   final Set<T> _data = <T>{};
@@ -22,23 +35,31 @@ abstract class CustomStack<T> extends ChangeNotifier{
   DateTime? _lastDateTime;
 
   void add(T value){
-    if(_data.length>=_maxCount){
-      _data.remove(_data.first);
-    }
-    if(DateTime.now().day != startStack.day){
-      startStack = DateTime.now();
-    }
-    final nowOnlySeconds = DateTime.now().copyWith(
-      millisecond: 0,
-      microsecond: 0,
-    );
-    final lastDateTime = _lastDateTime;
+    try {
+      if (_data.length >= _maxCount) {
+        _data.remove(_data.first);
+      }
+      if (DateTime
+          .now()
+          .day != startStack.day) {
+        startStack = DateTime.now();
+      }
+      final nowOnlySeconds = DateTime.now().copyWith(
+        millisecond: 0,
+        microsecond: 0,
+      );
+      final lastDateTime = _lastDateTime;
 
-    if((lastDateTime !=null && lastDateTime != nowOnlySeconds)
-      ||lastDateTime ==null){
-      _lastDateTime = nowOnlySeconds;
-      _data.add(value);
-      notifyListeners();
+      if ((lastDateTime != null && lastDateTime != nowOnlySeconds)
+          || lastDateTime == null) {
+        _lastDateTime = nowOnlySeconds;
+        _data.add(value);
+        notifyListeners();
+      }
+    } on Exception catch(e,t){
+      throw CustomStackException(
+        errorMessageText: 'Error add CustomStack with:\n$e\n$t'
+      );
     }
   }
 

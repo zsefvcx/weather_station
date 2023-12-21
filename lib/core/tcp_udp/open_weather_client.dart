@@ -23,10 +23,6 @@ class OpenWeatherClient {
   static const String _geo = 'geo/1.0/direct';
   static const String _data = 'data/2.5/weather';
   static const String _unit = '&units=metric';
-  //stack data
-  final StackDataOpenWeather stackDOW;
-  //stack data for chart
-  final StackChartDataValue stackCDV;
   //timeLimit - limit await udp response
   final Duration timeLimit;
   //periodic - frequency of requests
@@ -35,8 +31,6 @@ class OpenWeatherClient {
   final NetworkInfo networkInfo;
 
   const OpenWeatherClient({
-    required this.stackDOW,
-    required this.stackCDV,
     required this.networkInfo,
     this.timeLimit = Constants.timeLimitWD,
     this.periodic = Constants.periodicWD,
@@ -122,11 +116,11 @@ class OpenWeatherClient {
     }
   }
 
-  Future<void> _startRcvWeather() async {
+  Future<WeatherData?> _startRcvWeather() async {
     try {
       if(!(await networkInfo.isConnected)) {
         Logger.print('${DateTime.now()}:WeatherClient: No Network Info Status');
-        return;
+        return null;
       }
       final uriGeo = _getUriGeoPosition();
       Logger.print('uriGeo.path: ${uriGeo.path}');
@@ -139,15 +133,18 @@ class OpenWeatherClient {
       Logger.print('uriWeather.path: ${uriWeather.path}');
       final weatherJson = await _getWeather(uri: uriWeather);
       Logger.print('Weather: $weatherJson');
-      final weatherDate = WeatherDate.fromJson(weatherJson);
-      Logger.print('weatherDate: ${weatherDate.toJson()}');
-      stackDOW.add(weatherDate);
-      final dataChart = ChartDataValue.fromWeatherDate(
-          weatherDate,
-          time: DateTime.now(),
-      );
-      Logger.print(dataChart.toString());
-      stackCDV.add(dataChart);
+      final weatherData = WeatherData.fromJson(weatherJson);
+
+      return weatherData;
+      //
+      // Logger.print('weatherDate: ${weatherDate.toJson()}');
+      // stackDOW.add(weatherDate);
+      // final dataChart = ChartDataValue.fromWeatherDate(
+      //     weatherDate,
+      //     time: DateTime.now(),
+      // );
+      // Logger.print(dataChart.toString());
+      // stackCDV.add(dataChart);
     } on Exception catch(e, t) {
       throw OpenWeatherClientException(
           errorMessageText: 'Error getPosition OpenWeatherClient with:\n$e\n$t'
@@ -155,17 +152,14 @@ class OpenWeatherClient {
     }
   }
 
-  Future<Timer> run() async {
+  Stream<WeatherData?> run() async* {
     try {
-      await _startRcvWeather();
-      return Timer.periodic(periodic, (timer) async =>
-          _startRcvWeather(),
-      );
-    } on OpenWeatherClientException catch(e){
-      Logger.print(e.errorMessageText);
-      throw OpenWeatherClientException(
-          errorMessageText: e.errorMessageText
-      );
+      yield* Stream.periodic(periodic, (tick) {
+        try {
+          return _startRcvWeather();
+        } on OpenWeatherClientException catch(e){
+          Logger.print('$tick:${e.errorMessageText}', error: true, name: 'err', safeToDisk: true);
+        }}).asyncMap((event) async => event);
     } on Exception catch(e, t) {
       throw OpenWeatherClientException(
           errorMessageText: 'Error run OpenWeatherClient with:\n$e\n$t'
