@@ -175,7 +175,8 @@ class StackChartDataValue extends CustomStack<ChartDataValue>{
   }
 
   Stream<WeatherData?> streamWD;
-  StackChartDataValue(this.streamWD, {super.maxCount = Constants.maxCountStack});
+  Stream<EnvironmentalConditions?> streamEC;
+  StackChartDataValue(this.streamWD, this.streamEC, {super.maxCount = Constants.maxCountStack});
 
   void get listen {
     try{
@@ -190,7 +191,20 @@ class StackChartDataValue extends CustomStack<ChartDataValue>{
         }
       },
         onDone: () => Logger.print('stream StackChartDataValue.onDone from WeatherData'),
-        onError: (e, t) => Logger.print('Error StackChartDataValue.onError from WeatherData with:\n$e\n$t', error: true, name: 'err', safeToDisk: true),
+        onError: (e, t) => Logger.print('Error stream StackChartDataValue.onError from WeatherData with:\n$e\n$t', error: true, name: 'err', safeToDisk: true),
+      );
+      streamEC.listen((event) {
+        try{
+          if(event != null){
+            add(ChartDataValue.fromEnvironmentalConditions(event));
+            Logger.print('length StackChartDataValue: $length');
+          }
+        } on Exception catch(e,t) {
+          Logger.print('Error add StackChartDataValue.streamWD.listen from EnvironmentalConditions with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+        }
+      },
+        onDone: () => Logger.print('stream StackChartDataValue.onDone from EnvironmentalConditions'),
+        onError: (e, t) => Logger.print('Error stream StackChartDataValue.onError from EnvironmentalConditions with:\n$e\n$t', error: true, name: 'err', safeToDisk: true),
       );
     } on Exception catch(e,t) {
       Logger.print("Error add StackChartDataValue.stream's with:\n$e\n$t", error: true, name: 'err', safeToDisk: true);

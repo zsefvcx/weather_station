@@ -41,10 +41,6 @@ class UDPClientSenderReceiverException implements Exception {
 }
 
 class UDPClientSenderReceiver {
-  //stack data
-  final StackDataEnvironmentalConditions stackDEC;
-  //stack data for chart
-  final StackChartDataValue stackCDV;
   //Internr addres in text format: 'pool.ntp.org' or '127.0.0.1'
   final String address;
   //UDP bindPort = 0 as sender, = anyOther as resiver
@@ -59,12 +55,11 @@ class UDPClientSenderReceiver {
   final TypeDataRcv type;
   // chaker network Status
   final NetworkInfo networkInfo;
-
-  //StreamController<EnvironmentalConditions?> controller;
+  // StreamController
+  final StreamServiceEnvironmentalConditions serviceEC;
 
   const UDPClientSenderReceiver({
-    required this.stackDEC,
-    required this.stackCDV,
+    required this.serviceEC,
     required this.networkInfo,
     required this.type,
     this.address = Constants.address,
@@ -73,6 +68,10 @@ class UDPClientSenderReceiver {
     this.timeLimit = Constants.timeLimitEC,
     this.periodic = Constants.periodicEC,
   });
+
+  void dispose(){
+    serviceEC.dispose();
+  }
 
   Future<RawDatagramSocket> _bind() async {
     try {
@@ -156,10 +155,11 @@ class UDPClientSenderReceiver {
                 type: type,
               );
               Logger.print(dataEC.toString(), safeToDisk: true);
-              stackDEC.add(dataEC);
-              final dataChart = ChartDataValue.fromEnvironmentalConditions(dataEC);
-              Logger.print(dataChart.toString());
-              stackCDV.add(dataChart);
+              serviceEC.add(dataEC);
+              // stackDEC.add(dataEC);
+              // final dataChart = ChartDataValue.fromEnvironmentalConditions(dataEC);
+              // Logger.print(dataChart.toString());
+              // stackCDV.add(dataChart);
             } on EnvironmentalConditionsException catch(e){
               Logger.print(e.errorMessageText);
             } on Exception catch(e, t){

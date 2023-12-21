@@ -8,6 +8,15 @@ class StackDataOpenWeather  extends CustomStack<WeatherData>{
 
   StackDataOpenWeather(this.stream, {super.maxCount = Constants.maxCountStackWD});
 
+  @override
+  void add(WeatherData value) {
+    try{
+      super.add(value);
+    } on Exception catch(e,t) {
+      Logger.print('Error add StackDataOpenWeather with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+    }
+  }
+
   void get listen {
     try{
       stream.listen((event) {
@@ -21,7 +30,7 @@ class StackDataOpenWeather  extends CustomStack<WeatherData>{
         }
       },
       onDone: () => Logger.print('stream StackDataOpenWeather.onDone'),
-      onError: (e, t) => Logger.print('Error StackDataOpenWeather.onError with:\n$e\n$t', error: true, name: 'err', safeToDisk: true),
+      onError: (e, t) => Logger.print('Error stream StackDataOpenWeather.onError with:\n$e\n$t', error: true, name: 'err', safeToDisk: true),
       );
     } on Exception catch(e,t) {
       Logger.print('Error add StackDataOpenWeather.stream with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);

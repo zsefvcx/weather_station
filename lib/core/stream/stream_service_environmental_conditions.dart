@@ -12,6 +12,7 @@ class StreamServiceEnvironmentalConditions{
 
   Stream<EnvironmentalConditions?> get stream => _streamController.stream;
 
+
   void add(EnvironmentalConditions? data){
     if (data!=null) _streamController.add(data);
   }

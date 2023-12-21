@@ -154,6 +154,7 @@ class OpenWeatherClient {
 
   Stream<WeatherData?> run() async* {
     try {
+      yield await _startRcvWeather();
       yield* Stream.periodic(periodic, (tick) {
         try {
           return _startRcvWeather();
