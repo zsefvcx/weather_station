@@ -60,6 +60,8 @@ class UDPClientSenderReceiver {
   // chaker network Status
   final NetworkInfo networkInfo;
 
+  //StreamController<EnvironmentalConditions?> controller;
+
   const UDPClientSenderReceiver({
     required this.stackDEC,
     required this.stackCDV,
