@@ -138,8 +138,8 @@ class UDPClientSenderReceiver {
       return streamController.listen((rawSocketEvent) async {
         final dg = udpSocket.receive();
         if (dg != null) {
-          final remoteAddressExt = Settings.remoteAddressExt;
-          if (remoteAddressExt == null || dg.address.address == remoteAddressExt)
+          //final remoteAddressExt = Settings.remoteAddressExt;
+          //if (remoteAddressExt == null || dg.address.address == remoteAddressExt)
           {
             Logger.print('${DateTime.now()}:type:$type:Received:${dg.data.length}');
             final str =
@@ -201,7 +201,7 @@ class UDPClientSenderReceiver {
     String key = Constants.key
   }) async {
     try {
-      if(!(await networkInfo.isConnectedEC)) {
+      if(!(await networkInfo.isConnectedECB)) {
         Logger.print('${DateTime.now()}:UDPClientSenderReceiver: No Broadcast Device');
         Settings.remoteAddressExt = null;
       }
