@@ -79,14 +79,17 @@ class OpenWeatherClient {
           Settings.lon = lon;
           return (lat: lat, lon: lon);
         }
+               Logger.print('Wrong getPosition response date: ${response.body}', name: 'err',  error: true,  safeToDisk: true,);
         throw OpenWeatherClientException(
-          errorMessageText: 'Wrong getPosition response date: ${response.statusCode}'
+          errorMessageText: 'Wrong getPosition response date: ${response.body}'
         );
       }
+             Logger.print('Wrong getPosition status code: ${response.statusCode}', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
         errorMessageText: 'Wrong getPosition status code: ${response.statusCode}'
       );
     } on Exception catch(e, t) {
+               Logger.print('Error getPosition OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
           errorMessageText: 'Error getPosition OpenWeatherClient with:\n$e\n$t'
       );
@@ -102,23 +105,27 @@ class OpenWeatherClient {
         if(jsonList0 != null){
           return jsonList0;
         }
+                 Logger.print('Wrong getWeather response date: ${response.statusCode}', name: 'err',  error: true,  safeToDisk: true,);
         throw OpenWeatherClientException(
             errorMessageText: 'Wrong getWeather response date: ${response.statusCode}'
         );
       }
+                 Logger.print('Wrong getWeather status code: ${response.statusCode}', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
             errorMessageText: 'Wrong getWeather status code: ${response.statusCode}'
       );
     } on Exception catch(e, t) {
+               Logger.print('Error getWeather OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
-          errorMessageText: 'Error getPosition OpenWeatherClient with:\n$e\n$t'
+          errorMessageText: 'Error getWeather OpenWeatherClient with:\n$e\n$t'
       );
     }
   }
 
   Future<WeatherData?> _startRcvWeather() async {
     try {
-      if(!(await networkInfo.isConnected)) {
+
+      if(!(await networkInfo.isConnectedWD)) {
         Logger.print('${DateTime.now()}:WeatherClient: No Network Info Status');
         return null;
       }
@@ -146,8 +153,9 @@ class OpenWeatherClient {
       // Logger.print(dataChart.toString());
       // stackCDV.add(dataChart);
     } on Exception catch(e, t) {
+      Logger.print('Error startRcvWeather OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
-          errorMessageText: 'Error getPosition OpenWeatherClient with:\n$e\n$t'
+          errorMessageText: 'Error startRcvWeather OpenWeatherClient with:\n$e\n$t'
       );
     }
   }
@@ -158,10 +166,11 @@ class OpenWeatherClient {
       yield* Stream.periodic(periodic, (tick) {
         try {
           return _startRcvWeather();
-        } on OpenWeatherClientException catch(e){
-          Logger.print('$tick:${e.errorMessageText}', error: true, name: 'err', safeToDisk: true);
+        } on OpenWeatherClientException catch(e,t){
+          Logger.print('$tick:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
         }}).asyncMap((event) async => event);
     } on Exception catch(e, t) {
+      Logger.print('Error run OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
           errorMessageText: 'Error run OpenWeatherClient with:\n$e\n$t'
       );

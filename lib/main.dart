@@ -55,6 +55,7 @@ Future<void> main() async {
 
   runApp(WeatherAppStation(
     currentDateTime: currentDateTime,
+    networkInfo: networkInfo,
     stackDEC: stackDEC,
     stackDOW: stackDOW,
     stackCDV: stackCDV,

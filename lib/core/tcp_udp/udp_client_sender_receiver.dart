@@ -82,6 +82,7 @@ class UDPClientSenderReceiver {
               : InternetAddress.anyIPv4, bindPort);
       return udpSocket;
     } on Exception catch(e, t){
+               Logger.print('type:$type: Error bind Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw UDPClientSenderReceiverException(
           errorMessageText: 'type:$type: Error bind Socket with:\n$e\n$t'
       );
@@ -98,6 +99,7 @@ class UDPClientSenderReceiver {
       );
       return streamController;
     } on Exception catch(e, t){
+               Logger.print('type:$type: Error timeOut Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw UDPClientSenderReceiverException(
           errorMessageText: 'type:$type: Error timeOut Socket with:\n$e\n$t'
       );
@@ -113,6 +115,7 @@ class UDPClientSenderReceiver {
       return udpSocket.send(
           utf8.encode(key), serverAddress, senderPort);
     } on Exception catch (e, t) {
+               Logger.print('type:$type: Error send Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw UDPClientSenderReceiverException(
           errorMessageText: 'type:$type: Error send Socket with:\n$e\n$t'
       );
@@ -125,6 +128,7 @@ class UDPClientSenderReceiver {
     required RawDatagramSocket udpSocket
   }){
     void onError(e, t){
+               Logger.print('type:$type: Error streamController.listen with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw UDPClientSenderReceiverException(
           errorMessageText: 'type:$type: Error streamController.listen with:\n$e\n$t'
       );
@@ -134,7 +138,8 @@ class UDPClientSenderReceiver {
       return streamController.listen((rawSocketEvent) async {
         final dg = udpSocket.receive();
         if (dg != null) {
-          // if (dg.address == InternetAddress(ipAddress))
+          final remoteAddressExt = Settings.remoteAddressExt;
+          if (remoteAddressExt == null || dg.address.address == remoteAddressExt)
           {
             Logger.print('${DateTime.now()}:type:$type:Received:${dg.data.length}');
             final str =
@@ -147,6 +152,12 @@ class UDPClientSenderReceiver {
             ];
             Logger.print(result.toString());
             final json = jsonDecode(str) as Map<String, dynamic>;
+            final key = json['key'] as String?;
+            if(key != null && key != Constants.key) {
+              throw UDPClientSenderReceiverException(
+                errorMessageText: 'type:$type: Error key message key:$key'
+              );
+            }
             try {
               final dataEC = EnvironmentalConditions.fromJson(
                 json,
@@ -155,16 +166,20 @@ class UDPClientSenderReceiver {
                 type: type,
               );
               Logger.print(dataEC.toString(), safeToDisk: true);
+              if(type == TypeDataRcv.multi){
+                Settings.remoteAddressExt = dg.address.address;
+              }
+
               serviceEC.add(dataEC);
               // stackDEC.add(dataEC);
               // final dataChart = ChartDataValue.fromEnvironmentalConditions(dataEC);
               // Logger.print(dataChart.toString());
               // stackCDV.add(dataChart);
             } on EnvironmentalConditionsException catch(e){
-              Logger.print(e.errorMessageText);
+              Logger.print(e.errorMessageText, name: 'err',  error: true, safeToDisk: true);
             } on Exception catch(e, t){
-              Logger.print(e.toString());
-              Logger.print(t.toString());
+              Logger.print(e.toString(), name: 'err',  error: true, safeToDisk: true);
+              Logger.print(t.toString(), name: 'err',  error: true, safeToDisk: true);
             }
           }
           udpSocket.close();
@@ -174,6 +189,7 @@ class UDPClientSenderReceiver {
         onError: onError,
       );
     } on Exception catch(e,t){
+               Logger.print('type:$type: Error listen Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw UDPClientSenderReceiverException(
           errorMessageText: 'type:$type: Error listen Socket with:\n$e\n$t'
       );
@@ -185,6 +201,14 @@ class UDPClientSenderReceiver {
     String key = Constants.key
   }) async {
     try {
+      if(!(await networkInfo.isConnectedEC)) {
+        Logger.print('${DateTime.now()}:UDPClientSenderReceiver: No Broadcast Device');
+        Settings.remoteAddressExt = null;
+      }
+      if(!(await networkInfo.isConnectedEC)) {
+        Logger.print('${DateTime.now()}:UDPClientSenderReceiver: No Device');
+        return;
+      }
       final udpSocket = await _bind();
       final streamController = _timeOut(udpSocket: udpSocket);
       udpSocket.broadcastEnabled = broadcastEnabled;
@@ -197,6 +221,7 @@ class UDPClientSenderReceiver {
       await streamSubscription.cancel();
       udpSocket.close();
     } on Exception catch(e, t) {
+               Logger.print('type:$type: Error startRcvUdp Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw UDPClientSenderReceiverException(
           errorMessageText: 'type:$type: Error startRcvUdp Socket with:\n$e\n$t'
       );
@@ -211,12 +236,13 @@ class UDPClientSenderReceiver {
       return Timer.periodic(periodic, (timer) async {
           try {
             await _startRcvUdp(broadcastEnabled: broadcastEnabled);
-          }  on UDPClientSenderReceiverException catch(e) {
-            Logger.print(e.errorMessageText, error: true, name: 'err', safeToDisk: true);
+          }  on UDPClientSenderReceiverException catch(e, t) {
+            Logger.print('type:$type: Error run Socket with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
           }
         },
       );
     } on Exception catch(e, t) {
+               Logger.print('type:$type: Error run Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw UDPClientSenderReceiverException(
           errorMessageText: 'type:$type: Error run Socket with:\n$e\n$t'
       );

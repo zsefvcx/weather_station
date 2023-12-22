@@ -19,6 +19,8 @@ abstract class Constants {
   static const int bindPort = 8088;
   ///порт принудительного опроса
   static const int senderPort = 8088;
+  ///tcp port
+  static const int tcpPort = 80;
 
   ///Опрос метеостанции
   ///лимит опроса

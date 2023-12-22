@@ -34,7 +34,7 @@ class _ChartWidgetState extends State<ChartWidget> {
     listDataValue.minYP?.toDouble()??650;
     final maxX = listDataValue.maxX?.toDouble()??60*60*24;
     final maxY = _isCheckedTemperature1?
-    listDataValue.maxYT?.toDouble()??0:_isCheckedAirHumidity2?
+    listDataValue.maxYT?.toDouble()??10:_isCheckedAirHumidity2?
     listDataValue.maxYH?.toDouble()??10:
     listDataValue.maxYP?.toDouble()??850;
     return Column(children: [

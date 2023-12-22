@@ -18,22 +18,11 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  CurrentDateTime? currentDateTime;
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    currentDateTime?.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    currentDateTime = context.watch<CurrentDateTime>();
+
     final stackDEC = context.watch<StackDataEnvironmentalConditions>();
     final stackDOW = context.watch<StackDataOpenWeather>();
     return Scaffold(
@@ -46,7 +35,7 @@ class _MainPageState extends State<MainPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(widget._title),
-                  ShowDateTime(currentDateTime: currentDateTime),
+                const ShowDateTime(),
               ],
             ),
           ),
@@ -87,7 +76,17 @@ class _MainPageState extends State<MainPage> {
               ),
             ],
           ),
-        )
+        ),
+        bottomSheet: BottomAppBar(
+          color: Theme.of(context).colorScheme.inversePrimary,
+          height: Theme.of(context).appBarTheme.toolbarHeight,
+          child: const Row(
+            children: [
+              ShowDateTime(),
+              ShowStatusConnection(),
+            ],
+          ),
+        ),
     );
   }
 }

@@ -11,17 +11,20 @@ class WeatherAppStation extends StatelessWidget {
   final StackDataOpenWeather _stackDOW;
   final StackChartDataValue _stackCDV;
   final CurrentDateTime _currentDateTime;
+  final NetworkInfo _networkInfo;
 
   const WeatherAppStation({
     required StackDataEnvironmentalConditions stackDEC,
     required StackDataOpenWeather stackDOW,
     required StackChartDataValue stackCDV,
     required CurrentDateTime currentDateTime,
+    required NetworkInfo networkInfo,
     super.key
     }): _stackDEC = stackDEC,
         _stackDOW = stackDOW,
         _stackCDV = stackCDV,
-        _currentDateTime = currentDateTime;
+        _currentDateTime = currentDateTime,
+        _networkInfo = networkInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +36,8 @@ class WeatherAppStation extends StatelessWidget {
         ChangeNotifierProvider<StackChartDataValue>(create: (_) => _stackCDV),
         ChangeNotifierProvider<CurrentDateTime>(
             create: (_) => _currentDateTime),
+        ChangeNotifierProvider<NetworkInfo>(
+            create: (_) => _networkInfo),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
