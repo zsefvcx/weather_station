@@ -20,17 +20,14 @@ class ShowStateSingleSensor extends StatelessWidget {
       color: _color,
     );
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 25, right: 25),
-      child: Row(//FittedBox
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(_sensorStatus.typeSensor, style: style),
-          Text('\t${_sensorStatus.temp} ˚C,\t${_sensorStatus.humid} %', style: style),
-          if(_sensorStatus.press != null)
-            Text(',\t${_sensorStatus.press} mmHg', style: style),
-        ],
-      ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(_sensorStatus.typeSensor, style: style),
+        Text('\t${_sensorStatus.temp} ˚C,\t${_sensorStatus.humid} %', style: style),
+        if(_sensorStatus.press != null)
+          Text(',\t${_sensorStatus.press} mmHg', style: style),
+      ],
     );
   }
 }

@@ -84,8 +84,6 @@ class _SignUpFormState extends State<SignUpForm> {
 
   @override
   Widget build(BuildContext context) => Column(
-    mainAxisSize: MainAxisSize.max,
-    crossAxisAlignment: CrossAxisAlignment.center,
     children: <Widget>[
       Expanded(
         child: Center(
@@ -120,7 +118,6 @@ class _SignUpFormState extends State<SignUpForm> {
                     decoration: const InputDecoration(
                       labelText: 'First name',
                     ),
-                    maxLines: 1,
                     keyboardType: TextInputType.text,
                     controller: _firstNameController,
                   ),
@@ -138,7 +135,6 @@ class _SignUpFormState extends State<SignUpForm> {
                     decoration: const InputDecoration(
                       labelText: 'Second name',
                     ),
-                    maxLines: 1,
                     keyboardType: TextInputType.text,
                     controller: _secondNameController,
                   ),
@@ -163,7 +159,6 @@ class _SignUpFormState extends State<SignUpForm> {
                     inputFormatters: [
                       FilteringTextInputFormatter.digitsOnly,
                     ],
-                    maxLines: 1,
                     controller: _ageController,
                   ),
                 ),
@@ -180,7 +175,6 @@ class _SignUpFormState extends State<SignUpForm> {
                     decoration: const InputDecoration(
                       labelText: 'e-Mail',
                     ),
-                    maxLines: 1,
                     keyboardType: TextInputType.emailAddress,
                     controller: _emailController,
                   ),
@@ -236,7 +230,6 @@ mixin _PrompterBuilderMixin on _PrompterApiMixin {
     if (!kDebugMode) return widget.child;
     return Stack(
       alignment: Alignment.bottomRight,
-      fit: StackFit.loose,
       children: <Widget>[
         widget.child,
         Positioned(
