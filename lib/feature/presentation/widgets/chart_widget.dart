@@ -224,7 +224,7 @@ class _ChartWidgetState extends State<ChartWidget> {
                 transparent: false,
                 child: CustomCheckbox(
                   value: _isCheckedPressure3,
-                  text: '\t T: ',
+                  text: '\t P: ',
                   onChanged:  (_) => setState(() {
                     _isCheckedTemperature1 = false;
                     _isCheckedAirHumidity2 = false;
