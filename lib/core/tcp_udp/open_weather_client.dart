@@ -1,6 +1,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:isolate';
 
 import 'package:http/http.dart' as http;
 import 'package:weather_station/common/common.dart';
@@ -156,6 +157,31 @@ class OpenWeatherClient {
       Logger.print('Error startRcvWeather OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
           errorMessageText: 'Error startRcvWeather OpenWeatherClient with:\n$e\n$t'
+      );
+    }
+  }
+
+  Future<void> _rcvIsolate(SendPort sendPort) async {
+    sendPort.send(await _startRcvWeather());
+    // Future.delayed(periodic, () async {
+    //    final result = await _startRcvWeather();
+    //    sendPort.send(result);
+    // },);
+  }
+
+  Stream<WeatherData?> run2() async* {
+    try {
+      final receivePort = ReceivePort();
+      final isolate = await Isolate.spawn(_rcvIsolate, receivePort.sendPort);
+      receivePort.listen((message) {
+
+        receivePort.close();
+        isolate.kill();
+      });
+    } on Exception catch(e, t) {
+      Logger.print('Error run OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
+      throw OpenWeatherClientException(
+          errorMessageText: 'Error run OpenWeatherClient with:\n$e\n$t'
       );
     }
   }
