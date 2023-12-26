@@ -28,8 +28,14 @@ class OpenWeatherClient {
   final Duration timeLimit;
   //periodic - frequency of requests
   final Duration periodic;
-  // chaker network Status
+  //Chacker network Status
   final NetworkInfo networkInfo;
+  //StreamSubscription
+  static StreamSubscription<dynamic>? streamSubscription;
+  //Isolate
+  static Isolate? isolate;
+  //ReceivePort
+  static ReceivePort receivePort = ReceivePort();
 
   const OpenWeatherClient({
     required this.networkInfo,
@@ -169,15 +175,15 @@ class OpenWeatherClient {
     // },);
   }
 
-  Stream<WeatherData?> run2() async* {
+  Stream<WeatherData?> run2() {
     try {
-      final receivePort = ReceivePort();
-      final isolate = await Isolate.spawn(_rcvIsolate, receivePort.sendPort);
-      receivePort.listen((message) {
+      return Isolate
+          .spawn(_rcvIsolate, receivePort.sendPort)
+          .asStream();
 
-        receivePort.close();
-        isolate.kill();
-      });
+
+
+
     } on Exception catch(e, t) {
       Logger.print('Error run OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
@@ -202,4 +208,12 @@ class OpenWeatherClient {
       );
     }
   }
+
+  void dispose() {
+
+    receivePort.close();
+    isolate?.kill();
+    streamSubscription?.cancel();
+  }
+
 }
