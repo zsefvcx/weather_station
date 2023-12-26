@@ -169,6 +169,17 @@ class OpenWeatherClient {
 
   Future<void> _rcvIsolate(SendPort sendPort) async {
     sendPort.send(await _startRcvWeather());
+    await for(final current in Stream.periodic(periodic, (tick) {
+      try {
+        return _startRcvWeather();
+      } on OpenWeatherClientException catch(e,t){
+        Logger.print('$tick:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+      }}).asyncMap((event) async => event)){
+      sendPort.send(current);
+    }
+
+
+
     // Future.delayed(periodic, () async {
     //    final result = await _startRcvWeather();
     //    sendPort.send(result);
@@ -179,11 +190,9 @@ class OpenWeatherClient {
     try {
       return Isolate
           .spawn(_rcvIsolate, receivePort.sendPort)
-          .asStream();
-
-
-
-
+          .asStream()
+          .asyncExpand((event) => receivePort)
+          .takeWhile((element) => element is WeatherData?).cast();
     } on Exception catch(e, t) {
       Logger.print('Error run OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
