@@ -28,7 +28,7 @@ abstract class Constants {
   static const Duration timeLimitEC = Duration(seconds: timeLimitECSec);
 
   ///периодичность
-  static const int periodicECSec = 10;
+  static const int periodicECSec = 60;
   static const Duration periodicEC = Duration(seconds: periodicECSec);
 
   ///Опрос для погодного клиента

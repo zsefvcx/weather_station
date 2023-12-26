@@ -24,25 +24,6 @@ class OpenWeatherClient {
   static const String _geo = 'geo/1.0/direct';
   static const String _data = 'data/2.5/weather';
   static const String _unit = '&units=metric';
-  //timeLimit - limit await udp response
-  final Duration timeLimit;
-  //periodic - frequency of requests
-  final Duration periodic;
-  //Chacker network Status
-  final NetworkInfo networkInfo;
-  //StreamSubscription
-  static StreamSubscription<dynamic>? streamSubscription;
-  //Isolate
-  static Isolate? isolate;
-  //ReceivePort
-  static ReceivePort receivePort = ReceivePort();
-
-  const OpenWeatherClient({
-    required this.networkInfo,
-    this.timeLimit = Constants.timeLimitWD,
-    this.periodic = Constants.periodicWD,
-  });
-
   Uri _getUriGeoPosition() {
     //'https://api.openweathermap.org/geo/1.0/direct?'
     //'q=$sCity'
@@ -50,10 +31,9 @@ class OpenWeatherClient {
     final url =  '$_baseUrl$_geo?q=${Settings.sCity}&appid=${Settings.appid}';
     Logger.print('uriGeoPosition: $url');
     return Uri.parse(
-      url
+        url
     );
   }
-
   Uri _getUriWeatherStatus({required double lat, required double lon}) {
     //'https://api.openweathermap.org/data/2.5/weather?'
     //         'lat=$lat'
@@ -63,9 +43,31 @@ class OpenWeatherClient {
     final url = '$_baseUrl$_data?lat=${Settings.lat}&lon=${Settings.lon}$_unit&appid=${Settings.appid}';
     Logger.print('uriWeatherStatus: $url');
     return Uri.parse(
-      url
+        url
     );
   }
+
+
+  //timeLimit - limit await udp response
+  final Duration _timeLimit;
+  //periodic - frequency of requests
+  final Duration _periodic;
+  //Chacker network Status
+  final NetworkInfo _networkInfo;
+  //StreamSubscription
+  static StreamSubscription<dynamic>? streamSubscription;
+  //Isolate
+  static Isolate? _isolate;
+  //ReceivePort
+  static final ReceivePort _receivePort = ReceivePort();
+  //Timer
+  static Timer? _timer;
+
+  const OpenWeatherClient({
+    required NetworkInfo networkInfo,
+    Duration timeLimit = Constants.timeLimitWD,
+    Duration periodic = Constants.periodicWD,
+  }) : _timeLimit = timeLimit, _periodic = periodic, _networkInfo = networkInfo;
 
   Future<({double lat, double lon})> _getPosition({required Uri uri}) async {
     try {
@@ -131,8 +133,7 @@ class OpenWeatherClient {
 
   Future<WeatherData?> _startRcvWeather() async {
     try {
-
-      if(!(await networkInfo.isConnectedWD)) {
+      if(!(await _networkInfo.isConnectedWD)) {
         Logger.print('${DateTime.now()}:WeatherClient: No Network Info Status');
         return null;
       }
@@ -169,29 +170,36 @@ class OpenWeatherClient {
 
   Future<void> _rcvIsolate(SendPort sendPort) async {
     sendPort.send(await _startRcvWeather());
-    await for(final current in Stream.periodic(periodic, (tick) {
-      try {
-        return _startRcvWeather();
-      } on OpenWeatherClientException catch(e,t){
-        Logger.print('$tick:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
-      }}).asyncMap((event) async => event)){
-      sendPort.send(current);
-    }
 
+    await Stream.periodic(_periodic, (computationCount) {
+      return _startRcvWeather();
+    },).asyncMap((event) => event).forEach((element) => sendPort.send(element));
 
+    // Timer.periodic(_periodic, (timer) async {
+    //   try {
+    //     sendPort.send(await _startRcvWeather());
+    //   } on OpenWeatherClientException catch(e,t){
+    //     Logger.print('${timer.tick}:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+    // }});
 
-    // Future.delayed(periodic, () async {
-    //    final result = await _startRcvWeather();
-    //    sendPort.send(result);
-    // },);
   }
 
+  Future<void> _checkNetwork() async {
+    if(!(await _networkInfo.isConnectedWD)) {
+      Logger.print('${DateTime.now()}:WeatherClient: No Network Info Status');
+    }
+  }
+
+  //From Isolate
   Stream<WeatherData?> run2() {
     try {
+      Future.delayed(Duration.zero, () async => _checkNetwork(),);
+      _timer = Timer.periodic(_periodic, (_) async => _checkNetwork(),);
+
       return Isolate
-          .spawn(_rcvIsolate, receivePort.sendPort)
+          .spawn(_rcvIsolate, _receivePort.sendPort)
           .asStream()
-          .asyncExpand((event) => receivePort)
+          .asyncExpand((event) => _receivePort)
           .takeWhile((element) => element is WeatherData?).cast();
     } on Exception catch(e, t) {
       Logger.print('Error run OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
@@ -201,10 +209,11 @@ class OpenWeatherClient {
     }
   }
 
+  //From Stream
   Stream<WeatherData?> run() async* {
     try {
       yield await _startRcvWeather();
-      yield* Stream.periodic(periodic, (tick) {
+      yield* Stream.periodic(_periodic, (tick) {
         try {
           return _startRcvWeather();
         } on OpenWeatherClientException catch(e,t){
@@ -220,8 +229,9 @@ class OpenWeatherClient {
 
   void dispose() {
 
-    receivePort.close();
-    isolate?.kill();
+    _timer?.cancel();
+    _receivePort.close();
+    _isolate?.kill();
     streamSubscription?.cancel();
   }
 
