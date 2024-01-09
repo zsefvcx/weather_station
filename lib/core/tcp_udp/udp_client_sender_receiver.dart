@@ -57,6 +57,8 @@ class UDPClientSenderReceiver {
   final NetworkInfo networkInfo;
   // StreamController
   final StreamServiceEnvironmentalConditions serviceEC;
+  //Timer
+  static Timer? _timer;
 
   const UDPClientSenderReceiver({
     required this.serviceEC,
@@ -68,10 +70,6 @@ class UDPClientSenderReceiver {
     this.timeLimit = Constants.timeLimitEC,
     this.periodic = Constants.periodicEC,
   });
-
-  void dispose(){
-    serviceEC.dispose();
-  }
 
   Future<RawDatagramSocket> _bind() async {
     try {
@@ -228,12 +226,13 @@ class UDPClientSenderReceiver {
     }
   }
 
-  Future<Timer> run({
+  //From Stream
+  Future<void> run({
     bool broadcastEnabled = true
   }) async {
     try {
       await _startRcvUdp(broadcastEnabled: broadcastEnabled);
-      return Timer.periodic(periodic, (timer) async {
+      _timer = Timer.periodic(periodic, (timer) async {
           try {
             await _startRcvUdp(broadcastEnabled: broadcastEnabled);
           }  on UDPClientSenderReceiverException catch(e, t) {
@@ -247,5 +246,10 @@ class UDPClientSenderReceiver {
           errorMessageText: 'type:$type: Error run Socket with:\n$e\n$t'
       );
     }
+  }
+
+  void dispose(){
+    serviceEC.dispose();
+    _timer?.cancel();
   }
 }

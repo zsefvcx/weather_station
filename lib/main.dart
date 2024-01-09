@@ -44,7 +44,7 @@ Future<void> main() async {
   );
   unawaited(udpClient2.run(broadcastEnabled: false));
 
-
+  await openWeatherClient.initIsolate();
   final serviceWD = StreamServiceWeatherData()..addStream(openWeatherClient.run2());
 
   final stackDOW = StackDataOpenWeather(serviceWD.stream)..listen;

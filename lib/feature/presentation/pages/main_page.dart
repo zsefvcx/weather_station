@@ -99,15 +99,16 @@ class _MainPageState extends State<MainPage> {
         bottomSheet: BottomAppBar(
           color: Theme.of(context).colorScheme.inversePrimary,
           height: Theme.of(context).appBarTheme.toolbarHeight,
-          child: const Column(
+          child: Column(
             children: [
-              Row(
+              const Row(
                 children: [
                   ShowDateTime(),
                   ShowStatusConnection(),
                 ],
               ),
-              FittedBox(
+              18.h,
+              const FittedBox(
                 child: Text(
                   'Прогноз предоставлен ® OpenWeather ',
                   textAlign: TextAlign.center,

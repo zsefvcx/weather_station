@@ -168,19 +168,19 @@ class OpenWeatherClient {
     }
   }
 
-  Future<void> _rcvIsolate(SendPort sendPort) async {
-    sendPort.send(await _startRcvWeather());
+  void _rcvIsolate(SendPort sendPort) {
 
-    await Stream.periodic(_periodic, (computationCount) {
-      return _startRcvWeather();
-    },).asyncMap((event) => event).forEach((element) => sendPort.send(element));
+    Future.delayed(Duration.zero, () async => sendPort.send(await _startRcvWeather()),);
+    // await Stream.periodic(_periodic, (computationCount) {
+    //   return _startRcvWeather();
+    // },).asyncMap((event) => event).forEach((element) => sendPort.send(element));
 
-    // Timer.periodic(_periodic, (timer) async {
-    //   try {
-    //     sendPort.send(await _startRcvWeather());
-    //   } on OpenWeatherClientException catch(e,t){
-    //     Logger.print('${timer.tick}:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
-    // }});
+    Timer.periodic(_periodic, (timer) async {
+      try {
+        sendPort.send(await _startRcvWeather());
+      } on OpenWeatherClientException catch(e,t){
+        Logger.print('${timer.tick}:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+    }});
 
   }
 
@@ -191,16 +191,19 @@ class OpenWeatherClient {
   }
 
   //From Isolate
+  Future<void> initIsolate() async {
+    _isolate = await Isolate.spawn(_rcvIsolate, _receivePort.sendPort);
+  }
+
   Stream<WeatherData?> run2() {
     try {
       Future.delayed(Duration.zero, () async => _checkNetwork(),);
       _timer = Timer.periodic(_periodic, (_) async => _checkNetwork(),);
+      return _receivePort.map((event) => (event is WeatherData)?event:null);
+      // return Isolate.spawn(_rcvIsolate, _receivePort.sendPort).asStream()
+      //      .asyncExpand((event) => _receivePort)
+      //      .takeWhile((element) => element is WeatherData?).cast();
 
-      return Isolate
-          .spawn(_rcvIsolate, _receivePort.sendPort)
-          .asStream()
-          .asyncExpand((event) => _receivePort)
-          .takeWhile((element) => element is WeatherData?).cast();
     } on Exception catch(e, t) {
       Logger.print('Error run OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
