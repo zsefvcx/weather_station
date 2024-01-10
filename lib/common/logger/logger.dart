@@ -45,7 +45,7 @@ abstract class Logger {
         final localPath = error?'$path/logger_error.txt':'$path/logger_data.txt';
         Logger.print(localPath);
         final file = File(localPath);
-        await file.writeAsString('$msg\n', mode: FileMode.append);
+        await file.writeAsString('${DateTime.now()}\n $msg\n', mode: FileMode.append);
       }
 
       try {

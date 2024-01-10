@@ -23,6 +23,7 @@ Future<void> main() async {
     serviceEC: serviceEC,
     type: TypeDataRcv.multi,
     networkInfo: networkInfo,
+    periodic: Constants.timeLimitWD
   );
   unawaited(odpMultiCastReceiver.run());
 

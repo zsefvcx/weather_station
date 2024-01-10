@@ -168,19 +168,31 @@ class OpenWeatherClient {
     }
   }
 
-  void _rcvIsolate(SendPort sendPort) {
+  Future<void> _rcvIsolate(SendPort sendPort) async {
 
-    Future.delayed(Duration.zero, () async => sendPort.send(await _startRcvWeather()),);
-    // await Stream.periodic(_periodic, (computationCount) {
-    //   return _startRcvWeather();
-    // },).asyncMap((event) => event).forEach((element) => sendPort.send(element));
+    await Future.delayed(Duration.zero, () async {
+      try {
+        sendPort.send(await _startRcvWeather());
+      } on OpenWeatherClientException catch(e,t){
+        Logger.print('Future:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+      } on Exception catch(e,t){
+        Logger.print('Future:Error run OpenWeatherClient Other Exception with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+      }
+    },);
 
     Timer.periodic(_periodic, (timer) async {
       try {
         sendPort.send(await _startRcvWeather());
       } on OpenWeatherClientException catch(e,t){
         Logger.print('${timer.tick}:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
-    }});
+        timer.cancel();
+        await _rcvIsolate(sendPort);
+      } on Exception catch(e,t){
+        Logger.print('${timer.tick}:Error run OpenWeatherClient Other Exception with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+        timer.cancel();
+        await _rcvIsolate(sendPort);
+      }
+    });
 
   }
 
@@ -205,9 +217,9 @@ class OpenWeatherClient {
       //      .takeWhile((element) => element is WeatherData?).cast();
 
     } on Exception catch(e, t) {
-      Logger.print('Error run OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
+      Logger.print('Error run OpenWeatherClient Isolate with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
-          errorMessageText: 'Error run OpenWeatherClient with:\n$e\n$t'
+          errorMessageText: 'Error run OpenWeatherClient Isolate with:\n$e\n$t'
       );
     }
   }
@@ -223,9 +235,9 @@ class OpenWeatherClient {
           Logger.print('$tick:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
         }}).asyncMap((event) async => event);
     } on Exception catch(e, t) {
-      Logger.print('Error run OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
+      Logger.print('Error run OpenWeatherClient Stream with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
       throw OpenWeatherClientException(
-          errorMessageText: 'Error run OpenWeatherClient with:\n$e\n$t'
+          errorMessageText: 'Error run OpenWeatherClient Stream with:\n$e\n$t'
       );
     }
   }
