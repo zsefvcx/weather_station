@@ -169,31 +169,17 @@ class OpenWeatherClient {
   }
 
   Future<void> _rcvIsolate(SendPort sendPort) async {
+    while(true){
 
-    await Future.delayed(Duration.zero, () async {
       try {
         sendPort.send(await _startRcvWeather());
       } on OpenWeatherClientException catch(e,t){
-        Logger.print('Future:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+        Logger.print('Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
       } on Exception catch(e,t){
-        Logger.print('Future:Error run OpenWeatherClient Other Exception with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+        Logger.print('Error run OpenWeatherClient Other Exception with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
       }
-    },);
-
-    Timer.periodic(_periodic, (timer) async {
-      try {
-        sendPort.send(await _startRcvWeather());
-      } on OpenWeatherClientException catch(e,t){
-        Logger.print('${timer.tick}:Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
-        timer.cancel();
-        await _rcvIsolate(sendPort);
-      } on Exception catch(e,t){
-        Logger.print('${timer.tick}:Error run OpenWeatherClient Other Exception with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
-        timer.cancel();
-        await _rcvIsolate(sendPort);
-      }
-    });
-
+     await Future.delayed(_periodic);
+    }
   }
 
   Future<void> _checkNetwork() async {
