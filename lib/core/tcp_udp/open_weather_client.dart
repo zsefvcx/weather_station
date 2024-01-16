@@ -88,17 +88,17 @@ class OpenWeatherClient {
           Settings.lon = lon;
           return (lat: lat, lon: lon);
         }
-               Logger.print('Wrong getPosition response date: ${response.body}', name: 'err',  error: true,  safeToDisk: true,);
+               Logger.print('Wrong getPosition response date: ${response.body}', name: 'err',  error: true,);
         throw OpenWeatherClientException(
           errorMessageText: 'Wrong getPosition response date: ${response.body}'
         );
       }
-             Logger.print('Wrong getPosition status code: ${response.statusCode}', name: 'err',  error: true,  safeToDisk: true,);
+             Logger.print('Wrong getPosition status code: ${response.statusCode}', name: 'err',  error: true,);
       throw OpenWeatherClientException(
         errorMessageText: 'Wrong getPosition status code: ${response.statusCode}'
       );
     } on Exception catch(e, t) {
-               Logger.print('Error getPosition OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
+               Logger.print('Error getPosition OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,);
       throw OpenWeatherClientException(
           errorMessageText: 'Error getPosition OpenWeatherClient with:\n$e\n$t'
       );
@@ -114,17 +114,17 @@ class OpenWeatherClient {
         if(jsonList0 != null){
           return jsonList0;
         }
-                 Logger.print('Wrong getWeather response date: ${response.statusCode}', name: 'err',  error: true,  safeToDisk: true,);
+                 Logger.print('Wrong getWeather response date: ${response.statusCode}', name: 'err',  error: true,);
         throw OpenWeatherClientException(
             errorMessageText: 'Wrong getWeather response date: ${response.statusCode}'
         );
       }
-                 Logger.print('Wrong getWeather status code: ${response.statusCode}', name: 'err',  error: true,  safeToDisk: true,);
+                 Logger.print('Wrong getWeather status code: ${response.statusCode}', name: 'err',  error: true,);
       throw OpenWeatherClientException(
             errorMessageText: 'Wrong getWeather status code: ${response.statusCode}'
       );
     } on Exception catch(e, t) {
-               Logger.print('Error getWeather OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
+               Logger.print('Error getWeather OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,);
       throw OpenWeatherClientException(
           errorMessageText: 'Error getWeather OpenWeatherClient with:\n$e\n$t'
       );
@@ -161,7 +161,7 @@ class OpenWeatherClient {
       // Logger.print(dataChart.toString());
       // stackCDV.add(dataChart);
     } on Exception catch(e, t) {
-      Logger.print('Error startRcvWeather OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
+      Logger.print('Error startRcvWeather OpenWeatherClient with:\n$e\n$t', name: 'err',  error: true,);
       throw OpenWeatherClientException(
           errorMessageText: 'Error startRcvWeather OpenWeatherClient with:\n$e\n$t'
       );
@@ -172,13 +172,14 @@ class OpenWeatherClient {
     while(true){
 
       try {
-        sendPort.send(await _startRcvWeather());
+        final res = await _startRcvWeather();
+        if(res != null) sendPort.send(res);
       } on OpenWeatherClientException catch(e,t){
-        Logger.print('Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+        Logger.print('Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err');
       } on Exception catch(e,t){
-        Logger.print('Error run OpenWeatherClient Other Exception with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+        Logger.print('Error run OpenWeatherClient Other Exception with:\n$e\n$t', error: true, name: 'err');
       }
-     await Future.delayed(_periodic);
+      await Future.delayed(_periodic);
     }
   }
 
@@ -190,14 +191,20 @@ class OpenWeatherClient {
 
   //From Isolate
   Future<void> initIsolate() async {
-    _isolate = await Isolate.spawn(_rcvIsolate, _receivePort.sendPort);
+    _isolate = await Isolate.spawn(_rcvIsolate, _receivePort.sendPort, paused: true);
+    _isolate?.addErrorListener(_receivePort.sendPort);
+
   }
 
   Stream<WeatherData?> run2() {
     try {
       Future.delayed(Duration.zero, () async => _checkNetwork(),);
       _timer = Timer.periodic(_periodic, (_) async => _checkNetwork(),);
-      return _receivePort.map((event) => (event is WeatherData)?event:null);
+      final stream = _receivePort.map((event) => (event is WeatherData)?event:null);
+      final resumeCapability = _isolate?.pauseCapability;
+      if(resumeCapability != null)_isolate?.resume(resumeCapability);
+      return stream;
+
       // return Isolate.spawn(_rcvIsolate, _receivePort.sendPort).asStream()
       //      .asyncExpand((event) => _receivePort)
       //      .takeWhile((element) => element is WeatherData?).cast();
