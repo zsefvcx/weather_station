@@ -169,16 +169,24 @@ class OpenWeatherClient {
   }
 
   Future<void> _rcvIsolate(SendPort sendPort) async {
+    //Вечный цикл заменить на то что было раньше. Это не особо кравиво
+    //Вообще надо в таймер и это все после закрытия изолята очищать,
+    // предварително получав сообщение что закрываемся. Пока пусть так.
     while(true){
-
+      WeatherData? res;
       try {
-        final res = await _startRcvWeather();
+        res = await _startRcvWeather();
         if(res != null) sendPort.send(res);
       } on OpenWeatherClientException catch(e,t){
         Logger.print('Error run OpenWeatherClient with:\n$e\n$t', error: true, name: 'err');
       } on Exception catch(e,t){
         Logger.print('Error run OpenWeatherClient Other Exception with:\n$e\n$t', error: true, name: 'err');
       }
+
+      // немоного подождем
+      await Future.delayed(_timeLimit);
+      //Если сообщение не пришло то повторяем без длительного ожидания
+      if(res == null) continue;
       await Future.delayed(_periodic);
     }
   }

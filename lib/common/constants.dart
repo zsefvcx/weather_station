@@ -24,20 +24,20 @@ abstract class Constants {
 
   ///Опрос метеостанции
   ///лимит опроса
-  static const int timeLimitECSec = 5;
+  static const int timeLimitECSec = 15;
   static const Duration timeLimitEC = Duration(seconds: timeLimitECSec);
 
   ///периодичность
-  static const int periodicECSec = 60;
+  static const int periodicECSec = 5;
   static const Duration periodicEC = Duration(seconds: periodicECSec);
 
   ///Опрос для погодного клиента
   ///лимит опроса
-  static const int timeLimitWDSec = 5;
+  static const int timeLimitWDSec = 15;
   static const Duration timeLimitWD = Duration(seconds: timeLimitWDSec);
 
   ///периодичность
-  static const int periodicWDSec = 1;
+  static const int periodicWDSec = 15;
   static const Duration periodicWD = Duration(minutes: periodicWDSec);
 
   ///Часы

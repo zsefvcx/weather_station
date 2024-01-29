@@ -116,7 +116,7 @@ void setup() {
   Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("%"));
   Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("%"));
   delayMS = sensor.min_delay / 1000;
-  Serial.print(F("delayMS")); Serial.println(delayMS);
+  Serial.print(F("delayMS:")); Serial.println(delayMS);
   Serial.println(F("-START-LOOP-------------------------"));
   int i = -1;
 startNext:
