@@ -141,6 +141,9 @@ class OpenWeatherClient {
       Logger.print('uriGeo.path: ${uriGeo.path}');
       final position = await _getPosition(uri: uriGeo);
       Logger.print('position{Lat:${position.lat},Lon:${position.lon}}');
+      // немоного подождем
+      await Future.delayed(_timeLimit);
+
       final uriWeather = _getUriWeatherStatus(
           lat:position.lat,
           lon:position.lon
