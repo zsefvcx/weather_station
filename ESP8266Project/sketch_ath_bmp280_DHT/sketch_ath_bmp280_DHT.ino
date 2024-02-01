@@ -92,7 +92,7 @@ void setup() {
                   Adafruit_BMP280::SAMPLING_X16,    /* Pressure oversampling */
                   Adafruit_BMP280::FILTER_X16,      /* Filtering. */
                   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
-  if (! aht.begin()) {
+  if (!aht.begin()) {
     Serial.println("Could not find AHT? Check wiring");
     while (1) delay(10);
   }
@@ -118,6 +118,7 @@ void setup() {
   delayMS = sensor.min_delay / 1000;
   Serial.print(F("delayMS:")); Serial.println(delayMS);
   Serial.println(F("-START-LOOP-------------------------"));
+startNext0:
   int i = -1;
 startNext:
   i++; if(i>=4)i=0;
@@ -144,7 +145,7 @@ Serial.print  (F("currentAPData.pass: ")); Serial.println(currentAPData.pass);
       delay(500);
       Serial.print(".");
       i++;
-      if(i >= 25) goto startNext;
+      if(i >= 50) goto startNext;
     }
   } 
   else
@@ -177,10 +178,10 @@ startNextPortalRun:
         delay(500);
         Serial.print(".");
         i++;
-        if(i >= 25) goto startNextPortalRun;
+        if(i >= 50) goto startNextPortalRun;
       }
     } else {
-      goto startNextPortalRun;
+      goto startNext0;
     }
   }
 
