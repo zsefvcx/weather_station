@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../domain.dart';
 
@@ -27,6 +28,14 @@ class MainBloc extends Bloc<MainBlocEvent, MainBlocState>{
   }) : super(const MainBlocState.loading()) {
     on<MainBlocEvent>((event, emit) async {
       await event.map<FutureOr<void>>(
+         init: (value) {
+         },
+         read: (value) {
+         },
+         write: (value) {
+         },
+         delete: (value) {
+         },
       );
     });
   }

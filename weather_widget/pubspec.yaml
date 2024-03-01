@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  dart_style: ^2.3.6
   cupertino_icons: ^1.0.6
   get_it: ^7.6.7
   internet_connection_checker: ^1.0.0+1
