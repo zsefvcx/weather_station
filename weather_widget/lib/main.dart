@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'feature/domain/bloc/bloc.dart';
-
+import 'modules/modules.dart';
 
 void main() {
   BlocFactory.instance.initialize();
