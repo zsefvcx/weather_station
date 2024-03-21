@@ -15,14 +15,19 @@ dependencies:
   cupertino_icons: ^1.0.6
   get_it: ^7.6.7
   internet_connection_checker: ^1.0.0+1
+  json_serializable: ^6.7.1
+  json_annotation: ^4.8.1
   freezed: ^2.4.7
   freezed_annotation: ^2.4.1
   flutter_bloc: ^8.1.4
   provider: ^6.1.2
   analyzer: ^6.4.1
   build_runner: ^2.4.8
-  auto_route: ^7.8.4
+  auto_route: ^7.9.2
   auto_route_generator: ^7.3.2
+  meta: ^1.11.0
+  equatable: ^2.0.5
+  uuid: ^4.3.3
 
 dev_dependencies:
   flutter_test:

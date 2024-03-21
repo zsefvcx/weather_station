@@ -1,7 +1,10 @@
 export 'app_consts.dart';
 export 'app_settings.dart';
+export 'error/error.dart';
+export 'network_info.dart';
 export 'resources/resources.dart';
 export 'routes/app_router.dart';
+export 'stream/stream_service.dart';
 export 'theme/theme.dart';
+export 'usecases/usecases.dart';
 export 'widgets/widgets.dart';
-export 'network_info.dart';

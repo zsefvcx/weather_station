@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-
-import 'modules/modules.dart';
+import 'package:weather_widget/app.dart';
+import 'package:weather_widget/modules/modules.dart';
 
 void main() {
-  BlocFactory.instance.initialize();
+  FeatureBlocsInit.initState();
 
-  runApp(const Placeholder());
+  runApp(const App());
 }

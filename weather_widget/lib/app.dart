@@ -10,12 +10,12 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final mainBloc = FeatureBlocsInit.mainBloc;
+    final mainBloc = FeatureBlocsInit.environmentBloc;
     final appRouter = AppRouter();
 
     return MultiProvider(
       providers: [
-        Provider<MainBloc>(
+        Provider<EnvironmentBloc>(
           create: (_) => mainBloc,
         ),
       ],
