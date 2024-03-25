@@ -1,18 +1,19 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_widget/modules/environment/presentation/bloc/environment_bloc/environment_bloc.dart';
+import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/presentation/bloc/environment_bloc/environment_bloc.dart';
 
 @RoutePage()
 class MainPage extends StatelessWidget {
+
   const MainPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    BlocProvider.of<EnvironmentBloc>(context)
-        .add(const EnvironmentEvent.receiveData());
-
+    final block = BlocProvider.of<EnvironmentBloc>(context)
+        ..add(const EnvironmentEvent.receiveData());
+    final liltError = <String>[];
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -27,7 +28,13 @@ class MainPage extends StatelessWidget {
                     return Text(value.data.toString());
                   },
                   error: (value) {
-                    return Text(value.massage);
+                    final res = '${DateTime.now()} ${value.massage}';
+                    liltError.add(res);
+                    if(liltError.length>=10)liltError.removeAt(0);
+                    return Text(liltError.toString());
+                  },
+                  stop: (value) {
+                    return Text('Poll stopped'.hardcoded);
                   },
               );
 
@@ -42,6 +49,29 @@ class MainPage extends StatelessWidget {
             },
           ),
         ),
+      ),
+      floatingActionButton: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(onPressed: () {
+            liltError.clear();
+            block.add(const EnvironmentEvent.stopGet());
+          },
+            tooltip: 'Stop'.hardcoded,
+            child: const Icon(Icons.stop),
+          ),
+          10.w,
+          FloatingActionButton(onPressed: () {
+            liltError.clear();
+            block
+                  ..add(const EnvironmentEvent.startGet())
+                  ..add(const EnvironmentEvent.receiveData());
+          },
+            tooltip: 'Start'.hardcoded,
+            child: const Icon(Icons.start),
+          ),
+        ],
       ),
     );
   }

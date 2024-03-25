@@ -24,7 +24,8 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
     on<EnvironmentEvent>((event, emit) async {
       await event.map<FutureOr<void>>(
         startGet: (value) async {
-          final failure = await receiveData.start();
+          if(_status) return;
+          final failure = receiveData.start();
           if (failure != null) {
             emit(EnvironmentState.error(
                 massage: _mapFailureToMassage(failure)));
@@ -34,29 +35,36 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
           _status = true;
         },
         stopGet: (value) async {
-          final failure = await receiveData.stop();
+          if(!_status) return;
+          final failure = receiveData.stop();
           if (failure != null) {
             emit(EnvironmentState.error(
                 massage: _mapFailureToMassage(failure)));
             _status = false;
             return;
           }
+          emit(const EnvironmentState.stop());
           _status = false;
         },
         receiveData: (value) async {
           emit(const EnvironmentState.loading());
-          final (Failure? failure, EnvironmentDataEntity? data) =
-              await receiveData();
-          if (failure != null) {
-            emit(EnvironmentState.error(
-                massage: _mapFailureToMassage(failure)));
-          } else if (data != null) {
+          final stream = receiveData();
+          await emit.forEach(stream, onData: (event) {
+            final failure = event.$1;
+            final data = event.$2;
+            if (failure != null) {
+              return EnvironmentState.error(
+                massage: _mapFailureToMassage(failure),
+              );
+            } else if (data != null) {
             this.data = data;
-            emit(EnvironmentState.loaded(data: data));
-          } else {
-            emit(const EnvironmentState.error(
-                massage: unexpectedErrorMessage));
-          }
+              return EnvironmentState.loaded(data: data);
+            } else {
+              return const EnvironmentState.error(
+                massage: unexpectedErrorMessage,
+              );
+            }
+          });
         },
       );
     });
@@ -64,12 +72,12 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
 
   String _mapFailureToMassage(Failure failure) {
     switch (failure) {
-      case ServerFailure _:
-        return serverFailureMessage;
-      case CacheFailure _:
-        return cacheFailureMessage;
-      case TimeOutFailure _:
-        return timeOutFailureMessage;
+      case final ServerFailure sf:
+        return '$serverFailureMessage: ${sf.errorMessage}';
+      case final CacheFailure sf:
+        return '$cacheFailureMessage: ${sf.errorMessage}';
+      case final TimeOutFailure sf:
+        return '$timeOutFailureMessage: ${sf.errorMessage}';
       default:
         return unexpectedErrorMessage;
     }

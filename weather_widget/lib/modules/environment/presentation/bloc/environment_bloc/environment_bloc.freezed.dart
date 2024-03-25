@@ -409,6 +409,7 @@ mixin _$EnvironmentState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
+    required TResult Function() stop,
     required TResult Function(EnvironmentDataEntity data) loaded,
     required TResult Function(String massage) error,
   }) =>
@@ -416,6 +417,7 @@ mixin _$EnvironmentState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
+    TResult? Function()? stop,
     TResult? Function(EnvironmentDataEntity data)? loaded,
     TResult? Function(String massage)? error,
   }) =>
@@ -423,6 +425,7 @@ mixin _$EnvironmentState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
+    TResult Function()? stop,
     TResult Function(EnvironmentDataEntity data)? loaded,
     TResult Function(String massage)? error,
     required TResult orElse(),
@@ -431,6 +434,7 @@ mixin _$EnvironmentState {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_loadingState value) loading,
+    required TResult Function(_stopState value) stop,
     required TResult Function(_loadedState value) loaded,
     required TResult Function(_errorState value) error,
   }) =>
@@ -438,6 +442,7 @@ mixin _$EnvironmentState {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_loadingState value)? loading,
+    TResult? Function(_stopState value)? stop,
     TResult? Function(_loadedState value)? loaded,
     TResult? Function(_errorState value)? error,
   }) =>
@@ -445,6 +450,7 @@ mixin _$EnvironmentState {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_loadingState value)? loading,
+    TResult Function(_stopState value)? stop,
     TResult Function(_loadedState value)? loaded,
     TResult Function(_errorState value)? error,
     required TResult orElse(),
@@ -509,6 +515,7 @@ class _$loadingStateImpl implements _loadingState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
+    required TResult Function() stop,
     required TResult Function(EnvironmentDataEntity data) loaded,
     required TResult Function(String massage) error,
   }) {
@@ -519,6 +526,7 @@ class _$loadingStateImpl implements _loadingState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
+    TResult? Function()? stop,
     TResult? Function(EnvironmentDataEntity data)? loaded,
     TResult? Function(String massage)? error,
   }) {
@@ -529,6 +537,7 @@ class _$loadingStateImpl implements _loadingState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
+    TResult Function()? stop,
     TResult Function(EnvironmentDataEntity data)? loaded,
     TResult Function(String massage)? error,
     required TResult orElse(),
@@ -543,6 +552,7 @@ class _$loadingStateImpl implements _loadingState {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_loadingState value) loading,
+    required TResult Function(_stopState value) stop,
     required TResult Function(_loadedState value) loaded,
     required TResult Function(_errorState value) error,
   }) {
@@ -553,6 +563,7 @@ class _$loadingStateImpl implements _loadingState {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_loadingState value)? loading,
+    TResult? Function(_stopState value)? stop,
     TResult? Function(_loadedState value)? loaded,
     TResult? Function(_errorState value)? error,
   }) {
@@ -563,6 +574,7 @@ class _$loadingStateImpl implements _loadingState {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_loadingState value)? loading,
+    TResult Function(_stopState value)? stop,
     TResult Function(_loadedState value)? loaded,
     TResult Function(_errorState value)? error,
     required TResult orElse(),
@@ -576,6 +588,120 @@ class _$loadingStateImpl implements _loadingState {
 
 abstract class _loadingState implements EnvironmentState {
   const factory _loadingState() = _$loadingStateImpl;
+}
+
+/// @nodoc
+abstract class _$$stopStateImplCopyWith<$Res> {
+  factory _$$stopStateImplCopyWith(
+          _$stopStateImpl value, $Res Function(_$stopStateImpl) then) =
+      __$$stopStateImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$stopStateImplCopyWithImpl<$Res>
+    extends _$EnvironmentStateCopyWithImpl<$Res, _$stopStateImpl>
+    implements _$$stopStateImplCopyWith<$Res> {
+  __$$stopStateImplCopyWithImpl(
+      _$stopStateImpl _value, $Res Function(_$stopStateImpl) _then)
+      : super(_value, _then);
+}
+
+/// @nodoc
+
+class _$stopStateImpl implements _stopState {
+  const _$stopStateImpl();
+
+  @override
+  String toString() {
+    return 'EnvironmentState.stop()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$stopStateImpl);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() loading,
+    required TResult Function() stop,
+    required TResult Function(EnvironmentDataEntity data) loaded,
+    required TResult Function(String massage) error,
+  }) {
+    return stop();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? loading,
+    TResult? Function()? stop,
+    TResult? Function(EnvironmentDataEntity data)? loaded,
+    TResult? Function(String massage)? error,
+  }) {
+    return stop?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? loading,
+    TResult Function()? stop,
+    TResult Function(EnvironmentDataEntity data)? loaded,
+    TResult Function(String massage)? error,
+    required TResult orElse(),
+  }) {
+    if (stop != null) {
+      return stop();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(_loadingState value) loading,
+    required TResult Function(_stopState value) stop,
+    required TResult Function(_loadedState value) loaded,
+    required TResult Function(_errorState value) error,
+  }) {
+    return stop(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(_loadingState value)? loading,
+    TResult? Function(_stopState value)? stop,
+    TResult? Function(_loadedState value)? loaded,
+    TResult? Function(_errorState value)? error,
+  }) {
+    return stop?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(_loadingState value)? loading,
+    TResult Function(_stopState value)? stop,
+    TResult Function(_loadedState value)? loaded,
+    TResult Function(_errorState value)? error,
+    required TResult orElse(),
+  }) {
+    if (stop != null) {
+      return stop(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class _stopState implements EnvironmentState {
+  const factory _stopState() = _$stopStateImpl;
 }
 
 /// @nodoc
@@ -643,6 +769,7 @@ class _$loadedStateImpl implements _loadedState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
+    required TResult Function() stop,
     required TResult Function(EnvironmentDataEntity data) loaded,
     required TResult Function(String massage) error,
   }) {
@@ -653,6 +780,7 @@ class _$loadedStateImpl implements _loadedState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
+    TResult? Function()? stop,
     TResult? Function(EnvironmentDataEntity data)? loaded,
     TResult? Function(String massage)? error,
   }) {
@@ -663,6 +791,7 @@ class _$loadedStateImpl implements _loadedState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
+    TResult Function()? stop,
     TResult Function(EnvironmentDataEntity data)? loaded,
     TResult Function(String massage)? error,
     required TResult orElse(),
@@ -677,6 +806,7 @@ class _$loadedStateImpl implements _loadedState {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_loadingState value) loading,
+    required TResult Function(_stopState value) stop,
     required TResult Function(_loadedState value) loaded,
     required TResult Function(_errorState value) error,
   }) {
@@ -687,6 +817,7 @@ class _$loadedStateImpl implements _loadedState {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_loadingState value)? loading,
+    TResult? Function(_stopState value)? stop,
     TResult? Function(_loadedState value)? loaded,
     TResult? Function(_errorState value)? error,
   }) {
@@ -697,6 +828,7 @@ class _$loadedStateImpl implements _loadedState {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_loadingState value)? loading,
+    TResult Function(_stopState value)? stop,
     TResult Function(_loadedState value)? loaded,
     TResult Function(_errorState value)? error,
     required TResult orElse(),
@@ -783,6 +915,7 @@ class _$errorStateImpl implements _errorState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
+    required TResult Function() stop,
     required TResult Function(EnvironmentDataEntity data) loaded,
     required TResult Function(String massage) error,
   }) {
@@ -793,6 +926,7 @@ class _$errorStateImpl implements _errorState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
+    TResult? Function()? stop,
     TResult? Function(EnvironmentDataEntity data)? loaded,
     TResult? Function(String massage)? error,
   }) {
@@ -803,6 +937,7 @@ class _$errorStateImpl implements _errorState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
+    TResult Function()? stop,
     TResult Function(EnvironmentDataEntity data)? loaded,
     TResult Function(String massage)? error,
     required TResult orElse(),
@@ -817,6 +952,7 @@ class _$errorStateImpl implements _errorState {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(_loadingState value) loading,
+    required TResult Function(_stopState value) stop,
     required TResult Function(_loadedState value) loaded,
     required TResult Function(_errorState value) error,
   }) {
@@ -827,6 +963,7 @@ class _$errorStateImpl implements _errorState {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(_loadingState value)? loading,
+    TResult? Function(_stopState value)? stop,
     TResult? Function(_loadedState value)? loaded,
     TResult? Function(_errorState value)? error,
   }) {
@@ -837,6 +974,7 @@ class _$errorStateImpl implements _errorState {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(_loadingState value)? loading,
+    TResult Function(_stopState value)? stop,
     TResult Function(_loadedState value)? loaded,
     TResult Function(_errorState value)? error,
     required TResult orElse(),

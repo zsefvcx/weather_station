@@ -9,15 +9,15 @@ class ReceiveDataEnvironment with UseCase<EnvironmentDataEntity> {
   ///можно явно не указывать метод call
   ///ReceiveDataEnvironment.call(); => getAllPersons();
   @override
-  Future<(Failure?, EnvironmentDataEntity?)> call() async {
+  Stream<(Failure?, EnvironmentDataEntity?)> call() {
     return environmentRepository.receiveData();
   }
 
-  Future<Failure?> start() async{
+  Failure? start() {
     return environmentRepository.startGet();
   }
 
-  Future<Failure?> stop() async{
+  Failure? stop() {
     return environmentRepository.stopGet();
   }
 

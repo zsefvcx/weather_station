@@ -4,8 +4,14 @@ import 'package:provider/provider.dart';
 import 'core/core.dart';
 import 'modules/modules.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
@@ -23,5 +29,11 @@ class App extends StatelessWidget {
         routerConfig: appRouter.config(),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    FeatureBlocsInit.dispose();
   }
 }

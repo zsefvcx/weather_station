@@ -4,11 +4,11 @@ import 'package:weather_widget/modules/environment/domain/domain.dart';
 abstract class EnvironmentRepository {
 
   ///Начать получение данных при старте программы
-  Future<Failure?> startGet();
+  Failure? startGet();
   ///Остановить получение данных, в случае выхода или закрытия программы или окна, для очистки данных
-  Future<Failure?>  stopGet();
+  Failure?  stopGet();
   ///В случае прихода данных наблюдать и получать их.
-  Future<(Failure?, EnvironmentDataEntity?)> receiveData();
+  Stream<(Failure?, EnvironmentDataEntity?)> receiveData();
 
   /// Обращение к базе данных другой репозиторий
   // Future<(Failure?, EnvironmentDataEntity?)> getPrev(int step);

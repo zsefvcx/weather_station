@@ -5,7 +5,11 @@ abstract class FeatureBlocsInit{
 
   static void initState() {
     BlocFactory.instance.initialize();
-    environmentBloc = BlocFactory.instance.get<EnvironmentBloc>();
-    environmentBloc.add(const EnvironmentEvent.startGet());
+    environmentBloc = BlocFactory.instance.get<EnvironmentBloc>()
+      ..add(const EnvironmentEvent.startGet());
+  }
+
+  static void dispose(){
+    BlocFactory.instance.dispose();
   }
 }
