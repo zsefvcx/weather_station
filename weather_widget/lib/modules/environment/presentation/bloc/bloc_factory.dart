@@ -21,4 +21,8 @@ class BlocFactory {
       ),
     );
   }
+
+  void dispose(){
+    ServiceProvider.instance.dispose();
+  }
 }
