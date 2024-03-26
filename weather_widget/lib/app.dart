@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'core/core.dart';
-import 'modules/modules.dart';
+import 'package:weather_widget/core/core.dart';
+import 'package:weather_widget/modules/modules.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -26,6 +26,7 @@ class _AppState extends State<App> {
         ),
       ],
       child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
         routerConfig: appRouter.config(),
       ),
     );

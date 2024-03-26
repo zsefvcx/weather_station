@@ -1,5 +1,4 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/domain/domain.dart';
 
 part 'environment_data_models.g.dart';

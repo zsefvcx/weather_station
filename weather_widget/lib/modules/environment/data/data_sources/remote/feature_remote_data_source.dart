@@ -1,8 +1,5 @@
 import 'package:weather_widget/core/core.dart';
 
-import '../../../domain/domain.dart';
-import '../../data.dart';
-
 abstract class FeatureRemoteDataSource {
   ///Начать получение данных при старте программы
   Failure? startGet();

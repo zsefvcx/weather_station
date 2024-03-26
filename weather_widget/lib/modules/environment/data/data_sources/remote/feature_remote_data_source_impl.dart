@@ -1,5 +1,3 @@
-import 'dart:developer' as dev;
-
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/data/data.dart';
 

@@ -1,6 +1,6 @@
 import 'package:auto_route/auto_route.dart';
 
-import '../../modules/modules.dart';
+import 'package:weather_widget/modules/modules.dart';
 
 part 'app_router.gr.dart';
 

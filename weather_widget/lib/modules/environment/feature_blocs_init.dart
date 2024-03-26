@@ -1,4 +1,4 @@
-import 'presentation/presentation.dart';
+import 'package:weather_widget/modules/environment/presentation/presentation.dart';
 
 abstract class FeatureBlocsInit{
   static late final EnvironmentBloc environmentBloc;

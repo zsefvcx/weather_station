@@ -60,7 +60,6 @@ linter:
     avoid_empty_else: true
     avoid_print: true
     avoid_relative_lib_imports: true
-    avoid_returning_null_for_future: true
     avoid_slow_async_io: true
     avoid_type_to_string: true
     avoid_types_as_parameter_names: true
@@ -89,7 +88,6 @@ linter:
     always_declare_return_types: true
     always_put_control_body_on_new_line: false
     always_put_required_named_parameters_first: true
-    always_require_non_null_named_parameters: true
     always_specify_types: false
     annotate_overrides: true
     avoid_annotating_with_dynamic: true
