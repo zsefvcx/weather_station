@@ -1,6 +1,12 @@
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/domain/domain.dart';
 
+enum TypeData{
+  internal,
+  external,
+  another;
+}
+
 abstract class EnvironmentRepository {
 
   ///Начать получение данных при старте программы
@@ -8,7 +14,7 @@ abstract class EnvironmentRepository {
   ///Остановить получение данных, в случае выхода или закрытия программы или окна, для очистки данных
   Failure?  stopGet();
   ///В случае прихода данных наблюдать и получать их.
-  Stream<(Failure?, EnvironmentDataEntity?)> receiveData();
+  Stream<(Failure?, TypeData, EnvironmentDataEntity?)> receiveData();
 
   /// Обращение к базе данных другой репозиторий
   // Future<(Failure?, EnvironmentDataEntity?)> getPrev(int step);

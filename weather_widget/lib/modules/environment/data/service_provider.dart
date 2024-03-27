@@ -1,5 +1,6 @@
 import 'package:get_it/get_it.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/data/data.dart';
 import 'package:weather_widget/modules/environment/domain/domain.dart';
@@ -7,7 +8,10 @@ import 'package:weather_widget/modules/environment/domain/domain.dart';
 class ServiceProvider {
   static final _getIt = GetIt.I;
 
-  final FeatureLocalDataSource featureLocalData = FeatureLocalDataSourceImpl();
+  final FeatureLocalDataSource featureLocalData = FeatureLocalDataSourceImpl(
+    prefs: SharedPreferences.getInstance(),
+  );
+
   final NetworkInfo networkInfo = NetworkInfoImp(
     internetConnectionChecker: InternetConnectionChecker(),
   );

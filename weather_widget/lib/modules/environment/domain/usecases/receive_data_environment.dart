@@ -1,7 +1,7 @@
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/domain/domain.dart';
 
-class ReceiveDataEnvironment with UseCase<EnvironmentDataEntity> {
+class ReceiveDataEnvironment with UseCase<EnvironmentDataEntity, TypeData> {
   final EnvironmentRepository environmentRepository;
 
   ReceiveDataEnvironment({required this.environmentRepository});
@@ -9,7 +9,7 @@ class ReceiveDataEnvironment with UseCase<EnvironmentDataEntity> {
   ///можно явно не указывать метод call
   ///ReceiveDataEnvironment.call(); => getAllPersons();
   @override
-  Stream<(Failure?, EnvironmentDataEntity?)> call() {
+  Stream<(Failure?, TypeData, EnvironmentDataEntity?)> call() {
     return environmentRepository.receiveData();
   }
 

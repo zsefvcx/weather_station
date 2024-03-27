@@ -21,7 +21,7 @@ Future<void> main() async {
     const windowOptions = WindowOptions(
       size: Settings.sizeLite,
       center: true,
-      alwaysOnTop: true,
+      alwaysOnTop: false,
       fullScreen: false,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.hidden,

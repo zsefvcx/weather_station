@@ -409,25 +409,26 @@ mixin _$EnvironmentState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function() stop,
-    required TResult Function(EnvironmentDataEntity data) loaded,
-    required TResult Function(String massage) error,
+    required TResult Function(EnvironmentDataEntity? cacheData) stop,
+    required TResult Function(EnvironmentDataEntity data, TypeData type) loaded,
+    required TResult Function(String massage, EnvironmentDataEntity? cacheData)
+        error,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
-    TResult? Function()? stop,
-    TResult? Function(EnvironmentDataEntity data)? loaded,
-    TResult? Function(String massage)? error,
+    TResult? Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult? Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult? Function(String massage, EnvironmentDataEntity? cacheData)? error,
   }) =>
       throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function()? stop,
-    TResult Function(EnvironmentDataEntity data)? loaded,
-    TResult Function(String massage)? error,
+    TResult Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult Function(String massage, EnvironmentDataEntity? cacheData)? error,
     required TResult orElse(),
   }) =>
       throw _privateConstructorUsedError;
@@ -515,9 +516,10 @@ class _$loadingStateImpl implements _loadingState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function() stop,
-    required TResult Function(EnvironmentDataEntity data) loaded,
-    required TResult Function(String massage) error,
+    required TResult Function(EnvironmentDataEntity? cacheData) stop,
+    required TResult Function(EnvironmentDataEntity data, TypeData type) loaded,
+    required TResult Function(String massage, EnvironmentDataEntity? cacheData)
+        error,
   }) {
     return loading();
   }
@@ -526,9 +528,9 @@ class _$loadingStateImpl implements _loadingState {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
-    TResult? Function()? stop,
-    TResult? Function(EnvironmentDataEntity data)? loaded,
-    TResult? Function(String massage)? error,
+    TResult? Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult? Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult? Function(String massage, EnvironmentDataEntity? cacheData)? error,
   }) {
     return loading?.call();
   }
@@ -537,9 +539,9 @@ class _$loadingStateImpl implements _loadingState {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function()? stop,
-    TResult Function(EnvironmentDataEntity data)? loaded,
-    TResult Function(String massage)? error,
+    TResult Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult Function(String massage, EnvironmentDataEntity? cacheData)? error,
     required TResult orElse(),
   }) {
     if (loading != null) {
@@ -595,6 +597,8 @@ abstract class _$$stopStateImplCopyWith<$Res> {
   factory _$$stopStateImplCopyWith(
           _$stopStateImpl value, $Res Function(_$stopStateImpl) then) =
       __$$stopStateImplCopyWithImpl<$Res>;
+  @useResult
+  $Res call({EnvironmentDataEntity? cacheData});
 }
 
 /// @nodoc
@@ -604,60 +608,86 @@ class __$$stopStateImplCopyWithImpl<$Res>
   __$$stopStateImplCopyWithImpl(
       _$stopStateImpl _value, $Res Function(_$stopStateImpl) _then)
       : super(_value, _then);
+
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? cacheData = freezed,
+  }) {
+    return _then(_$stopStateImpl(
+      cacheData: freezed == cacheData
+          ? _value.cacheData
+          : cacheData // ignore: cast_nullable_to_non_nullable
+              as EnvironmentDataEntity?,
+    ));
+  }
 }
 
 /// @nodoc
 
 class _$stopStateImpl implements _stopState {
-  const _$stopStateImpl();
+  const _$stopStateImpl({this.cacheData});
+
+  @override
+  final EnvironmentDataEntity? cacheData;
 
   @override
   String toString() {
-    return 'EnvironmentState.stop()';
+    return 'EnvironmentState.stop(cacheData: $cacheData)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is _$stopStateImpl);
+        (other.runtimeType == runtimeType &&
+            other is _$stopStateImpl &&
+            (identical(other.cacheData, cacheData) ||
+                other.cacheData == cacheData));
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, cacheData);
+
+  @JsonKey(ignore: true)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$stopStateImplCopyWith<_$stopStateImpl> get copyWith =>
+      __$$stopStateImplCopyWithImpl<_$stopStateImpl>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function() stop,
-    required TResult Function(EnvironmentDataEntity data) loaded,
-    required TResult Function(String massage) error,
+    required TResult Function(EnvironmentDataEntity? cacheData) stop,
+    required TResult Function(EnvironmentDataEntity data, TypeData type) loaded,
+    required TResult Function(String massage, EnvironmentDataEntity? cacheData)
+        error,
   }) {
-    return stop();
+    return stop(cacheData);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
-    TResult? Function()? stop,
-    TResult? Function(EnvironmentDataEntity data)? loaded,
-    TResult? Function(String massage)? error,
+    TResult? Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult? Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult? Function(String massage, EnvironmentDataEntity? cacheData)? error,
   }) {
-    return stop?.call();
+    return stop?.call(cacheData);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function()? stop,
-    TResult Function(EnvironmentDataEntity data)? loaded,
-    TResult Function(String massage)? error,
+    TResult Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult Function(String massage, EnvironmentDataEntity? cacheData)? error,
     required TResult orElse(),
   }) {
     if (stop != null) {
-      return stop();
+      return stop(cacheData);
     }
     return orElse();
   }
@@ -701,7 +731,13 @@ class _$stopStateImpl implements _stopState {
 }
 
 abstract class _stopState implements EnvironmentState {
-  const factory _stopState() = _$stopStateImpl;
+  const factory _stopState({final EnvironmentDataEntity? cacheData}) =
+      _$stopStateImpl;
+
+  EnvironmentDataEntity? get cacheData;
+  @JsonKey(ignore: true)
+  _$$stopStateImplCopyWith<_$stopStateImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -710,7 +746,7 @@ abstract class _$$loadedStateImplCopyWith<$Res> {
           _$loadedStateImpl value, $Res Function(_$loadedStateImpl) then) =
       __$$loadedStateImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({EnvironmentDataEntity data});
+  $Res call({EnvironmentDataEntity data, TypeData type});
 }
 
 /// @nodoc
@@ -725,12 +761,17 @@ class __$$loadedStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? data = null,
+    Object? type = null,
   }) {
     return _then(_$loadedStateImpl(
       data: null == data
           ? _value.data
           : data // ignore: cast_nullable_to_non_nullable
               as EnvironmentDataEntity,
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as TypeData,
     ));
   }
 }
@@ -738,14 +779,16 @@ class __$$loadedStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$loadedStateImpl implements _loadedState {
-  const _$loadedStateImpl({required this.data});
+  const _$loadedStateImpl({required this.data, required this.type});
 
   @override
   final EnvironmentDataEntity data;
+  @override
+  final TypeData type;
 
   @override
   String toString() {
-    return 'EnvironmentState.loaded(data: $data)';
+    return 'EnvironmentState.loaded(data: $data, type: $type)';
   }
 
   @override
@@ -753,11 +796,12 @@ class _$loadedStateImpl implements _loadedState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$loadedStateImpl &&
-            (identical(other.data, data) || other.data == data));
+            (identical(other.data, data) || other.data == data) &&
+            (identical(other.type, type) || other.type == type));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, data);
+  int get hashCode => Object.hash(runtimeType, data, type);
 
   @JsonKey(ignore: true)
   @override
@@ -769,35 +813,36 @@ class _$loadedStateImpl implements _loadedState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function() stop,
-    required TResult Function(EnvironmentDataEntity data) loaded,
-    required TResult Function(String massage) error,
+    required TResult Function(EnvironmentDataEntity? cacheData) stop,
+    required TResult Function(EnvironmentDataEntity data, TypeData type) loaded,
+    required TResult Function(String massage, EnvironmentDataEntity? cacheData)
+        error,
   }) {
-    return loaded(data);
+    return loaded(data, type);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
-    TResult? Function()? stop,
-    TResult? Function(EnvironmentDataEntity data)? loaded,
-    TResult? Function(String massage)? error,
+    TResult? Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult? Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult? Function(String massage, EnvironmentDataEntity? cacheData)? error,
   }) {
-    return loaded?.call(data);
+    return loaded?.call(data, type);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function()? stop,
-    TResult Function(EnvironmentDataEntity data)? loaded,
-    TResult Function(String massage)? error,
+    TResult Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult Function(String massage, EnvironmentDataEntity? cacheData)? error,
     required TResult orElse(),
   }) {
     if (loaded != null) {
-      return loaded(data);
+      return loaded(data, type);
     }
     return orElse();
   }
@@ -841,10 +886,12 @@ class _$loadedStateImpl implements _loadedState {
 }
 
 abstract class _loadedState implements EnvironmentState {
-  const factory _loadedState({required final EnvironmentDataEntity data}) =
-      _$loadedStateImpl;
+  const factory _loadedState(
+      {required final EnvironmentDataEntity data,
+      required final TypeData type}) = _$loadedStateImpl;
 
   EnvironmentDataEntity get data;
+  TypeData get type;
   @JsonKey(ignore: true)
   _$$loadedStateImplCopyWith<_$loadedStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
@@ -856,7 +903,7 @@ abstract class _$$errorStateImplCopyWith<$Res> {
           _$errorStateImpl value, $Res Function(_$errorStateImpl) then) =
       __$$errorStateImplCopyWithImpl<$Res>;
   @useResult
-  $Res call({String massage});
+  $Res call({String massage, EnvironmentDataEntity? cacheData});
 }
 
 /// @nodoc
@@ -871,12 +918,17 @@ class __$$errorStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? massage = null,
+    Object? cacheData = freezed,
   }) {
     return _then(_$errorStateImpl(
       massage: null == massage
           ? _value.massage
           : massage // ignore: cast_nullable_to_non_nullable
               as String,
+      cacheData: freezed == cacheData
+          ? _value.cacheData
+          : cacheData // ignore: cast_nullable_to_non_nullable
+              as EnvironmentDataEntity?,
     ));
   }
 }
@@ -884,14 +936,16 @@ class __$$errorStateImplCopyWithImpl<$Res>
 /// @nodoc
 
 class _$errorStateImpl implements _errorState {
-  const _$errorStateImpl({required this.massage});
+  const _$errorStateImpl({required this.massage, this.cacheData});
 
   @override
   final String massage;
+  @override
+  final EnvironmentDataEntity? cacheData;
 
   @override
   String toString() {
-    return 'EnvironmentState.error(massage: $massage)';
+    return 'EnvironmentState.error(massage: $massage, cacheData: $cacheData)';
   }
 
   @override
@@ -899,11 +953,13 @@ class _$errorStateImpl implements _errorState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$errorStateImpl &&
-            (identical(other.massage, massage) || other.massage == massage));
+            (identical(other.massage, massage) || other.massage == massage) &&
+            (identical(other.cacheData, cacheData) ||
+                other.cacheData == cacheData));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, massage);
+  int get hashCode => Object.hash(runtimeType, massage, cacheData);
 
   @JsonKey(ignore: true)
   @override
@@ -915,35 +971,36 @@ class _$errorStateImpl implements _errorState {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function() loading,
-    required TResult Function() stop,
-    required TResult Function(EnvironmentDataEntity data) loaded,
-    required TResult Function(String massage) error,
+    required TResult Function(EnvironmentDataEntity? cacheData) stop,
+    required TResult Function(EnvironmentDataEntity data, TypeData type) loaded,
+    required TResult Function(String massage, EnvironmentDataEntity? cacheData)
+        error,
   }) {
-    return error(massage);
+    return error(massage, cacheData);
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function()? loading,
-    TResult? Function()? stop,
-    TResult? Function(EnvironmentDataEntity data)? loaded,
-    TResult? Function(String massage)? error,
+    TResult? Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult? Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult? Function(String massage, EnvironmentDataEntity? cacheData)? error,
   }) {
-    return error?.call(massage);
+    return error?.call(massage, cacheData);
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function()? loading,
-    TResult Function()? stop,
-    TResult Function(EnvironmentDataEntity data)? loaded,
-    TResult Function(String massage)? error,
+    TResult Function(EnvironmentDataEntity? cacheData)? stop,
+    TResult Function(EnvironmentDataEntity data, TypeData type)? loaded,
+    TResult Function(String massage, EnvironmentDataEntity? cacheData)? error,
     required TResult orElse(),
   }) {
     if (error != null) {
-      return error(massage);
+      return error(massage, cacheData);
     }
     return orElse();
   }
@@ -987,9 +1044,12 @@ class _$errorStateImpl implements _errorState {
 }
 
 abstract class _errorState implements EnvironmentState {
-  const factory _errorState({required final String massage}) = _$errorStateImpl;
+  const factory _errorState(
+      {required final String massage,
+      final EnvironmentDataEntity? cacheData}) = _$errorStateImpl;
 
   String get massage;
+  EnvironmentDataEntity? get cacheData;
   @JsonKey(ignore: true)
   _$$errorStateImplCopyWith<_$errorStateImpl> get copyWith =>
       throw _privateConstructorUsedError;

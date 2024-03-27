@@ -28,7 +28,7 @@ enum TypeDataRcv{
 }
 
 class UDPClientSenderReceiver {
-  //Internr addres in text format: 'pool.ntp.org' or '127.0.0.1'
+  //Internal address in text format: 'pool.ntp.org' or '127.0.0.1'
   final String address;
   //UDP bindPort = 0 as sender, = anyOther as resiver
   final int bindPort;
@@ -160,8 +160,10 @@ class UDPClientSenderReceiver {
               if(type == TypeDataRcv.multi){
                 Settings.remoteAddressExt = dg.address.address;
               }
-
-              serviceEC.add((null, dataEC));
+              if(                  type == TypeDataRcv.multi
+                  && dg.address.address == Settings.remoteAddress) {
+                serviceEC.add((null, dataEC));
+              }
               // stackDEC.add(dataEC);
               // final dataChart = ChartDataValue.fromEnvironmentalConditions(dataEC);
               // Logger.print(dataChart.toString());

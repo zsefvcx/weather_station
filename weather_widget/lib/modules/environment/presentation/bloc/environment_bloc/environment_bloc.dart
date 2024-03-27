@@ -14,7 +14,9 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
 
   static int timeOutV = 10;
 
-  EnvironmentDataEntity? data;
+  ///Кеш в оперативной памяти
+  EnvironmentDataEntity? cachedData;
+
   bool _status = false;
   bool get status => _status;
 
@@ -43,7 +45,9 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
             _status = false;
             return;
           }
-          emit(const EnvironmentState.stop());
+          emit(EnvironmentState.stop(
+            cacheData: cachedData
+          ));
           _status = false;
         },
         receiveData: (value) async {
@@ -51,16 +55,22 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
           final stream = receiveData();
           await emit.forEach(stream, onData: (event) {
             final failure = event.$1;
-            final data = event.$2;
+            final type = event.$2;
+            final data = event.$3;
+            cachedData = data;
             if (failure != null) {
               return EnvironmentState.error(
+                cacheData: data,
                 massage: _mapFailureToMassage(failure),
               );
             } else if (data != null) {
-            this.data = data;
-              return EnvironmentState.loaded(data: data);
+              return EnvironmentState.loaded(
+                data: data,
+                type: type,
+              );
             } else {
-              return const EnvironmentState.error(
+              return EnvironmentState.error(
+                cacheData: data,
                 massage: unexpectedErrorMessage,
               );
             }

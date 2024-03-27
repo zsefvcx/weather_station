@@ -1,3 +1,4 @@
+import 'package:uuid/uuid.dart';
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/data/data.dart';
 
@@ -5,6 +6,9 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   final EnvironmentStreamService streamService;
   UDPClientSenderReceiver? receiver;
   final NetworkInfo networkInfo;
+  final uuid = const Uuid();
+
+  final TypeDataRcv _type =  TypeDataRcv.multi;//TypeDataRcv.single;
 
   FeatureRemoteDataSourceImpl({
     required this.streamService,
@@ -12,45 +16,66 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   });
 
   @override
-  Stream<(Failure?, EnvironmentalConditions?)?> receiveData() {
-    return streamService.stream;
+  Stream<(Failure?, EnvironmentDataModels?)?> receiveData() {
+    final stream = streamService.stream;
+    return stream.map<(Failure?, EnvironmentDataModels?)>((value) {
+      try{
+        if (value == null) return (const ServerFailure(errorMessage: serverFailureMessage), null);
+        if (value.$1 != null) return (value.$1, null);
+        final data = value.$2;
+        if (data == null) return (const ServerFailure(errorMessage: unexpectedErrorMessage), null);
+        return (
+        null,
+        EnvironmentDataModels(
+          dateTime: DateTime.now(),
+          uuid: uuid.v4(),
+          tempInt: data.temperature ?? -273,
+          tempExt: data.temperature2 ?? -273,
+          humidityInt: data.humidity ?? -1,
+          humidityExt: data.humidity2 ?? -1,
+          pressure: data.pressure ?? -1,
+        )
+        );
+      } on Exception catch (e) {
+        Logger.print(e.toString(), error: true, level: 1);
+        throw ServerException(errorMessage: serverFailureMessage);
+      }
+    });
   }
 
   @override
-  Failure? startGet() {
+  void startGet() {
     try {
       streamService.initial();
       (receiver??(receiver = UDPClientSenderReceiver(
         serviceEC: streamService,
-        type: TypeDataRcv.single,
+        type: _type,
         networkInfo: networkInfo,
-        address: Settings.remoteAddress,
-        bindPort: 0,
-      ))).run(broadcastEnabled: false);
-      return null;
+        address: (_type == TypeDataRcv.single)?Settings.remoteAddress:Constants.address,
+        bindPort: (_type == TypeDataRcv.single)?0:Constants.bindPort,
+      ))).run(broadcastEnabled: _type != TypeDataRcv.single);
     } on Exception catch (e) {
       Logger.print(
         e.toString(),
         error: true,
         level: 10,
       );
-      return const ServerFailure(errorMessage: 'Error start service');
+      throw ServerException(errorMessage: 'Error start service');
     }
   }
 
   @override
-  Failure? stopGet() {
+  void stopGet() {
     try {
       receiver?.dispose();
       streamService.dispose();
-      return null;
     } on Exception catch (e) {
       Logger.print(
         e.toString(),
         error: true,
         level: 10,
       );
-      return const ServerFailure(errorMessage: 'Error stop service');
+      throw ServerException(errorMessage: 'Error stop service');
     }
   }
 

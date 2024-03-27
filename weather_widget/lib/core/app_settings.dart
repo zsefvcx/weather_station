@@ -14,7 +14,6 @@ class Settings  extends ChangeNotifier{
 
   ///удаленный ip адрес для принудительного опроса
   static String remoteAddress = '192.168.100.12';
-  static String remoteAddress2 = '192.168.2.149';
   ///Отловленные адрес из мультикаста
   static String? remoteAddressExt;
 
@@ -43,14 +42,14 @@ class Settings  extends ChangeNotifier{
   String textSensorPosition01       = '1-----';
   String textSensorPosition02       = '2-----';
   ///удаленный ip адрес для принудительного опроса
-  String ipAddress                  = '80.82.45.103';//'192.168.2.149';//'80.82.45.103';
+  String ipAddress                  = '192.168.100.12';//'192.168.2.149';//'80.82.45.103';
   int    port                       = 8088;
   double opacityLite                = 0.7;
   double opacity                    = 1;
   bool   debug                      = true;
   bool   enableLog                  = true;//true;//false;
   bool   floatWin                   = false;
-  bool   floatOnTop                 = true;
+  bool   floatOnTop                 = false;
   Offset positionStart              = positionStartDefault;
   double calibrationPressure        = 10.3;
   double calibrationTemperature1    = 0;
@@ -64,7 +63,8 @@ class Settings  extends ChangeNotifier{
       final prefs = await this.prefs;
       textSensorPosition01 = prefs.getString('textSensorPosition01')??'1-----';
       textSensorPosition02 = prefs.getString('textSensorPosition02')??'2-----';
-      ipAddress = prefs.getString('ipAddress')??'80.82.45.103'; //'192.168.2.149';//'80.82.45.103';
+      ipAddress = prefs.getString('ipAddress')??'192.168.100.12'; //'192.168.2.149';//'80.82.45.103';
+      remoteAddress = ipAddress;
       port = prefs.getInt('port')??8088;
       opacityLite = prefs.getDouble('opacityLite')??0.7;
       opacity = prefs.getDouble('opacity')??1.0;
@@ -80,6 +80,7 @@ class Settings  extends ChangeNotifier{
       calibrationTemperature1 = prefs.getDouble('calibrationTemperature1')??0.0;
       calibrationTemperature2 = prefs.getDouble('calibrationTemperature2')??0.0;
       listDataValueLength = prefs.getInt('listDataValueLength')??1440;
+      notifyListeners();
     } on Exception catch(e){
       Logger.print(e.toString(), error: true);
       setDefault();
@@ -109,6 +110,7 @@ class Settings  extends ChangeNotifier{
       await prefs.setDouble('calibrationTemperature1',calibrationTemperature1);
       await prefs.setDouble('calibrationTemperature2',calibrationTemperature2);
       await prefs.setInt('listDataValueLength', listDataValueLength);
+      notifyListeners();
     } on Exception catch(e){
       Logger.print(e.toString(), error: true);
     }
@@ -117,14 +119,15 @@ class Settings  extends ChangeNotifier{
   void setDefault(){
     textSensorPosition01       = '1-----';
     textSensorPosition02       = '2-----';
-    ipAddress                  = '80.82.45.103'; //'192.168.2.149';//'80.82.45.103';
+    ipAddress                  = '192.168.100.12'; //'192.168.2.149';//'80.82.45.103';
+    remoteAddress = ipAddress;
     port                       = 8088;
     opacityLite                = 0.7;
     opacity                    = 1.0;
     debug                      = false;
     floatWin                   = true;
     enableLog                  = false; //true;//false;
-    floatOnTop                 = true;
+    floatOnTop                 = false;
     positionStart              = positionStartDefault;
     multicast                  = false;
     sCity                      = 'Borisoglebsk,RU';
@@ -133,10 +136,7 @@ class Settings  extends ChangeNotifier{
     calibrationTemperature1    = 0.0;
     calibrationTemperature2    = 0.0;
     listDataValueLength        = 1440;
-    notify();
-  }
-
-  void notify(){
     notifyListeners();
   }
+
 }

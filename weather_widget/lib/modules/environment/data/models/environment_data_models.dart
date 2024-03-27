@@ -5,6 +5,19 @@ part 'environment_data_models.g.dart';
 
 @JsonSerializable()
 class EnvironmentDataModels extends EnvironmentDataEntity {
+
+  factory EnvironmentDataModels.fromEntity({required EnvironmentDataEntity data}) =>
+      EnvironmentDataModels(
+        id: data.id,
+        uuid: data.uuid,
+        dateTime: data.dateTime,
+        tempInt: data.tempInt,
+        humidityInt: data.humidityInt,
+        tempExt: data.tempExt,
+        humidityExt: data.humidityExt,
+        pressure: data.pressure,
+      );
+
   const EnvironmentDataModels({
     required super.uuid,
     required super.dateTime,

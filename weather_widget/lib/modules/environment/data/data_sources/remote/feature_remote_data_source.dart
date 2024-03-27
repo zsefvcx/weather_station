@@ -1,12 +1,13 @@
 import 'package:weather_widget/core/core.dart';
+import 'package:weather_widget/modules/environment/data/data.dart';
 
 abstract class FeatureRemoteDataSource {
   ///Начать получение данных при старте программы
-  Failure? startGet();
+  void startGet();
   ///Остановить получение данных, в случае выхода или закрытия программы или окна, для очистки данных
-  Failure?  stopGet();
+  void  stopGet();
   ///В случае прихода данных наблюдать и получать их.
-  Stream<(Failure?, EnvironmentalConditions?)?> receiveData();
+  Stream<(Failure?, EnvironmentDataModels?)?> receiveData();
 
   ///Очищаем все за собой
   void dispose();

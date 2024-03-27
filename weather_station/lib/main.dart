@@ -19,7 +19,7 @@ Future<void> main() async {
   );
 
   final serviceEC = StreamServiceEnvironmentalConditions();
-  final odpMultiCastReceiver = UDPClientSenderReceiver(
+  final odpMultiCastReceiver = UDPClientSenderReceeiver(
     serviceEC: serviceEC,
     type: TypeDataRcv.multi,
     networkInfo: networkInfo,
