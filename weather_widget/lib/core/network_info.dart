@@ -33,6 +33,13 @@ class NetworkInfoImp implements NetworkInfo{
      ),
      port: Constants.tcpPort,
     ),
+    AddressCheckOptions(
+     address: InternetAddress(
+       Settings.remoteAddress2,
+       type: InternetAddressType.IPv4,
+     ),
+     port: Constants.tcpPort,
+    ),
    ]);
    internetConnectionChecker.addresses = optionsList;
 

@@ -5,7 +5,8 @@ abstract class CustomException implements Exception {
     required String errorMessage,
   }) : _errorMessage = errorMessage;
 
-  String errorMessage() {
+  @override
+  String toString() {
     return '$runtimeType Exception: $_errorMessage';
   }
 }

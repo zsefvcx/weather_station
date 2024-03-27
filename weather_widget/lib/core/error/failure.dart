@@ -8,7 +8,7 @@ abstract class Failure extends Equatable {
    @override
    List<Object?> get props => [errorMessage];
 
-   @override
+  @override
   String toString() {
     return errorMessage;
   }

@@ -9,7 +9,6 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
 
   ///Кеш в оперативной памяти
   EnvironmentDataEntity? _data;
-  DateTime dateTime = DateTime.now();
 
   EnvironmentRepositoryImpl({
     required this.featureLocalDataSource,
@@ -38,7 +37,6 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
               failure = const ServerFailure(errorMessage: serverFailureMessage);
             } else {
               _data = data;
-              dateTime = data.dateTime;
             }
           }
         }
@@ -46,41 +44,52 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
           if (data == null && _data == null) {
             ///Если кеш чистый то читаем данные из памяти
             type = TypeData.external;
-            final data = await featureLocalDataSource.getLastDataFromCache();
-            dateTime = data.dateTime;
-            _data = data;
-          } else if (data != null){
+            final dataCache = await featureLocalDataSource.getLastDataFromCache();
+            _data = dataCache;
+          } else if (data != null) {
             ///Пишем данные в кеш, если разница между последней записью и текущими данными больше часа
-            final data = await featureLocalDataSource.getLastDataFromCache();
-            if(data.dateTime.difference(DateTime.now()).inSeconds.abs()>=100){
-              await featureLocalDataSource.dataToCache(data);
+            EnvironmentDataModels? dataCache;
+            try {
+              dataCache = await featureLocalDataSource.getLastDataFromCache();
+            } on Exception catch (e) {
+              Logger.print(e.toString(), error: true, level: 1);
+              cacheFailure =
+              const CacheFailure(errorMessage: cacheFailureMessage);
+            }
+            final localData = _data;
+            if (dataCache != null && localData != null
+                && dataCache.dateTime
+                    .difference(localData.dateTime)
+                    .inSeconds
+                    .abs() > 100) {
+              await featureLocalDataSource.dataToCache(localData);
+
+            } else {
+              if (localData != null) {
+                await featureLocalDataSource.dataToCache(localData);
+              }
             }
           }
         } on Exception catch(e){
           Logger.print(e.toString(), error: true, level: 1);
           cacheFailure = const CacheFailure(errorMessage: cacheFailureMessage);
         }
-        final deltaTimeInSecond = dateTime.difference(DateTime.now()).inSeconds.abs();
+        final deltaTimeInSecond = _data?.dateTime.difference(DateTime.now()).inSeconds.abs()??0;
         Logger.print('deltaTimeInHours:$deltaTimeInSecond', error: true, level: 1);
+        Logger.print('type:$type', error: true, level: 1);
         if(type == TypeData.external) {
           return (
-          deltaTimeInSecond > 100 ? failure : cacheFailure,
+          (deltaTimeInSecond >= 450 || _data == null) ? failure : cacheFailure,
           type,
           _data,
           );
-        }
-        if(_data == null || (type == TypeData.internal && _data != null)){
+        } else {
           return (
-            failure,
-            type,
-            _data,
-          );
-        }
-        return (
-          failure,
+          (deltaTimeInSecond >= 450) ? failure : cacheFailure,
           type,
           _data,
-        );
+          );
+        }
       } on Exception catch (e) {
         Logger.print(e.toString(), error: true, level: 1);
         return (const ServerFailure(errorMessage: serverFailureMessage), TypeData.another, _data);

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +12,7 @@ const black = Color(0xFF000000);
 const white = Color(0xFFF0F0F0);
 const red = Color(0xFFC50F0E);
 
-const borderRadius = 20.0;
+final borderRadius = Platform.isWindows?20.0:0.0;
 const mainFont = 'SF UI Display';
 const align = TextAlign.start;
 const style = TextStyle(

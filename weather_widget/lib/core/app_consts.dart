@@ -1,6 +1,8 @@
 
 const serverFailureMessage = 'Server Failure';
 const cacheFailureMessage = 'Cache Failure';
+const cacheFailureMessageRead = 'Cache Failure Read';
+const cacheFailureMessageWrite = 'Cache Failure Write';
 const timeOutFailureMessage = 'Time Out Failure';
 const unexpectedErrorMessage = 'Unexpected Error';
 

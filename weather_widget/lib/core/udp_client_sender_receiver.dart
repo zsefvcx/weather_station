@@ -160,16 +160,19 @@ class UDPClientSenderReceiver {
               if(type == TypeDataRcv.multi){
                 Settings.remoteAddressExt = dg.address.address;
               }
-              if(                  type == TypeDataRcv.multi
-                  && dg.address.address == Settings.remoteAddress) {
+              // if(                  type == TypeDataRcv.multi
+              //     && (dg.address.address == Settings.remoteAddress
+              //       ||dg.address.address == Settings.remoteAddress2
+              //     )
+              // ) {
                 serviceEC.add((null, dataEC));
-              }
+              //}
               // stackDEC.add(dataEC);
               // final dataChart = ChartDataValue.fromEnvironmentalConditions(dataEC);
               // Logger.print(dataChart.toString());
               // stackCDV.add(dataChart);
             } on EnvironmentalConditionsException catch(e){
-              Logger.print(e.errorMessage(), name: 'err',  error: true, safeToDisk: true);
+              Logger.print(e.toString(), name: 'err',  error: true, safeToDisk: true);
             } on Exception catch(e, t){
               Logger.print(e.toString(), name: 'err',  error: true, safeToDisk: true);
               Logger.print(t.toString(), name: 'err',  error: true, safeToDisk: true);

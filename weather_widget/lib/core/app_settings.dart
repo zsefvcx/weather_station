@@ -14,6 +14,7 @@ class Settings  extends ChangeNotifier{
 
   ///удаленный ip адрес для принудительного опроса
   static String remoteAddress = '192.168.100.12';
+  static String remoteAddress2 = '192.168.2.149';
   ///Отловленные адрес из мультикаста
   static String? remoteAddressExt;
 
