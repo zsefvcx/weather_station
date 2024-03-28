@@ -31,7 +31,7 @@ class Settings  extends ChangeNotifier{
 
   ///Размеры
   static const positionStartDefault = Offset(50, 20);
-  static const sizeLite = Size(190, 110);
+  static const sizeLite = Size(190, 120);
   ///Параметры OpenWeather
   ///город
   String sCity                      = 'Borisoglebsk,RU';
@@ -137,6 +137,10 @@ class Settings  extends ChangeNotifier{
     calibrationTemperature1    = 0.0;
     calibrationTemperature2    = 0.0;
     listDataValueLength        = 1440;
+    notifyListeners();
+  }
+
+  void notify(){
     notifyListeners();
   }
 

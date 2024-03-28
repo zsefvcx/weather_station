@@ -8,7 +8,15 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
   final NetworkInfo networkInfo;
 
   ///Кеш в оперативной памяти
-  EnvironmentDataEntity? _data;
+  EnvironmentDataEntity _data = EnvironmentDataModels(
+    uuid: Constants.nullUuid,
+    dateTime: DateTime.now(),
+  );
+  ///Кеш прочитанный из памяти
+  EnvironmentDataEntity? _localDataCache;
+
+  ///Тип сообщений
+  TypeData _type = TypeData.another;
 
   EnvironmentRepositoryImpl({
     required this.featureLocalDataSource,
@@ -23,73 +31,56 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
       try {
         Failure? failure;
         Failure? cacheFailure;
-        EnvironmentDataEntity? data;
 
-        var type = TypeData.internal;
         if (value == null) {
           failure = const ServerFailure(errorMessage: serverFailureMessage);
         } else {
           if (value.$1 != null) {
             failure = value.$1;
           } else {
-            data = value.$2;
+            final data = value.$2;
             if (data == null) {
               failure = const ServerFailure(errorMessage: serverFailureMessage);
             } else {
               _data = data;
+              _type = TypeData.internal;
             }
           }
         }
-        try {
-          if (data == null && _data == null) {
-            ///Если кеш чистый то читаем данные из памяти
-            type = TypeData.external;
-            final dataCache = await featureLocalDataSource.getLastDataFromCache();
-            _data = dataCache;
-          } else if (data != null) {
-            ///Пишем данные в кеш, если разница между последней записью и текущими данными больше часа
-            EnvironmentDataModels? dataCache;
-            try {
-              dataCache = await featureLocalDataSource.getLastDataFromCache();
-            } on Exception catch (e) {
-              Logger.print(e.toString(), error: true, level: 1);
-              cacheFailure =
-              const CacheFailure(errorMessage: cacheFailureMessage);
-            }
-            final localData = _data;
-            if (dataCache != null && localData != null
-                && dataCache.dateTime
-                    .difference(localData.dateTime)
-                    .inSeconds
-                    .abs() > 100) {
-              await featureLocalDataSource.dataToCache(localData);
 
-            } else {
-              if (localData != null) {
-                await featureLocalDataSource.dataToCache(localData);
-              }
+
+        try {
+          if (_data.uuid == Constants.nullUuid && _type == TypeData.another) {
+            ///Если кеш чистый то читаем данные из памяти
+            _type = TypeData.external;
+            _localDataCache = await featureLocalDataSource.getLastDataFromCache();
+            _data = _localDataCache??_data;
+          } else if (_localDataCache != _data) {
+            ///Пишем данные в кеш, если разница между последней записью и текущими данными больше часа
+            final deltaTimeInSecond = _localDataCache?.dateTime.difference(DateTime.now()).inSeconds.abs();
+            if (_localDataCache?.uuid == Constants.nullUuid
+                || deltaTimeInSecond == null
+                || deltaTimeInSecond > Constants.timeOutSafeDataToCache) {
+                await featureLocalDataSource.dataToCache(_data);
+                _localDataCache = _data;
             }
+            if(_type == TypeData.another) _type = TypeData.internal;
           }
         } on Exception catch(e){
           Logger.print(e.toString(), error: true, level: 1);
           cacheFailure = const CacheFailure(errorMessage: cacheFailureMessage);
         }
-        final deltaTimeInSecond = _data?.dateTime.difference(DateTime.now()).inSeconds.abs()??0;
-        Logger.print('deltaTimeInHours:$deltaTimeInSecond', error: true, level: 1);
-        Logger.print('type:$type', error: true, level: 1);
-        if(type == TypeData.external) {
-          return (
-          (deltaTimeInSecond >= 450 || _data == null) ? failure : cacheFailure,
-          type,
+
+        final deltaTimeInSecond = _data.dateTime.difference(DateTime.now()).inSeconds.abs();
+        Logger.print('deltaTimeInSecond:$deltaTimeInSecond', error: true, level: 1);
+        Logger.print('type:$_type', error: true, level: 1);
+
+        return (
+          (deltaTimeInSecond >= Constants.timeOutShowError
+               || _data.uuid == Constants.nullUuid) ? failure : cacheFailure,
+          _type,
           _data,
-          );
-        } else {
-          return (
-          (deltaTimeInSecond >= 450) ? failure : cacheFailure,
-          type,
-          _data,
-          );
-        }
+        );
       } on Exception catch (e) {
         Logger.print(e.toString(), error: true, level: 1);
         return (const ServerFailure(errorMessage: serverFailureMessage), TypeData.another, _data);

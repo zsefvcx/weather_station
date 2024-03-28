@@ -2,7 +2,7 @@
 ///Расширение класа стринг на случай если придеться заниматься локализацией
 extension StringHardcoded on String {
   @Deprecated("Don't forget to remove hardcoded strings")
-  String get hardcoded => this;
+  String get hrd => this;
 
   String get cleanString => (
       split('')..removeWhere((element) => element == ' ')

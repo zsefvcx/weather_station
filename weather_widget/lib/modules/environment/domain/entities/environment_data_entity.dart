@@ -10,20 +10,20 @@ abstract class EnvironmentDataEntity extends Equatable{
   ///Дата и время получения крайних данных или тех данных которые показываются
   final DateTime dateTime;
   ///Сами данные
-  final double tempInt;
-  final double humidityInt;
-  final double tempExt;
-  final double humidityExt;
-  final double pressure;
+  final double? tempInt;
+  final double? humidityInt;
+  final double? tempExt;
+  final double? humidityExt;
+  final double? pressure;
 
   const EnvironmentDataEntity({
     required this.uuid,
     required this.dateTime,
-    required this.tempInt,
-    required this.humidityInt,
-    required this.tempExt,
-    required this.humidityExt,
-    required this.pressure,
+    this.tempInt,
+    this.humidityInt,
+    this.tempExt,
+    this.humidityExt,
+    this.pressure,
     this.id,
   });
 

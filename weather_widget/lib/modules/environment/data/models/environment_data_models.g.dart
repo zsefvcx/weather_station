@@ -11,11 +11,11 @@ EnvironmentDataModels _$EnvironmentDataModelsFromJson(
     EnvironmentDataModels(
       uuid: json['uuid'] as String,
       dateTime: DateTime.parse(json['dateTime'] as String),
-      tempInt: (json['tempInt'] as num).toDouble(),
-      humidityInt: (json['humidityInt'] as num).toDouble(),
-      tempExt: (json['tempExt'] as num).toDouble(),
-      humidityExt: (json['humidityExt'] as num).toDouble(),
-      pressure: (json['pressure'] as num).toDouble(),
+      tempInt: (json['tempInt'] as num?)?.toDouble(),
+      humidityInt: (json['humidityInt'] as num?)?.toDouble(),
+      tempExt: (json['tempExt'] as num?)?.toDouble(),
+      humidityExt: (json['humidityExt'] as num?)?.toDouble(),
+      pressure: (json['pressure'] as num?)?.toDouble(),
       id: json['id'] as int?,
     );
 

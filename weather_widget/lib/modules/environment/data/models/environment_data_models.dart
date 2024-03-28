@@ -21,11 +21,11 @@ class EnvironmentDataModels extends EnvironmentDataEntity {
   const EnvironmentDataModels({
     required super.uuid,
     required super.dateTime,
-    required super.tempInt,
-    required super.humidityInt,
-    required super.tempExt,
-    required super.humidityExt,
-    required super.pressure,
+    super.tempInt,
+    super.humidityInt,
+    super.tempExt,
+    super.humidityExt,
+    super.pressure,
     super.id,
   });
 

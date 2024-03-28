@@ -7,7 +7,7 @@ class CustomShowSnackBar {
     final snackBar = SnackBar(
       content: Text(massage),
       action: SnackBarAction(
-        label: 'Ok'.hardcoded,
+        label: 'Ok'.hrd,
         onPressed: () {
           // Some code to undo the change.
         },

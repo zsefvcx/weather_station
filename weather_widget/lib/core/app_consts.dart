@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 const serverFailureMessage = 'Server Failure';
 const cacheFailureMessage = 'Cache Failure';
 const cacheFailureMessageRead = 'Cache Failure Read';
@@ -54,8 +56,20 @@ abstract class Constants {
   static const int periodicSec = 30;
   static const Duration periodic = Duration(seconds: periodicSec);
 
-
   ///Константа для перевода давления в мм рт.ст.
   static const toMmHg = 0.00750063755419211;
+
+  ///Контроллер должен посылать информацию каждые 10 минут.
+  ///Если сообщение не пришло в течении 30 минут ,то что то пошло не так
+  static const timeOutShowError = 30*60;
+
+  ///Сохраняем данные в кеш каждые 60 минут
+  static const timeOutSafeDataToCache = 3600;
+
+  ///NullUID
+  static const nullUuid = '00000000-0000-0000-0000-000000000000';
+
+  ///Округленность основного окна
+  static final borderRadius = Platform.isWindows ? 20.0 : 0.0;
 
 }
