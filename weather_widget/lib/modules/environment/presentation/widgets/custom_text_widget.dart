@@ -15,29 +15,29 @@ class CustomTextWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: (_data??'').isNotEmpty,
-      child: Row(
-        mainAxisAlignment: !_failureMessage
-            ?MainAxisAlignment.center
-            :MainAxisAlignment.start,
-        children: [
-          if (_failureMessage) 15.w,
-          Column(
-            //https://www.fluttercampus.com/guide/382/text-overflow-not-working/
-            children: [
-              Flexible(
-                child: Text(_data??'',
+    return Center(
+      child: Visibility(
+        visible: (_data??'').isNotEmpty,
+        child: Row(
+          mainAxisAlignment: !_failureMessage
+              ?MainAxisAlignment.center
+              :MainAxisAlignment.start,
+          children: [
+            if (_failureMessage) 15.w,
+            Column(
+              //https://www.fluttercampus.com/guide/382/text-overflow-not-working/
+              children: [
+                Text(_data??'',
                   style: !_failureMessage?style:styleLite,
                   textAlign: align,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              5.h,
-            ],
-          )
-        ],
-        ),
+                5.h,
+              ],
+            )
+          ],
+          ),
+      ),
     );
   }
 }
