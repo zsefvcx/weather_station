@@ -16,5 +16,3 @@ A new Flutter project.
     - Основное окно - Все платформы
     - Работа в трее Win/Lin.
     - Работа в фоне (опрос) Win/Lin/MacOs/Mobile + индикация.
-    
-

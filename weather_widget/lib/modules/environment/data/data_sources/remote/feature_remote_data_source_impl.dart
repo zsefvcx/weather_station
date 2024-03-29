@@ -20,15 +20,17 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
     final stream = streamService.stream;
     return stream.map<(Failure?, EnvironmentDataModels?)>((value) {
       try{
-        if (value == null) return (const ServerFailure(errorMessage: serverFailureMessage), null);
+        if (value == null) return (const ServerFailure(errorMessage: Constants.serverFailureMessage), null);
         if (value.$1 != null) return (value.$1, null);
         final data = value.$2;
-        if (data == null) return (const ServerFailure(errorMessage: unexpectedErrorMessage), null);
+        if (data == null) return (const ServerFailure(errorMessage: Constants.unexpectedErrorMessage), null);
         return (
         null,
         EnvironmentDataModels(
           dateTime: DateTime.now(),
           uuid: uuid.v4(),
+          errorInt: data.error,
+          errorExt: data.error2,
           tempInt: data.temperature ?? -273,
           tempExt: data.temperature2 ?? -273,
           humidityInt: data.humidity ?? -1,
@@ -38,7 +40,7 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
         );
       } on Exception catch (e) {
         Logger.print(e.toString(), error: true, level: 1);
-        throw ServerException(errorMessage: serverFailureMessage);
+        throw ServerException(errorMessage: Constants.serverFailureMessage);
       }
     });
   }

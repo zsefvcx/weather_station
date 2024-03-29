@@ -17,5 +17,11 @@ class AppRouter extends _$AppRouter {
           /// children routes go here
         ]
     ),
+    AutoRoute(
+        page: SettingsAppRoute.page,
+        children: const [
+          /// children routes go here
+        ]
+    ),
   ];
 }

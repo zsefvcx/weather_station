@@ -1,23 +1,28 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:weather_widget/core/core.dart';
 
 class CustomIcon extends StatelessWidget {
-  const CustomIcon(IconData icon, {
+  const CustomIcon(IconData? icon, {
     super.key,
     IconData? icon2,
-  }) : _icon = icon, _icon2 = icon2;
+    Color? color = AppColors.white,
+    double size = AppTheme.iconSize,
+  }) : _icon = icon, _icon2 = icon2, _color = color, _size = size;
 
   final IconData? _icon;
   final IconData? _icon2;
+  final Color? _color;
+  final double _size;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Icon(_icon,  size: 14, color: Colors.black, opticalSize: 14,),
+        Icon(_icon,  size: _size, color: _color,),
         Visibility(
           visible: _icon2!=null,
-          child: Icon(_icon2, size: 14, color: Colors.black, opticalSize: 14,),
+          child: Icon(_icon2, size: _size, color: _color,),
         ),
     ]);
   }

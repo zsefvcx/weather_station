@@ -25,7 +25,7 @@ class FeatureLocalDataSourceImpl extends FeatureLocalDataSource {
       final jsonData = json.decode(dataString) as Map<String, dynamic>;
       return EnvironmentDataModels.fromJson( jsonData );
     } else {
-      throw CacheException(errorMessage: cacheFailureMessageRead);
+      throw CacheException(errorMessage: Constants.cacheFailureMessageRead);
     }
   }
 
@@ -40,7 +40,7 @@ class FeatureLocalDataSourceImpl extends FeatureLocalDataSource {
     if (done) {
       Logger.print('Data to write Cache: $jsonData',);
     } else {
-      throw CacheException(errorMessage: cacheFailureMessageWrite);
+      throw CacheException(errorMessage: Constants.cacheFailureMessageWrite);
     }
   }
 

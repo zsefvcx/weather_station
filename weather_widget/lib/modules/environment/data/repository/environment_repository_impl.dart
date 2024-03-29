@@ -11,6 +11,8 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
   EnvironmentDataEntity _data = EnvironmentDataModels(
     uuid: Constants.nullUuid,
     dateTime: DateTime.now(),
+    errorInt: false,
+    errorExt: true,
   );
   ///Кеш прочитанный из памяти
   EnvironmentDataEntity? _localDataCache;
@@ -33,14 +35,14 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         Failure? cacheFailure;
 
         if (value == null) {
-          failure = const ServerFailure(errorMessage: serverFailureMessage);
+          failure = const ServerFailure(errorMessage: Constants.serverFailureMessage);
         } else {
           if (value.$1 != null) {
             failure = value.$1;
           } else {
             final data = value.$2;
             if (data == null) {
-              failure = const ServerFailure(errorMessage: serverFailureMessage);
+              failure = const ServerFailure(errorMessage: Constants.serverFailureMessage);
             } else {
               _data = data;
               _type = TypeData.internal;
@@ -58,9 +60,12 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
           } else if (_localDataCache != _data) {
             ///Пишем данные в кеш, если разница между последней записью и текущими данными больше часа
             final deltaTimeInSecond = _localDataCache?.dateTime.difference(DateTime.now()).inSeconds.abs();
-            if (_localDataCache?.uuid == Constants.nullUuid
-                || deltaTimeInSecond == null
-                || deltaTimeInSecond > Constants.timeOutSafeDataToCache) {
+            if ((_localDataCache?.uuid == Constants.nullUuid
+                 || deltaTimeInSecond == null
+                 || deltaTimeInSecond > Constants.timeOutSafeDataToCache
+                )
+                && _data.uuid != Constants.nullUuid
+               ){
                 await featureLocalDataSource.dataToCache(_data);
                 _localDataCache = _data;
             }
@@ -68,7 +73,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
           }
         } on Exception catch(e){
           Logger.print(e.toString(), error: true, level: 1);
-          cacheFailure = const CacheFailure(errorMessage: cacheFailureMessage);
+          cacheFailure = const CacheFailure(errorMessage: Constants.cacheFailureMessage);
         }
 
         final deltaTimeInSecond = _data.dateTime.difference(DateTime.now()).inSeconds.abs();
@@ -83,7 +88,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         );
       } on Exception catch (e) {
         Logger.print(e.toString(), error: true, level: 1);
-        return (const ServerFailure(errorMessage: serverFailureMessage), TypeData.another, _data);
+        return (const ServerFailure(errorMessage: Constants.serverFailureMessage), TypeData.another, _data);
       }
     });
   }
@@ -94,7 +99,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
       featureRemoteDataSource.startGet();
     } on Exception catch(e){
       Logger.print(e.toString(), error: true);
-      return const ServerFailure(errorMessage: serverFailureMessage);
+      return const ServerFailure(errorMessage: Constants.serverFailureMessage);
     }
     return null;
   }
@@ -105,7 +110,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
       featureRemoteDataSource.stopGet();
     } on Exception catch(e){
       Logger.print(e.toString(), error: true);
-      return const ServerFailure(errorMessage: serverFailureMessage);
+      return const ServerFailure(errorMessage: Constants.serverFailureMessage);
     }
     return null;
   }

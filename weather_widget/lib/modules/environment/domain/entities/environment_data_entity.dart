@@ -10,15 +10,21 @@ abstract class EnvironmentDataEntity extends Equatable{
   ///Дата и время получения крайних данных или тех данных которые показываются
   final DateTime dateTime;
   ///Сами данные
+  final bool errorInt;
   final double? tempInt;
   final double? humidityInt;
+
+  final bool errorExt;
   final double? tempExt;
   final double? humidityExt;
+
   final double? pressure;
 
   const EnvironmentDataEntity({
     required this.uuid,
     required this.dateTime,
+    required this.errorInt,
+    required this.errorExt,
     this.tempInt,
     this.humidityInt,
     this.tempExt,
@@ -28,15 +34,17 @@ abstract class EnvironmentDataEntity extends Equatable{
   });
 
   @override
-  List<Object?> get props => [id, uuid, dateTime, tempInt, humidityInt, tempExt, humidityExt, pressure];
+  List<Object?> get props => [id, uuid, errorInt, dateTime, tempInt, humidityInt, errorExt, tempExt, humidityExt, pressure];
 
   @override
   String toString() {
     return 'MainDataEntity{ id: $id,'
                         ' uuid: $uuid,'
                     ' dateTime: $dateTime,'
+                     ' errorInt: $errorInt'
                      ' tempInt: $tempInt,'
                  ' humidityInt: $humidityInt,'
+                     ' errorExt: $errorExt'
                      ' tempExt: $tempExt,'
                  ' humidityExt: $humidityExt,'
                     ' pressure: $pressure,}';

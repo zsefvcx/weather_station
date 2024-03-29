@@ -1,14 +1,9 @@
 
 import 'dart:io';
 
-const serverFailureMessage = 'Server Failure';
-const cacheFailureMessage = 'Cache Failure';
-const cacheFailureMessageRead = 'Cache Failure Read';
-const cacheFailureMessageWrite = 'Cache Failure Write';
-const timeOutFailureMessage = 'Time Out Failure';
-const unexpectedErrorMessage = 'Unexpected Error';
+import 'package:flutter/material.dart';
 
-abstract class Constants {
+abstract final class Constants {
   ///Ключ подключения
   static const String key = 'AAAAAB_KEY:16032023';
 
@@ -72,4 +67,19 @@ abstract class Constants {
   ///Округленность основного окна
   static final borderRadius = Platform.isWindows ? 20.0 : 0.0;
 
+  ///Наимненование
+  static const title = 'Weather Station';
+
+  ///Размеры
+  static const positionStartDefault = Offset(50, 20);
+  static const sizeLite = Size(160, 105);
+  static const sizeLiteDouble = Size(200, 123);
+
+   /// Сообщения от ошибках
+  static const serverFailureMessage = 'Server Failure';
+  static const cacheFailureMessage = 'Cache Failure';
+  static const cacheFailureMessageRead = 'Cache Failure Read';
+  static const cacheFailureMessageWrite = 'Cache Failure Write';
+  static const timeOutFailureMessage = 'Time Out Failure';
+  static const unexpectedErrorMessage = 'Unexpected Error';
 }

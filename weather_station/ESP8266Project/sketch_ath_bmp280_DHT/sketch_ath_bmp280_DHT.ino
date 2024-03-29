@@ -76,6 +76,9 @@ void handleNotFound(){
   server.send(404, "text/plain", message);
 }
 
+bool isAhtStart = true;
+bool isBmpStart = true;
+
 void setup() {
   Serial.begin(115200);
   Serial.println(F("-START-SETUP------------------------"));
@@ -84,7 +87,7 @@ void setup() {
   if (!bmp.begin()) {
     Serial.println(F("Could not find a valid BMP280 sensor, check wiring or "
                       "try a different address!"));
-    while (1) delay(10);
+    isBmpStart = false;
   }
   Serial.println(F("-aht--------------------------------"));
   bmp.setSampling(Adafruit_BMP280::MODE_FORCED,     /* Operating Mode. */
@@ -94,7 +97,7 @@ void setup() {
                   Adafruit_BMP280::STANDBY_MS_500); /* Standby time. */
   if (!aht.begin()) {
     Serial.println("Could not find AHT? Check wiring");
-    while (1) delay(10);
+    isAhtStart = false;
   }
   Serial.println(F("-dht--------------------------------"));
   dht.begin();
@@ -213,6 +216,15 @@ float toMmHg = 0.00750063755419211;
 float hAthInt=-255, hDhtEct=-255;
 
 void getBmpData(){
+  if(isBmpStart == false){
+    Serial.println(F("Could not find a valid BMP280 sensor, check wiring or "
+                      "try a different address!"));
+    tBmpInt=-255;
+    pBmpInt=-255;
+    aBmpInt=-255;
+    return;
+  }
+
   if (bmp.takeForcedMeasurement()) {
       // can now print out the new measurements
       tBmpInt = bmp.readTemperature();
@@ -230,6 +242,13 @@ void getBmpData(){
 }
 
 void getAhtData(){
+  if(isAhtStart == false){
+    Serial.println("Could not find AHT? Check wiring");
+    tAthInt = -255;
+    hAthInt = -255;
+    return;
+  }
+
   sensors_event_t humidity, temp;
   aht.getEvent(&humidity, &temp);// populate temp and humidity objects with fresh data
   tAthInt = temp.temperature;
@@ -279,7 +298,16 @@ void setStatusFW(){
   statusFW.alarm   = tBmpInt==-255||tAthInt==-255||tDhtExt==-255||pBmpInt==-255 ||hAthInt==-255||hDhtEct==-255||aBmpInt==-255; 
   statusFW.err     = tBmpInt==-255||tAthInt==-255||               pBmpInt==-255|| hAthInt==-255               ||aBmpInt==-255;
   statusFW.err2    =                               tDhtExt==-255||                               hDhtEct==-255;
-  statusFW.t       = (tBmpInt+tAthInt)/2; 
+  if(tAthInt == -255){
+    statusFW.t     =  tBmpInt;
+  } else if(tBmpInt == -255){
+    statusFW.t     =  tAthInt;
+  } else if(tAthInt == -255 && tBmpInt == -255){
+    statusFW.t     =  -255;
+  } else {
+    statusFW.t     =  (tBmpInt+tAthInt)/2; 
+  }
+  
   statusFW.h       = hAthInt;
   statusFW.p       = pBmpInt;
   statusFW.Altitude= aBmpInt;

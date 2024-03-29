@@ -1,24 +1,20 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_widget/core/core.dart';
-import 'package:weather_widget/modules/environment/presentation/presentation.dart';
+
+import '../presentation.dart';
 
 @RoutePage()
-class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+class SettingsAppPage extends StatefulWidget {
+  const SettingsAppPage({super.key});
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  State<SettingsAppPage> createState() => _SettingsAppPageState();
 }
 
-class _MainPageState extends State<MainPage> {
-
-
+class _SettingsAppPageState extends State<SettingsAppPage> {
   @override
   Widget build(BuildContext context) {
-    BlocProvider.of<EnvironmentBloc>(context).add(const EnvironmentEvent.receiveData());
-
     return ClipRRect(
       borderRadius: BorderRadius.circular(Constants.borderRadius),
       child: Scaffold(
@@ -34,11 +30,17 @@ class _MainPageState extends State<MainPage> {
                     children: [
                       CustomMainBarWin(
                         title: Constants.title,
-                        action: ()async=>context.router.push(const SettingsAppRoute()),
-                        iconAction: Icons.settings,
-                        textAction: 'Setting',
+                        action: ()async=>context.router.back(),
+                        iconAction: Icons.arrow_back,
+                        textAction: 'Back'.hrd,
                       ),
-                      const EnvironmentStatusWidget(),
+                      Container(
+                        color: AppColors.green,
+                      )
+                      ///opacity
+                      ///ipAddress
+                      ///multicast
+                      ///enableLog
                     ],
                   ),
                 ),
@@ -46,9 +48,7 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
         ),
-        floatingActionButton: const CustomIconEnvironmentStatus(),
       ),
     );
   }
-
 }

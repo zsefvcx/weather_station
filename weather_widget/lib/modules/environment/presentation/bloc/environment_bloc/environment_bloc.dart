@@ -71,7 +71,7 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
             } else {
               return EnvironmentState.error(
                 cacheData: data,
-                massage: unexpectedErrorMessage,
+                massage: Constants.unexpectedErrorMessage,
               );
             }
           });
@@ -83,13 +83,13 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
   String _mapFailureToMassage(Failure failure) {
     switch (failure) {
       case final ServerFailure sf:
-        return '$serverFailureMessage: ${sf.errorMessage}';
+        return '${Constants.serverFailureMessage}: ${sf.errorMessage}';
       case final CacheFailure sf:
-        return '$cacheFailureMessage: ${sf.errorMessage}';
+        return '${Constants.cacheFailureMessage}: ${sf.errorMessage}';
       case final TimeOutFailure sf:
-        return '$timeOutFailureMessage: ${sf.errorMessage}';
+        return '${Constants.timeOutFailureMessage}: ${sf.errorMessage}';
       default:
-        return unexpectedErrorMessage;
+        return Constants.unexpectedErrorMessage;
     }
   }
 }

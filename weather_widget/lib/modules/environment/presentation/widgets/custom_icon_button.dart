@@ -1,12 +1,15 @@
 
 import 'package:flutter/material.dart';
+import 'package:weather_widget/core/core.dart';
+import 'package:weather_widget/modules/environment/presentation/presentation.dart';
 
 class CustomIconButton extends StatelessWidget {
   const CustomIconButton(IconData? icon, {
     super.key,
     IconData? icon2,
     String? tooltip,
-    Color? color = Colors.white,
+    Color? color = AppColors.white,
+    double size = AppTheme.iconSizeLite,
     Future<dynamic> Function()? onPressed,
     bool secondIcon = false,
   }) : _onPressed = onPressed,
@@ -14,7 +17,8 @@ class CustomIconButton extends StatelessWidget {
        _color = color,
        _icon = icon,
        _icon2 = icon2,
-       _secondIcon = secondIcon;
+       _secondIcon = secondIcon,
+       _size = size;
 
   final IconData? _icon;
   final IconData? _icon2;
@@ -22,6 +26,7 @@ class CustomIconButton extends StatelessWidget {
   final Color? _color;
   final Future<dynamic> Function()? _onPressed;
   final bool _secondIcon;
+  final double _size;
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +41,10 @@ class CustomIconButton extends StatelessWidget {
       icon: ValueListenableBuilder<bool>(
           valueListenable: valueNotifierPinAction,
           builder: (_, value, __) {
-            return Icon(
+            return CustomIcon(
               !value?_icon:_icon2,
-              size: 7,
+              size: _size,
               color: _color,
-              opticalSize: 7,
             );
           }
       ),

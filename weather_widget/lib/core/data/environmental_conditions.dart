@@ -74,18 +74,21 @@ class EnvironmentalConditions {
 
     final temperatureDone = temperature!=null
         ?_checkValueDouble(value: temperature, min: -75, max: 50):null;
-    final temperature2Done = temperature2!= null
-        ?_checkValueDouble(value: temperature2, min: -75, max: 50):null;
     final humidityDone = humidity!=null
         ?_checkValueDouble(value: humidity, min: 0, max: 100):null;
-    final humidity2Done = humidity2 != null
-        ?_checkValueDouble(value: humidity2, min: 0, max: 100):null;
-    final pressureDone = pressure!=null
-        ?_checkValueDouble(value: pressure, min: 720, max: 790):null;
-    final pressure2Done = pressure2!=null
-        ?_checkValueDouble(value: pressure2, min: 720, max: 790):null;
     final altitudeDone = altitude!=null
         ?_checkValueDouble(value: altitude, min: -3000, max: 3000):null;
+    final pressureDone = pressure!=null
+        ?_checkValueDouble(value: pressure, min: 720, max: 790):null;
+
+
+    final temperature2Done = (temperature2!= null && !error2)
+        ?_checkValueDouble(value: temperature2, min: -75, max: 50):null;
+    final humidity2Done = (temperature2!= null && !error2)
+        ?_checkValueDouble(value: humidity2, min: 0, max: 100):null;
+    final pressure2Done = (temperature2!= null && !error2)
+        ?_checkValueDouble(value: pressure2, min: 720, max: 790):null;
+
 
     return EnvironmentalConditions._(
       id: id,
@@ -242,13 +245,13 @@ class EnvironmentalConditions {
       alarm:        map['alarm']         as bool,
       error:        map['error']         as bool,
       error2:       map['error2']        as bool,
-      temperature:  add(map['temperature'], Settings.deltaTemperature),
+      temperature:  add(map['temperature'], Settings.calibrationTemperature2),
       humidity:     add(map['humidity'], 0),
-      pressure:     add(map['pressure'], Settings.deltaPressure),
+      pressure:     add(map['pressure'], Settings.calibrationPressure2),
       altitude:     add(map['altitude'], 0),
-      temperature2: add(map['temperature2'], Settings.deltaTemperature2),
+      temperature2: add(map['temperature2'], Settings.calibrationTemperature2),
       humidity2:    add(map['humidity2'], 0),
-      pressure2:    add(map['pressure2'], Settings.deltaPressure),
+      pressure2:    add(map['pressure2'], Settings.calibrationPressure2),
     );
   }
 }
