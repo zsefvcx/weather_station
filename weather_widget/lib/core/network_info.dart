@@ -19,7 +19,7 @@ class NetworkInfoImp implements NetworkInfo{
    final remoteAddressExt = Settings.remoteAddressExt;
    final optionsList =
    List<AddressCheckOptions>.unmodifiable(<AddressCheckOptions>[
-    if(remoteAddressExt != null)AddressCheckOptions(
+    if(remoteAddressExt != null && remoteAddressExt.isNotEmpty)AddressCheckOptions(
      address: InternetAddress(
       remoteAddressExt,
       type: InternetAddressType.IPv4,

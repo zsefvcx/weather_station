@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:weather_widget/core/core.dart';
 import 'package:window_manager/window_manager.dart';
 
-class ChangePosition {
-  ChangePosition({required this.context});
+class ChangePositionAction {
+  ChangePositionAction({required this.context});
 
   final BuildContext context;
 

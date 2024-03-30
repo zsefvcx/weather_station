@@ -8,8 +8,9 @@ class CustomMainBarWin extends StatelessWidget {
     required Future<void> Function() action,
     required IconData iconAction,
     required String textAction,
-    super.key,
     double height = 25,
+    super.key,
+
     Color? color = AppColors.black,
   })  : _height = height,
         _title = title,
@@ -30,7 +31,7 @@ class CustomMainBarWin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final changePosition = ChangePosition(context: context);
+    final changePositionAction = ChangePositionAction(context: context);
     final mainButtonAction = MainButtonAction(context: context);
     final actions = <({
       Future<dynamic> Function() function,
@@ -72,8 +73,8 @@ class CustomMainBarWin extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return GestureDetector(
-      onPanStart: changePosition.onPanStart,
-      onPanUpdate: changePosition.onPanUpdate,
+      onPanStart: changePositionAction.onPanStart,
+      onPanUpdate: changePositionAction.onPanUpdate,
       child: MouseRegion(
         cursor: SystemMouseCursors.move,
         child: Container(
