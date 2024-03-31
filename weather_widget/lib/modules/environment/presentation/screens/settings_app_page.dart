@@ -18,7 +18,7 @@ class _SettingsAppPageState extends State<SettingsAppPage> {
   Widget build(BuildContext context) {
     final settingsApp = context.watch<Settings>();
     final settingsAppAction = SettingsAppAction(context: context);
-    const heightContainer = 60.0;
+    //const heightContainer = 60.0;
     final widgetList = <Widget>[
       CustomMainBarWin(
         title: Constants.title,
@@ -39,7 +39,7 @@ class _SettingsAppPageState extends State<SettingsAppPage> {
         margin: const EdgeInsets.all(5),
         elevation: 10,
         child: Container(
-          height: heightContainer,
+          height: 60,
           padding: const EdgeInsets.all(10),
           child: TextFormField(
             //focusNode: _focusNodes[7],
@@ -55,6 +55,7 @@ class _SettingsAppPageState extends State<SettingsAppPage> {
               border: InputBorder.none,
             ),
             //style: widget._textStyle,
+
             maxLines: 1, minLines: 1, maxLength: 15, //
             initialValue: settingsApp.ipAddress,
             inputFormatters: const[
