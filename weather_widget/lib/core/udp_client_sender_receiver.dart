@@ -38,7 +38,7 @@ class UDPClientSenderReceiver {
   final Duration timeLimit;
   //periodic - frequency of requests
   final Duration periodic;
-  // Type aata receiver
+  // Type data receiver
   final TypeDataRcv type;
   // chaker network Status
   final NetworkInfo networkInfo;
@@ -198,6 +198,7 @@ class UDPClientSenderReceiver {
     String key = Constants.key
   }) async {
     try {
+      Logger.print('_startRcvUdp type:$type address:$address', level: 1);
       if(!(await networkInfo.isConnected)) {
         Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
         serviceEC.add((const ServerFailure(errorMessage: 'No Broadcast Device'), null));

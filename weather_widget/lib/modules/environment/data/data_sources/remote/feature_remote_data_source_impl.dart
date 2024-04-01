@@ -22,7 +22,7 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
 
     return stream.map<(Failure?, EnvironmentDataModels?)>((value) {
       try{
-        Logger.print('FeatureRemoteDataSourceImpl stream.map V:$value', error: true, level: 1);
+        Logger.print('FeatureRemoteDataSourceImpl stream.map V:$value', level: 1);
         if (value == null) return (const ServerFailure(errorMessage: Constants.serverFailureMessage), null);
         if (value.$1 != null) return (value.$1, null);
         final data = value.$2;

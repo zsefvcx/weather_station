@@ -8,7 +8,7 @@ class Settings  extends ChangeNotifier{
   ///Показывать логи
   static bool showLogData = true;
   ///удаленный ip адрес для принудительного опроса
-  static String remoteAddress = '192.168.100.12';
+  static String remoteAddress = '192.168.2.149';
   ///Отловленные адрес из мультикаста
   static String? remoteAddressExt;
   /// Ошибка датчика или поправочный коэффициент x100
@@ -17,7 +17,7 @@ class Settings  extends ChangeNotifier{
   /// Двойной экран
   int    iDouble                    = 1;
   ///удаленный ip адрес для принудительного опроса
-  String ipAddress                  = '192.168.100.12';//'192.168.2.149';//'80.82.45.103';
+  String ipAddress                  = '192.168.2.149';//'192.168.2.149';//'80.82.45.103';
   String remoteAddressM             = '';
   double opacity                    = 0.7;
   bool   multicast                  = false;
@@ -35,7 +35,7 @@ class Settings  extends ChangeNotifier{
   Future<void> readFromDisk() async {
     try{
       final prefs = await this.prefs;
-      ipAddress = prefs.getString('ipAddress')??'192.168.100.12'; //'192.168.2.149';//'80.82.45.103';
+      ipAddress = prefs.getString('ipAddress')??'192.168.2.149'; //'192.168.2.149';//'80.82.45.103';
       remoteAddress = ipAddress;
       iDouble = prefs.getInt('iDouble')??1;
       remoteAddressM = prefs.getString('remoteAddressM')??''; //'192.168.2.149';//'80.82.45.103';
@@ -84,7 +84,7 @@ class Settings  extends ChangeNotifier{
   }
 
   void setDefault(){
-    ipAddress                  = '192.168.100.12'; //'192.168.2.149';//'80.82.45.103';
+    ipAddress                  = '192.168.2.149'; //'192.168.2.149';//'80.82.45.103';
     remoteAddress = ipAddress;
     iDouble                    = 1;
     remoteAddressM             = '';

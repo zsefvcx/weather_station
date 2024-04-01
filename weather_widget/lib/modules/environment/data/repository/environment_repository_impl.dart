@@ -134,10 +134,12 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         //Время ожидания для определения как долго должна молчать метеостанция
         //Все сделано для винды или линуха, для андройд скорее всего надо менять таймауты по приему и работе в фоне
         final deltaTimeInSecond = _data.dateTime.difference(DateTime.now()).inSeconds.abs();
-        Logger.print('deltaTimeInSecond:$deltaTimeInSecond', error: true, level: 1);
-        Logger.print('type:$_type', error: true, level: 1);
-        Logger.print('data:$_data', error: true, level: 1);
+        Logger.print('deltaTimeInSecond:$deltaTimeInSecond', level: 1);
+        Logger.print('type:$_type',  level: 1);
+        Logger.print('data:$_data', level: 1);
         Logger.print('cacheFailure:$cacheFailure', error: true, level: 1);
+        Logger.print('multiCastFailure:$multiCastFailure', error: true, level: 1);
+        Logger.print('clientFailure:$clientFailure', error: true, level: 1);
         return (
           (deltaTimeInSecond >= Constants.timeOutShowError
                || _data.uuid == Constants.nullUuid) ?(clientFailure??multiCastFailure):cacheFailure,
