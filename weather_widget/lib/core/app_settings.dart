@@ -15,8 +15,8 @@ class Settings  extends ChangeNotifier{
   /// Ошибка датчика или поправочный коэффициент x100
   static double calibrationPressure2       = 0;
   static double calibrationTemperature2    = 0;
-
-
+  /// Двойной экран
+  int    iDouble                    = 1;
   ///удаленный ip адрес для принудительного опроса
   String ipAddress                  = '192.168.100.12';//'192.168.2.149';//'80.82.45.103';
   String remoteAddressM             = '';
@@ -38,6 +38,7 @@ class Settings  extends ChangeNotifier{
       final prefs = await this.prefs;
       ipAddress = prefs.getString('ipAddress')??'192.168.100.12'; //'192.168.2.149';//'80.82.45.103';
       remoteAddress = ipAddress;
+      iDouble = prefs.getInt('iDouble')??1;
       remoteAddressM = prefs.getString('remoteAddressM')??''; //'192.168.2.149';//'80.82.45.103';
       remoteAddressExt = remoteAddressM;
       opacity = prefs.getDouble('opacity')??0.7;
@@ -61,6 +62,7 @@ class Settings  extends ChangeNotifier{
   Future<void> safeToDisk() async {
     try{
       final prefs = await this.prefs;
+      await prefs.setInt('iDouble', iDouble);
       await prefs.setString('ipAddress',ipAddress);
       remoteAddress = ipAddress;
       await prefs.setString('remoteAddressM',remoteAddressExt??'');
@@ -85,6 +87,7 @@ class Settings  extends ChangeNotifier{
   void setDefault(){
     ipAddress                  = '192.168.100.12'; //'192.168.2.149';//'80.82.45.103';
     remoteAddress = ipAddress;
+    iDouble                    = 1;
     remoteAddressM             = '';
     opacity                    = 0.7;
     enableLog                  = true; //true;//false;

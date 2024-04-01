@@ -21,7 +21,7 @@ Future<void> main() async {
 
     const windowOptions = WindowOptions(
       size: Constants.sizeLite,
-      center: true,
+      center: false,
       alwaysOnTop: false,
       fullScreen: false,
       skipTaskbar: false,
@@ -36,7 +36,10 @@ Future<void> main() async {
       ///Установить максимальные размер
       await windowManager.setMaximumSize(Constants.sizeLiteDouble);
       ///Установить минимальные размеры
-      await windowManager.setMinimumSize(Constants.sizeLite);
+      await windowManager.setMinimumSize(settingsApp.iDouble==1
+          ?Constants.sizeLite
+          :Constants.sizeLiteDouble
+      );
       await windowManager.setPosition(settingsApp.positionStart);
       await windowManager.setSize(Constants.sizeLite);
       ///Делает окно без возможности изменять размеры

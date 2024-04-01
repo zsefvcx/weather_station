@@ -11,13 +11,13 @@ class CustomIconButton extends StatelessWidget {
     Color? color = AppColors.white,
     double size = AppTheme.iconSizeLite,
     Future<dynamic> Function()? onPressed,
-    bool secondIcon = false,
+    bool startStatus = false,
   }) : _onPressed = onPressed,
        _tooltip = tooltip,
        _color = color,
        _icon = icon,
        _icon2 = icon2,
-       _secondIcon = secondIcon,
+       _startStatus = startStatus,
        _size = size;
 
   final IconData? _icon;
@@ -25,12 +25,12 @@ class CustomIconButton extends StatelessWidget {
   final String? _tooltip;
   final Color? _color;
   final Future<dynamic> Function()? _onPressed;
-  final bool _secondIcon;
+  final bool _startStatus;
   final double _size;
 
   @override
   Widget build(BuildContext context) {
-    final valueNotifierPinAction = ValueNotifier<bool>(_secondIcon);
+    final valueNotifierPinAction = ValueNotifier<bool>(_startStatus);
 
     return IconButton(onPressed: () async {
       final result = await _onPressed?.call();
