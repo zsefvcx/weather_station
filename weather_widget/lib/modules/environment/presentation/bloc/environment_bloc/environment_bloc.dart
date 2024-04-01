@@ -57,10 +57,10 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
             final failure = event.$1;
             final type = event.$2;
             final data = event.$3;
-            cachedData = data;
+            cachedData = cachedData==null?data:(data?.uuid==Constants.nullUuid)?cachedData:data;
             if (failure != null) {
               return EnvironmentState.error(
-                cacheData: data,
+                cacheData: cachedData,
                 massage: _mapFailureToMassage(failure),
               );
             } else if (data != null) {
@@ -70,7 +70,7 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
               );
             } else {
               return EnvironmentState.error(
-                cacheData: data,
+                cacheData: cachedData,
                 massage: Constants.unexpectedErrorMessage,
               );
             }

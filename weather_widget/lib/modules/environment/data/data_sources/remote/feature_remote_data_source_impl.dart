@@ -8,18 +8,21 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   final NetworkInfo networkInfo;
   final uuid = const Uuid();
 
-  final TypeDataRcv _type =  TypeDataRcv.multi;//TypeDataRcv.single;
+  final TypeDataRcv type;//TypeDataRcv.single;
 
   FeatureRemoteDataSourceImpl({
     required this.streamService,
     required this.networkInfo,
+    this.type = TypeDataRcv.multi,
   });
 
   @override
   Stream<(Failure?, EnvironmentDataModels?)?> receiveData() {
     final stream = streamService.stream;
+
     return stream.map<(Failure?, EnvironmentDataModels?)>((value) {
       try{
+        Logger.print('FeatureRemoteDataSourceImpl stream.map V:$value', error: true, level: 1);
         if (value == null) return (const ServerFailure(errorMessage: Constants.serverFailureMessage), null);
         if (value.$1 != null) return (value.$1, null);
         final data = value.$2;
@@ -49,13 +52,16 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   void startGet() {
     try {
       streamService.initial();
-      (receiver??(receiver = UDPClientSenderReceiver(
+      receiver = UDPClientSenderReceiver(
         serviceEC: streamService,
-        type: _type,
+        type: type,
         networkInfo: networkInfo,
-        address: (_type == TypeDataRcv.single)?Settings.remoteAddress:Constants.address,
-        bindPort: (_type == TypeDataRcv.single)?0:Constants.bindPort,
-      ))).run(broadcastEnabled: _type != TypeDataRcv.single);
+        address: (type == TypeDataRcv.single)?Settings.remoteAddress:Constants.address,
+        bindPort: (type == TypeDataRcv.single)?0:Constants.bindPort,
+      );
+      if(type != TypeDataRcv.single){
+        receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
+      }
     } on Exception catch (e) {
       Logger.print(
         e.toString(),
@@ -84,5 +90,19 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   @override
   void dispose(){
     streamService.dispose();
+  }
+
+  @override
+  void suspend() {
+    receiver?.suspend();
+  }
+
+  @override
+  void resume() {
+    if(type != TypeDataRcv.single){
+      receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
+    } else {
+      receiver?.startSingle(broadcastEnabled: type != TypeDataRcv.single);
+    }
   }
 }
