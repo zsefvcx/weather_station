@@ -68,7 +68,7 @@ class UDPClientSenderReceiver {
       return udpSocket;
     } on Exception catch(e, t){
                Logger.print('type:$type: Error bind Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((const ServerFailure(errorMessage: 'Error bind Socket'), null));
+               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error bind Socket'), null));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error bind Socket with:\n$e\n$t'
       );
@@ -80,14 +80,14 @@ class UDPClientSenderReceiver {
       final streamController = udpSocket.timeout(timeLimit,
         onTimeout: (sink) {
           Logger.print('${DateTime.now()}:Time Out Received. type:$type');
-          serviceEC.add((const ServerFailure(errorMessage: 'Time Out Received'), null));
+          serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Time Out Received'), null));
           sink.close();
         },
       );
       return streamController;
     } on Exception catch(e, t){
                Logger.print('type:$type: Error timeOut Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((const ServerFailure(errorMessage: 'Error timeOut Socket'), null));
+               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error timeOut Socket'), null));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error timeOut Socket with:\n$e\n$t'
       );
@@ -104,7 +104,7 @@ class UDPClientSenderReceiver {
           utf8.encode(key), serverAddress, senderPort);
     } on Exception catch (e, t) {
                Logger.print('type:$type: Error send Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((const ServerFailure(errorMessage: 'Error send Socket'), null));
+               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error send Socket'), null));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error send Socket with:\n$e\n$t'
       );
@@ -118,7 +118,7 @@ class UDPClientSenderReceiver {
   }){
     void onError(e, t){
                Logger.print('type:$type: Error streamController.listen with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((const ServerFailure(errorMessage: 'Error streamController'), null));
+               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error streamController'), null));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error streamController.listen with:\n$e\n$t'
       );
@@ -144,7 +144,7 @@ class UDPClientSenderReceiver {
             final json = jsonDecode(str) as Map<String, dynamic>;
             final key = json['key'] as String?;
             if(key != null && key != Constants.key) {
-              serviceEC.add((const ServerFailure(errorMessage: 'Error key message'), null));
+              serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error key message'), null));
               throw UDPClientSenderReceiverException(
                 errorMessage: 'type:$type: Error key message key:$key'
               );
@@ -186,7 +186,7 @@ class UDPClientSenderReceiver {
       );
     } on Exception catch(e,t){
                Logger.print('type:$type: Error listen Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((const ServerFailure(errorMessage: 'Error listen Socket'), null));
+               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error listen Socket'), null));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error listen Socket with:\n$e\n$t'
       );
@@ -199,7 +199,7 @@ class UDPClientSenderReceiver {
   }) async {
     try {
       if(!(await networkInfo.isConnected)) {
-        Logger.print('${DateTime.now()}:UDPClientSenderReceiver: No Broadcast Device');
+        Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
         serviceEC.add((const ServerFailure(errorMessage: 'No Broadcast Device'), null));
         Settings.remoteAddressExt = null;
         return;
@@ -217,37 +217,64 @@ class UDPClientSenderReceiver {
       udpSocket.close();
     } on Exception catch(e, t) {
                Logger.print('type:$type: Error startRcvUdp Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((const ServerFailure(errorMessage: 'Error startRcvUdp Socket'), null));
+               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error startRcvUdp Socket'), null));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error startRcvUdp Socket with:\n$e\n$t'
       );
     }
   }
 
-  //From Stream
+  Future<void> _startProcess({
+    bool broadcastEnabled = true
+  }) async {
+    try {
+      await _startRcvUdp(broadcastEnabled: broadcastEnabled);
+    }  on UDPClientSenderReceiverException catch(e, t) {
+      Logger.print('type:$type: Error run Socket with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
+      serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'), null));
+    }
+  }
+
+  ///Запустить Stream
   Future<void> run({
     bool broadcastEnabled = true
   }) async {
     try {
       await _startRcvUdp(broadcastEnabled: broadcastEnabled);
       _timer = Timer.periodic(periodic, (timer) async {
-          try {
-            await _startRcvUdp(broadcastEnabled: broadcastEnabled);
-          }  on UDPClientSenderReceiverException catch(e, t) {
-            Logger.print('type:$type: Error run Socket with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
-            serviceEC.add((const ServerFailure(errorMessage: 'Error run Socket'), null));
-          }
+          await _startProcess(broadcastEnabled: broadcastEnabled);
         },
       );
     } on Exception catch(e, t) {
                Logger.print('type:$type: Error run Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((const ServerFailure(errorMessage: 'Error run Socket'), null));
+               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'), null));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error run Socket with:\n$e\n$t'
       );
     }
   }
 
+  ///запустить единожды
+  Future<void> startSingle({
+    bool broadcastEnabled = true
+  }) async {
+    try {
+      await _startRcvUdp(broadcastEnabled: broadcastEnabled);
+    } on Exception catch(e, t) {
+      Logger.print('type:$type: Error run Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
+      serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'), null));
+      throw UDPClientSenderReceiverException(
+          errorMessage: 'type:$type: Error run Socket with:\n$e\n$t'
+      );
+    }
+  }
+
+  ///Приостановить
+  void suspend(){
+    _timer?.cancel();
+  }
+
+  ///Разрушить
   void dispose(){
     _timer?.cancel();
     serviceEC.dispose();

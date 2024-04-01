@@ -6,7 +6,7 @@ import 'package:weather_widget/core/core.dart';
 abstract class StreamService<T> {
   StreamController<T?>? _streamController;
 
-  StreamController<T?> get _init => StreamController<T?>.broadcast(
+  StreamController<T?> get _init => StreamController<T?>(
         onCancel: () => dev.log('StreamController $T onCancel'),
         onListen: () => dev.log('StreamController $T onListen'),
       );

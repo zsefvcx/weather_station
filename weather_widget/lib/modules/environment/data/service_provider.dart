@@ -16,28 +16,36 @@ class ServiceProvider {
     internetConnectionChecker: InternetConnectionChecker(),
   );
 
-  late final FeatureRemoteDataSource featureRemoteData;
+  late final FeatureRemoteDataSource featureRemoteDataMultiCast;
+  late final FeatureRemoteDataSource featureRemoteDataClient;
 
   T get<T extends Object>() => _getIt.get<T>();
 
   static final instance = ServiceProvider();
 
   void initialize() {
-    featureRemoteData = FeatureRemoteDataSourceImpl(
+    featureRemoteDataMultiCast = FeatureRemoteDataSourceImpl(
       streamService: EnvironmentStreamService(),
       networkInfo: networkInfo,
+    );
+    featureRemoteDataClient = FeatureRemoteDataSourceImpl(
+      streamService: EnvironmentStreamService(),
+      networkInfo: networkInfo,
+      type: TypeDataRcv.single,
     );
 
     _getIt.registerLazySingleton<EnvironmentRepository>(
       () => EnvironmentRepositoryImpl(
         networkInfo: networkInfo,
         featureLocalDataSource: featureLocalData,
-        featureRemoteDataSource: featureRemoteData,
+        featureRemoteDataSourceMultiCast: featureRemoteDataMultiCast,
+        featureRemoteDataSourceClient: featureRemoteDataClient
       ),
     );
   }
 
   void dispose(){
-    featureRemoteData.dispose();
+    featureRemoteDataMultiCast.dispose();
+    featureRemoteDataClient.dispose();
   }
 }

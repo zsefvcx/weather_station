@@ -11,4 +11,10 @@ abstract class FeatureRemoteDataSource {
 
   ///Очищаем все за собой
   void dispose();
+
+  ///Приостановить
+  void suspend();
+
+  ///Возобновить
+  void resume();
 }
