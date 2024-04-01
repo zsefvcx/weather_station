@@ -13,7 +13,12 @@ abstract class StreamService<T> {
 
   StreamController<T?> get _initial => _streamController = _init;
 
-  void initial() => _initial;
+  void initial(TypeDataRcv type) => _initial.onCancel = () {
+    if (type != TypeDataRcv.single) {
+      _streamController?.close();
+      _streamController = null;
+    }
+  };
 
   Stream<T?> get stream =>
       (_streamController ?? _initial).stream;

@@ -137,7 +137,6 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         Logger.print('deltaTimeInSecond:$deltaTimeInSecond', error: true, level: 1);
         Logger.print('type:$_type', error: true, level: 1);
         Logger.print('data:$_data', error: true, level: 1);
-        Logger.print('failure:$failure', error: true, level: 1);
         Logger.print('cacheFailure:$cacheFailure', error: true, level: 1);
         return (
           (deltaTimeInSecond >= Constants.timeOutShowError

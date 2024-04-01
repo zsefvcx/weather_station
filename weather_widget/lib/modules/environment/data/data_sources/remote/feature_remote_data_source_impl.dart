@@ -3,7 +3,7 @@ import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/data/data.dart';
 
 class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
-  final EnvironmentStreamService streamService;
+
   UDPClientSenderReceiver? receiver;
   final NetworkInfo networkInfo;
   final uuid = const Uuid();
@@ -11,7 +11,7 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   final TypeDataRcv type;//TypeDataRcv.single;
 
   FeatureRemoteDataSourceImpl({
-    required this.streamService,
+    required super.streamService,
     required this.networkInfo,
     this.type = TypeDataRcv.multi,
   });
@@ -51,7 +51,7 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   @override
   void startGet() {
     try {
-      streamService.initial();
+      streamService.initial(type);
       receiver = UDPClientSenderReceiver(
         serviceEC: streamService,
         type: type,
@@ -88,11 +88,6 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   }
 
   @override
-  void dispose(){
-    streamService.dispose();
-  }
-
-  @override
   void suspend() {
     receiver?.suspend();
   }
@@ -102,6 +97,7 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
     if(type != TypeDataRcv.single){
       receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
     } else {
+      receiver?.serviceEC.initial(type);
       receiver?.startSingle(broadcastEnabled: type != TypeDataRcv.single);
     }
   }
