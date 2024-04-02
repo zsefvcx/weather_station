@@ -118,7 +118,7 @@ void setup() {
   Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("%"));
   Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("%"));
   Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("%"));
-  delayMS = sensor.min_delay / 1000;
+  delayMS = 10000;//sensor.min_delay / 1000;
   Serial.print(F("delayMS:")); Serial.println(delayMS);
   Serial.println(F("-START-LOOP-------------------------"));
 startNext0:
@@ -406,7 +406,7 @@ void loop() {
       }
    delay(delayMS);
    i++;
-  } while(i < 5);
+  } while(i < 30);//5 минут бодрствования
   Serial.println(F("-deepSleep-600e6-------------------"));
   //Замкнуть пины D0 на RST
   ESP.deepSleep(600e6); // сон  (10 минут = 600e6) или 0 - чтобы не просыпаться самостоятельно

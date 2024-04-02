@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/presentation/presentation.dart';
 
@@ -33,41 +34,49 @@ class CustomMainBarWin extends StatelessWidget {
   Widget build(BuildContext context) {
     final changePositionAction = ChangePositionAction(context: context);
     final mainButtonAction = MainButtonAction(context: context);
+    final settingsApp = Provider.of<Settings>(context, listen: false);
     final actions = <({
       Future<dynamic> Function() function,
       IconData icon,
       IconData? icon2,
       String tooltip,
+      bool? iconActoin,
     })>{
       (
         function: _action,
         icon: _iconAction,
         icon2: null,
         tooltip: _textAction,
+        iconActoin: null,
       ),
       (
         function: mainButtonAction.pinWindows,
         icon: Icons.check_box_outline_blank,
         icon2: Icons.library_add_check_outlined,
-        tooltip: 'Pin'.hrd
+        tooltip: 'Pin'.hrd,
+        iconActoin: settingsApp.floatOnTop,
       ),
       (
         function: mainButtonAction.restart,
         icon: Icons.restart_alt,
         icon2: null,
-        tooltip: 'Restart'.hrd
+        tooltip: 'Restart'.hrd,
+        iconActoin: null,
       ),
       (
         function: mainButtonAction.minimize,
         icon: Icons.minimize,
         icon2: null,
-        tooltip: 'Minimize'.hrd
+        tooltip: 'Minimize'.hrd,
+        iconActoin: null,
       ),
       (
         function: mainButtonAction.close,
         icon: Icons.close,
         icon2: null,
-        tooltip: 'Close'.hrd),
+        tooltip: 'Close'.hrd,
+        iconActoin: null,
+      ),
     };
 
     final size = MediaQuery.of(context).size;
@@ -97,6 +106,7 @@ class CustomMainBarWin extends StatelessWidget {
                             icon2: e.icon2,
                             onPressed: e.function,
                             tooltip: e.tooltip,
+                            startStatus: e.iconActoin??false,
                           ),
                         )),
                   ],
