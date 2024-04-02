@@ -36,6 +36,8 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
           TypeData type,
           EnvironmentDataEntity? data
         })>((value) async {
+
+      //Пришло что-то или сработай таймаут
       try {
         Failure? multiCastFailure;
         Failure? clientFailure;
@@ -79,10 +81,11 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
               .difference(DateTime.now())
               .inSeconds
               .abs();
-          //Если данные не пришли больше определенного времени,
+          //Если данные не пришли
+          //или данных нет в кеше то посылаем обычный запрос
           try {
             if (_data.uuid == Constants.nullUuid
-              || deltaTimeInSecond >= Constants.timeOutShowError ) {
+              || deltaTimeInSecond >= (Constants.periodicECSec+Constants.timeLimitECSec) ) {
               //останавливаем мультикаст прием
               featureRemoteDataSourceMultiCast.suspend();
               //Делаем сингл запрос
