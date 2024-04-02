@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/presentation/presentation.dart';
-import 'package:window_manager/window_manager.dart';
 
 @RoutePage()
 class SettingsAppPage extends StatefulWidget {
@@ -56,7 +55,7 @@ class _SettingsAppPageState extends State<SettingsAppPage> {
             ),
             //style: widget._textStyle,
 
-            maxLines: 1, minLines: 1, maxLength: 15, //
+            minLines: 1, maxLength: 15, //
             initialValue: settingsApp.ipAddress,
             inputFormatters: const[
               // FilteringTextInputFormatter.allow(RegExp("[0-9.]")),

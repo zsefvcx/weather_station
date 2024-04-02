@@ -17,29 +17,42 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   });
 
   @override
-  Stream<(Failure?, EnvironmentDataModels?)?> receiveData() {
+  Stream<({Failure? failure, EnvironmentDataModels? data})?> receiveData() {
     final stream = streamService.stream;
-
-    return stream.map<(Failure?, EnvironmentDataModels?)>((value) {
+    return stream.map<({Failure? failure, EnvironmentDataModels? data})>((value) {
       try{
         Logger.print('FeatureRemoteDataSourceImpl stream.map V:$value', level: 1);
-        if (value == null) return (const ServerFailure(errorMessage: Constants.serverFailureMessage), null);
-        if (value.$1 != null) return (value.$1, null);
-        final data = value.$2;
-        if (data == null) return (const ServerFailure(errorMessage: Constants.unexpectedErrorMessage), null);
+        if (value == null) {
+          return (
+            failure:const ServerFailure(
+                errorMessage: Constants.serverFailureMessage
+            ),
+            data: null
+          );
+        }
+        if (value.failure != null) return (failure:value.failure, data:null);
+        final data = value.dataEnv;
+        if (data == null) {
+          return (
+            failure:const ServerFailure(
+                errorMessage: Constants.unexpectedErrorMessage
+            ),
+            data: null
+          );
+        }
         return (
-        null,
-        EnvironmentDataModels(
-          dateTime: DateTime.now(),
-          uuid: uuid.v4(),
-          errorInt: data.error,
-          errorExt: data.error2,
-          tempInt: data.temperature ?? -273,
-          tempExt: data.temperature2 ?? -273,
-          humidityInt: data.humidity ?? -1,
-          humidityExt: data.humidity2 ?? -1,
-          pressure: data.pressure ?? -1,
-        )
+          failure: null,
+          data: EnvironmentDataModels(
+            dateTime: DateTime.now(),
+            uuid: uuid.v4(),
+            errorInt: data.error,
+            errorExt: data.error2,
+            tempInt: data.temperature ?? -273,
+            tempExt: data.temperature2 ?? -273,
+            humidityInt: data.humidity ?? -1,
+            humidityExt: data.humidity2 ?? -1,
+            pressure: data.pressure ?? -1,
+          )
         );
       } on Exception catch (e) {
         Logger.print(e.toString(), error: true, level: 1);

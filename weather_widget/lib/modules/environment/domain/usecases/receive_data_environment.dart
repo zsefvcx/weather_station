@@ -8,11 +8,16 @@ class ReceiveDataEnvironment with UseCase<EnvironmentDataEntity, TypeData> {
 
   ///можно явно не указывать метод call
   ///ReceiveDataEnvironment.call(); => getAllPersons();
+  // @override
+  //  Stream<({EnvironmentDataEntity? data, Failure? falure, TypeData type,})> call() {
+  //    return environmentRepository.receiveData();
+  //  }
   @override
-  Stream<(Failure?, TypeData, EnvironmentDataEntity?)> call() {
-    return environmentRepository.receiveData();
+  Stream<({EnvironmentDataEntity? data, Failure? failure, TypeData type})> call() {
+    return environmentRepository.receiveData().map((event) => event);
   }
-
+  
+  
   Failure? start() {
     return environmentRepository.startGet();
   }
@@ -20,5 +25,4 @@ class ReceiveDataEnvironment with UseCase<EnvironmentDataEntity, TypeData> {
   Failure? stop() {
     return environmentRepository.stopGet();
   }
-
 }

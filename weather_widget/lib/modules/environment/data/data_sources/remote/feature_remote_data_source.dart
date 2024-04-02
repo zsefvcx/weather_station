@@ -12,7 +12,7 @@ abstract class FeatureRemoteDataSource {
   ///Остановить получение данных, в случае выхода или закрытия программы или окна, для очистки данных
   void  stopGet();
   ///В случае прихода данных наблюдать и получать их.
-  Stream<(Failure?, EnvironmentDataModels?)?> receiveData();
+  Stream<({Failure? failure, EnvironmentDataModels? data})?> receiveData();
 
   ///Очищаем все за собой
   void dispose(){

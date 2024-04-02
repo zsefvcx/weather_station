@@ -2,7 +2,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:weather_widget/core/core.dart';
-import 'package:weather_widget/core/theme/app_fonts.dart';
 
 class CustomTextWidget extends StatelessWidget {
 

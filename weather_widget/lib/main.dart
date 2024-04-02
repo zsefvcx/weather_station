@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather_widget/app.dart';
-import 'package:weather_widget/core/app_consts.dart';
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/modules.dart';
 import 'package:window_manager/window_manager.dart';

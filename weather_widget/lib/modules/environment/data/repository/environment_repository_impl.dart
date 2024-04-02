@@ -29,9 +29,13 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
   });
 
   @override
-  Stream<(Failure?, TypeData, EnvironmentDataEntity?)> receiveData() {
+  Stream<({Failure? failure, TypeData type, EnvironmentDataEntity? data})> receiveData() {
     final stream = featureRemoteDataSourceMultiCast.receiveData();
-    return stream.asyncMap<(Failure?, TypeData, EnvironmentDataEntity?)>((value) async {
+    return stream.asyncMap<({
+          Failure? failure,
+          TypeData type,
+          EnvironmentDataEntity? data
+        })>((value) async {
       try {
         Failure? multiCastFailure;
         Failure? clientFailure;
@@ -40,10 +44,10 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         if (value == null) {
           multiCastFailure = const ServerFailure(errorMessage: Constants.serverFailureMessage);
         } else {
-          if (value.$1 != null) {
-            multiCastFailure = value.$1;
+          if (value.failure != null) {
+            multiCastFailure = value.failure;
           } else {
-            final data = value.$2;
+            final data = value.data;
             if (data == null) {
               multiCastFailure = const ServerFailure(errorMessage: Constants.serverFailureMessage);
             } else {
@@ -87,10 +91,10 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
               final stream = featureRemoteDataSourceClient.receiveData();
               final value = await stream.first.timeout(Constants.periodic,);
               if (value != null) {
-                if (value.$1 != null) {
-                  multiCastFailure = value.$1;
+                if (value.failure != null) {
+                  multiCastFailure = value.failure;
                 } else {
-                  final data = value.$2;
+                  final data = value.data;
                   if (data == null) {
                     multiCastFailure = const ServerFailure(
                         errorMessage: Constants.serverFailureMessage);
@@ -141,14 +145,18 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         Logger.print('multiCastFailure:$multiCastFailure', error: true, level: 1);
         Logger.print('clientFailure:$clientFailure', error: true, level: 1);
         return (
-          (deltaTimeInSecond >= Constants.timeOutShowError
+          failure:( deltaTimeInSecond >= Constants.timeOutShowError
                || _data.uuid == Constants.nullUuid) ?(clientFailure??multiCastFailure):cacheFailure,
-          _type,
-          _data,
+          type: _type,
+          data: _data,
         );
       } on Exception catch (e) {
         Logger.print(e.toString(), error: true, level: 1);
-        return (const ServerFailure(errorMessage: Constants.serverFailureMessage), TypeData.another, _data);
+        return (
+          failure: const ServerFailure(errorMessage: Constants.serverFailureMessage),
+          type: TypeData.another,
+          data: _data
+        );
       }
     });
   }

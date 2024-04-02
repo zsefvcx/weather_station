@@ -38,4 +38,4 @@ abstract class StreamService<T> {
   }
 }
 
-class EnvironmentStreamService extends StreamService<(Failure?, EnvironmentalConditions?)> {}
+class EnvironmentStreamService extends StreamService<({Failure? failure, EnvironmentalConditions? dataEnv})> {}
