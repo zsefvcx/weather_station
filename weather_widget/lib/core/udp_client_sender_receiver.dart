@@ -214,17 +214,17 @@ class UDPClientSenderReceiver {
   }) async {
     try {
       Logger.print('_startRcvUdp type:$type address:$address', level: 1);
-      if(!(await networkInfo.isConnected)) {
-        Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
-        serviceEC.add((
-          failure: const ServerFailure(
-              errorMessage: 'No Broadcast Device'
-          ),
-          dataEnv: null,
-        ));
-        Settings.remoteAddressExt = null;
-        return;
-      }
+      // if(!(await networkInfo.isConnected)) {
+      //   Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
+      //   serviceEC.add((
+      //     failure: const ServerFailure(
+      //         errorMessage: 'No Broadcast Device'
+      //     ),
+      //     dataEnv: null,
+      //   ));
+      //   Settings.remoteAddressExt = null;
+      //   return;
+      // }
       final udpSocket = await _bind();
       final streamController = _timeOut(udpSocket: udpSocket);
       udpSocket.broadcastEnabled = broadcastEnabled;

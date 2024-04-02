@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather_widget/core/core.dart';
-import 'package:weather_widget/core/theme/theme.dart';
 import 'package:weather_widget/modules/environment/presentation/presentation.dart';
 
 class CustomIconEnvironmentStatus extends StatelessWidget {
