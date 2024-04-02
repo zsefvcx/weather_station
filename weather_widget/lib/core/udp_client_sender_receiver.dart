@@ -4,29 +4,6 @@ import 'dart:io';
 
 import 'package:weather_widget/core/core.dart';
 
-enum TypeDataRcv{
-  multi,
-  single,
-  type2,
-  type3;
-
-  @override
-  String toString(){
-    switch (index){
-      case 0:
-        return 'multicast';
-      case 1:
-        return 'singlecast';
-      case 2:
-        return 'type2Broadcast';
-      case 3:
-        return 'type2Broadcast2';
-      default:
-        return name;
-    }
-  }
-}
-
 class UDPClientSenderReceiver {
   //Internal address in text format: 'pool.ntp.org' or '127.0.0.1'
   final String address;
@@ -68,7 +45,12 @@ class UDPClientSenderReceiver {
       return udpSocket;
     } on Exception catch(e, t){
                Logger.print('type:$type: Error bind Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error bind Socket'), null));
+               serviceEC.add((
+                 failure: ServerFailure(
+                     errorMessage: '${DateTime.now()}:Error bind Socket'
+                 ),
+                 dataEnv: null,
+               ));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error bind Socket with:\n$e\n$t'
       );
@@ -80,14 +62,24 @@ class UDPClientSenderReceiver {
       final streamController = udpSocket.timeout(timeLimit,
         onTimeout: (sink) {
           Logger.print('${DateTime.now()}:Time Out Received. type:$type');
-          serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Time Out Received'), null));
+          serviceEC.add((
+            failure: ServerFailure(
+                errorMessage: '${DateTime.now()}:Time Out Received'
+            ),
+            dataEnv: null,
+          ));
           sink.close();
         },
       );
       return streamController;
     } on Exception catch(e, t){
                Logger.print('type:$type: Error timeOut Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error timeOut Socket'), null));
+               serviceEC.add((
+                 failure: ServerFailure(
+                     errorMessage: '${DateTime.now()}:Error timeOut Socket'
+                 ),
+                 dataEnv: null,
+               ));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error timeOut Socket with:\n$e\n$t'
       );
@@ -104,7 +96,12 @@ class UDPClientSenderReceiver {
           utf8.encode(key), serverAddress, senderPort);
     } on Exception catch (e, t) {
                Logger.print('type:$type: Error send Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error send Socket'), null));
+               serviceEC.add((
+                 failure: ServerFailure(
+                     errorMessage:'${DateTime.now()}:Error send Socket'
+                 ),
+                 dataEnv: null,
+               ));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error send Socket with:\n$e\n$t'
       );
@@ -118,7 +115,12 @@ class UDPClientSenderReceiver {
   }){
     void onError(e, t){
                Logger.print('type:$type: Error streamController.listen with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error streamController'), null));
+               serviceEC.add((
+                 failure: ServerFailure(
+                     errorMessage: '${DateTime.now()}:Error streamController'
+                 ),
+                 dataEnv: null,
+               ));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error streamController.listen with:\n$e\n$t'
       );
@@ -144,7 +146,12 @@ class UDPClientSenderReceiver {
             final json = jsonDecode(str) as Map<String, dynamic>;
             final key = json['key'] as String?;
             if(key != null && key != Constants.key) {
-              serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error key message'), null));
+              serviceEC.add((
+                failure: ServerFailure(
+                    errorMessage: '${DateTime.now()}:Error key message'
+                ),
+                dataEnv: null,
+              ));
               throw UDPClientSenderReceiverException(
                 errorMessage: 'type:$type: Error key message key:$key'
               );
@@ -165,7 +172,10 @@ class UDPClientSenderReceiver {
               //       ||dg.address.address == Settings.remoteAddress2
               //     )
               // ) {
-                serviceEC.add((null, dataEC));
+                serviceEC.add((
+                  failure: null,
+                  dataEnv: dataEC,
+                ));
               //}
               // stackDEC.add(dataEC);
               // final dataChart = ChartDataValue.fromEnvironmentalConditions(dataEC);
@@ -186,7 +196,12 @@ class UDPClientSenderReceiver {
       );
     } on Exception catch(e,t){
                Logger.print('type:$type: Error listen Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error listen Socket'), null));
+               serviceEC.add((
+                 failure: ServerFailure(
+                     errorMessage: '${DateTime.now()}:Error listen Socket'
+                 ),
+                 dataEnv: null,
+               ));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error listen Socket with:\n$e\n$t'
       );
@@ -201,7 +216,12 @@ class UDPClientSenderReceiver {
       Logger.print('_startRcvUdp type:$type address:$address', level: 1);
       if(!(await networkInfo.isConnected)) {
         Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
-        serviceEC.add((const ServerFailure(errorMessage: 'No Broadcast Device'), null));
+        serviceEC.add((
+          failure: const ServerFailure(
+              errorMessage: 'No Broadcast Device'
+          ),
+          dataEnv: null,
+        ));
         Settings.remoteAddressExt = null;
         return;
       }
@@ -218,7 +238,12 @@ class UDPClientSenderReceiver {
       udpSocket.close();
     } on Exception catch(e, t) {
                Logger.print('type:$type: Error startRcvUdp Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error startRcvUdp Socket'), null));
+               serviceEC.add((
+                 failure: ServerFailure(
+                     errorMessage: '${DateTime.now()}:Error startRcvUdp Socket'
+                 ),
+                 dataEnv: null,
+               ));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error startRcvUdp Socket with:\n$e\n$t'
       );
@@ -232,7 +257,12 @@ class UDPClientSenderReceiver {
       await _startRcvUdp(broadcastEnabled: broadcastEnabled);
     }  on UDPClientSenderReceiverException catch(e, t) {
       Logger.print('type:$type: Error run Socket with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
-      serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'), null));
+      serviceEC.add((
+        failure: ServerFailure(
+            errorMessage: '${DateTime.now()}:Error run Socket'
+        ),
+        dataEnv: null,
+      ));
     }
   }
 
@@ -248,7 +278,11 @@ class UDPClientSenderReceiver {
       );
     } on Exception catch(e, t) {
                Logger.print('type:$type: Error run Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'), null));
+               serviceEC.add((
+                 failure: ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'
+                 ),
+                 dataEnv: null,
+               ));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error run Socket with:\n$e\n$t'
       );
@@ -263,7 +297,12 @@ class UDPClientSenderReceiver {
       await _startRcvUdp(broadcastEnabled: broadcastEnabled);
     } on Exception catch(e, t) {
       Logger.print('type:$type: Error run Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-      serviceEC.add((ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'), null));
+      serviceEC.add((
+        failure: ServerFailure(
+            errorMessage: '${DateTime.now()}:Error run Socket'
+        ),
+        dataEnv: null,
+      ));
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error run Socket with:\n$e\n$t'
       );

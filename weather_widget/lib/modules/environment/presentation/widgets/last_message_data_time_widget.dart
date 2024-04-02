@@ -15,7 +15,7 @@ class LastMessageDataTime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomTextWidget(
-      'lm: ${DateFormat('kk:mm').format(_dateTime)}'.hrd,
+      'lm: ${DateFormat('dd.MM, kk:mm').format(_dateTime)}'.hrd,
       fontSize: AppFonts.fontSizeLite,
     );
   }

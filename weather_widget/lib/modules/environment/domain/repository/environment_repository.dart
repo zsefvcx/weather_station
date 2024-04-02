@@ -9,7 +9,7 @@ abstract class EnvironmentRepository {
   ///Остановить получение данных, в случае выхода или закрытия программы или окна, для очистки данных
   Failure?  stopGet();
   ///В случае прихода данных наблюдать и получать их.
-  Stream<(Failure?, TypeData, EnvironmentDataEntity?)> receiveData();
+  Stream<({Failure? failure, TypeData type, EnvironmentDataEntity? data})> receiveData();
 
   /// Обращение к базе данных другой репозиторий
   // Future<(Failure?, EnvironmentDataEntity?)> getPrev(int step);

@@ -54,9 +54,9 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
           emit(const EnvironmentState.loading());
           final stream = receiveData();
           await emit.forEach(stream, onData: (event) {
-            final failure = event.$1;
-            final type = event.$2;
-            final data = event.$3;
+            final failure = event.failure;
+            final type = event.type;
+            final data = event.data;
             cachedData = cachedData==null?data:(data?.uuid==Constants.nullUuid)?cachedData:data;
             if (failure != null) {
               return EnvironmentState.error(
