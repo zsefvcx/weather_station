@@ -19,9 +19,6 @@ abstract class FeatureRemoteDataSource {
     streamService.dispose();
   }
 
-  ///Приостановить
-  void suspend();
-
   ///Возобновить
-  void resume();
+  void launching();
 }

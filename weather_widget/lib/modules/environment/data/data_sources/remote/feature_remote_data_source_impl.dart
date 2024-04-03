@@ -100,18 +100,10 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
     }
   }
 
-  @override
-  void suspend() {
-    receiver?.suspend();
-  }
 
   @override
-  void resume() {
-    if(type != TypeDataRcv.single){
-      receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
-    } else {
-      receiver?.serviceEC.initial(type);
-      receiver?.startSingle(broadcastEnabled: type != TypeDataRcv.single);
-    }
+  void launching() {
+    receiver?.serviceEC.initial(type);
+    receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
   }
 }

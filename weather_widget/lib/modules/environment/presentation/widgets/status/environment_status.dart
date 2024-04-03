@@ -29,7 +29,7 @@ class EnvironmentStatusWidget extends StatelessWidget {
           },
           loaded: (value) {
             final data = value.data;
-            Logger.print('loaded data:$data', error: true, level: 1);
+            Logger.print('loaded data:$data', level: 1);
             return Column(
               children: [
                 ShowStatusEnvironmentWidget(data: data),

@@ -26,7 +26,7 @@ abstract class Logger {
     final msg = message;
     if (kDebugMode || Settings.showLogData) {
       dev.log(
-        '|:${error ? 'E' : 'N'}:|$msg',
+        '${DateTime.now()}|:${error ? 'E' : 'N'}:|$msg',
         time: DateTime.now(),
         name: name,
         level: level,

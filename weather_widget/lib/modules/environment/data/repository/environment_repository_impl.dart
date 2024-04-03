@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/data/data.dart';
 import 'package:weather_widget/modules/environment/domain/domain.dart';
@@ -15,6 +17,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     errorInt: false,
     errorExt: true,
   );
+
   ///Кеш прочитанный из памяти
   EnvironmentDataEntity? _localDataCache;
 
@@ -29,29 +32,49 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
   });
 
   @override
-  Stream<({Failure? failure, TypeData type, EnvironmentDataEntity? data})> receiveData() {
+  Stream<({EnvironmentDataEntity? data, Failure? failure, TypeData type})>
+      receiveData() async* {
+    Failure? multiCastFailure;
+    Failure? clientFailure;
+    Failure? cacheFailure;
+
+    //Первый запуск читаем данные из кеша
+    try {
+      if (_data.uuid == Constants.nullUuid) {
+        Logger.print('stream.asyncMap => read from cache', level: 1);
+        //Если кеш чистый то читаем данные из памяти
+        _type = TypeData.internal;
+        _localDataCache = await featureLocalDataSource.getLastDataFromCache();
+        _data = _localDataCache ?? _data;
+        _type = TypeData.internal;
+      }
+    } on Exception catch (e) {
+      Logger.print(e.toString(), error: true, level: 1);
+      cacheFailure =
+          const CacheFailure(errorMessage: Constants.cacheFailureMessage);
+    }
+    yield (
+      failure: cacheFailure,
+      type: _type,
+      data: _data,
+    );
+
     final stream = featureRemoteDataSourceMultiCast.receiveData();
-    return stream.asyncMap<({
-          Failure? failure,
-          TypeData type,
-          EnvironmentDataEntity? data
-        })>((value) async {
 
-      //Пришло что-то или сработай таймаут
+    await for (final value in stream) {
+      Logger.print('final value in stream => value:$value', level: 1);
       try {
-        Failure? multiCastFailure;
-        Failure? clientFailure;
-        Failure? cacheFailure;
-
         if (value == null) {
-          multiCastFailure = const ServerFailure(errorMessage: Constants.serverFailureMessage);
+          multiCastFailure =
+              const ServerFailure(errorMessage: Constants.serverFailureMessage);
         } else {
           if (value.failure != null) {
             multiCastFailure = value.failure;
           } else {
             final data = value.data;
             if (data == null) {
-              multiCastFailure = const ServerFailure(errorMessage: Constants.serverFailureMessage);
+              multiCastFailure = const ServerFailure(
+                  errorMessage: Constants.serverFailureMessage);
             } else {
               _data = data;
               _type = TypeData.external;
@@ -59,40 +82,26 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
           }
         }
 
-        //Данные не пришли читаем из кеша
-        try {
-          if (_data.uuid == Constants.nullUuid &&
-              multiCastFailure is ServerFailure) {
-            //Если кеш чистый то читаем данные из памяти
-            _type = TypeData.internal;
-            _localDataCache =
-            await featureLocalDataSource.getLastDataFromCache();
-            _data = _localDataCache ?? _data;
-            _type = TypeData.internal;
-          }
-        } on Exception catch(e){
-          Logger.print(e.toString(), error: true, level: 1);
-          cacheFailure = const CacheFailure(errorMessage: Constants.cacheFailureMessage);
-        }
-
         //Если нет данных то обращаемся через клиента, подразумевая что ip внешний
-        if(multiCastFailure is ServerFailure) {
-          final deltaTimeInSecond = _data.dateTime
-              .difference(DateTime.now())
-              .inSeconds
-              .abs();
+        if (multiCastFailure is ServerFailure) {
+          final deltaTimeInSecond =
+              _data.dateTime.difference(DateTime.now()).inSeconds.abs();
           //Если данные не пришли
           //или данных нет в кеше то посылаем обычный запрос
+          Logger.print(
+              'stream.asyncMap => read from server ip:${Settings.remoteAddress}',
+              level: 1);
           try {
-            if (_data.uuid == Constants.nullUuid
-              || deltaTimeInSecond >= (Constants.periodicECSec+Constants.timeLimitECSec) ) {
-              //останавливаем мультикаст прием
-              featureRemoteDataSourceMultiCast.suspend();
+            if (_data.uuid == Constants.nullUuid ||
+                deltaTimeInSecond >=
+                    (Constants.periodicECSec + Constants.timeLimitECSec)) {
               //Делаем сингл запрос
-              featureRemoteDataSourceClient.resume();
+              featureRemoteDataSourceClient.launching();
 
               final stream = featureRemoteDataSourceClient.receiveData();
-              final value = await stream.first.timeout(Constants.periodic,);
+              final value = await stream.first.timeout(
+                Constants.periodic,
+              );
               if (value != null) {
                 if (value.failure != null) {
                   multiCastFailure = value.failure;
@@ -107,13 +116,13 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
                   }
                 }
               }
-              featureRemoteDataSourceMultiCast.resume();
             }
           } on Exception catch (e) {
-            featureRemoteDataSourceMultiCast.resume();
             Logger.print(e.toString(), error: true, level: 1);
-            clientFailure =
-            const ServerFailure(errorMessage: Constants.cacheFailureMessage);
+            clientFailure = const ServerFailure(
+                errorMessage: Constants.cacheFailureMessage);
+          } finally {
+            featureRemoteDataSourceClient.dispose();
           }
         }
 
@@ -122,46 +131,61 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
           if (_localDataCache != _data) {
             //Пишем данные в кеш, если разница между последней записью и текущими данными больше определенного времени.
             //Все сделано для винды или линуха, для андройд скорее всего надо менять таймауты
-            final deltaTimeInSecond = _localDataCache?.dateTime.difference(DateTime.now()).inSeconds.abs();
-            if ((_localDataCache?.uuid == Constants.nullUuid
-                 || deltaTimeInSecond == null
-                 || deltaTimeInSecond > Constants.timeOutSafeDataToCache
-                )
-                && _data.uuid != Constants.nullUuid
-               ){
-                await featureLocalDataSource.dataToCache(_data);
-                _localDataCache = _data;
+            final deltaTimeInSecond = _localDataCache?.dateTime
+                .difference(DateTime.now())
+                .inSeconds
+                .abs();
+            if ((_localDataCache?.uuid == Constants.nullUuid ||
+                    deltaTimeInSecond == null ||
+                    deltaTimeInSecond > Constants.timeOutSafeDataToCache) &&
+                _data.uuid != Constants.nullUuid) {
+              await featureLocalDataSource.dataToCache(_data);
+              _localDataCache = _data;
             }
-            if(_type == TypeData.another) _type = TypeData.internal;
+            if (_type == TypeData.another) _type = TypeData.internal;
           }
-        } on Exception catch(e){
+        } on Exception catch (e) {
           Logger.print(e.toString(), error: true, level: 1);
-          cacheFailure = const CacheFailure(errorMessage: Constants.cacheFailureMessage);
+          cacheFailure =
+              const CacheFailure(errorMessage: Constants.cacheFailureMessage);
         }
+
         //Время ожидания для определения как долго должна молчать метеостанция
         //Все сделано для винды или линуха, для андройд скорее всего надо менять таймауты по приему и работе в фоне
-        final deltaTimeInSecond = _data.dateTime.difference(DateTime.now()).inSeconds.abs();
+        final deltaTimeInSecond =
+            _data.dateTime.difference(DateTime.now()).inSeconds.abs();
         Logger.print('deltaTimeInSecond:$deltaTimeInSecond', level: 1);
-        Logger.print('type:$_type',  level: 1);
+        Logger.print('type:$_type', level: 1);
         Logger.print('data:$_data', level: 1);
         Logger.print('cacheFailure:$cacheFailure', error: true, level: 1);
-        Logger.print('multiCastFailure:$multiCastFailure', error: true, level: 1);
+        Logger.print('multiCastFailure:$multiCastFailure',
+            error: true, level: 1);
         Logger.print('clientFailure:$clientFailure', error: true, level: 1);
-        return (
-          failure:( deltaTimeInSecond >= Constants.timeOutShowError
-               || _data.uuid == Constants.nullUuid) ?(clientFailure??multiCastFailure):cacheFailure,
+        //Возобновляем прием
+        featureRemoteDataSourceMultiCast.launching();
+        yield (
+          failure: (deltaTimeInSecond >= Constants.timeOutShowError ||
+                  _data.uuid == Constants.nullUuid)
+              ? (clientFailure ?? multiCastFailure)
+              : cacheFailure,
           type: _type,
           data: _data,
         );
+
+        //Возобновляем прием
+        featureRemoteDataSourceMultiCast.launching();
       } on Exception catch (e) {
         Logger.print(e.toString(), error: true, level: 1);
-        return (
-          failure: const ServerFailure(errorMessage: Constants.serverFailureMessage),
+        //Возобновляем прием
+        featureRemoteDataSourceMultiCast.launching();
+        yield (
+          failure:
+              const ServerFailure(errorMessage: Constants.serverFailureMessage),
           type: TypeData.another,
           data: _data
         );
       }
-    });
+    }
   }
 
   @override
@@ -169,7 +193,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     try {
       featureRemoteDataSourceMultiCast.startGet();
       featureRemoteDataSourceClient.startGet();
-    } on Exception catch(e){
+    } on Exception catch (e) {
       Logger.print(e.toString(), error: true);
       return const ServerFailure(errorMessage: Constants.serverFailureMessage);
     }
@@ -181,7 +205,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     try {
       featureRemoteDataSourceMultiCast.stopGet();
       featureRemoteDataSourceClient.stopGet();
-    } on Exception catch(e){
+    } on Exception catch (e) {
       Logger.print(e.toString(), error: true);
       return const ServerFailure(errorMessage: Constants.serverFailureMessage);
     }

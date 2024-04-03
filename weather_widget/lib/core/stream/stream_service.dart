@@ -6,12 +6,12 @@ import 'package:weather_widget/core/core.dart';
 abstract class StreamService<T> {
   StreamController<T?>? _streamController;
 
-  StreamController<T?> get _init => StreamController<T?>.broadcast(
+  StreamController<T?> get _init => StreamController<T?>(
         onCancel: () => dev.log('StreamController $T onCancel'),
         onListen: () => dev.log('StreamController $T onListen'),
       );
 
-  StreamController<T?> get _initial => _streamController = _init;
+  StreamController<T?> get _initial => _streamController??(_streamController = _init);
 
   void initial(TypeDataRcv type) => _initial.onCancel = () {
     if (type != TypeDataRcv.single) {
@@ -38,4 +38,12 @@ abstract class StreamService<T> {
   }
 }
 
-class EnvironmentStreamService extends StreamService<({Failure? failure, EnvironmentalConditions? dataEnv})> {}
+class EnvironmentStreamService extends StreamService<({
+  Failure? failure,
+  EnvironmentalConditions? dataEnv}
+)> {
+  EnvironmentStreamService(){
+    super.dispose();
+  }
+
+}

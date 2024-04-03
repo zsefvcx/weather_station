@@ -21,8 +21,6 @@ class UDPClientSenderReceiver {
   final NetworkInfo networkInfo;
   // StreamController
   final EnvironmentStreamService serviceEC;
-  //Timer
-  static Timer? _timer;
 
   const UDPClientSenderReceiver({
     required this.serviceEC,
@@ -36,32 +34,20 @@ class UDPClientSenderReceiver {
   });
 
   Future<RawDatagramSocket> _bind() async {
-    try {
+      Logger.print('_bind type:$type address:$address', level: 1);
       final serverAddress = (await InternetAddress.lookup(address)).first;
       final udpSocket = await RawDatagramSocket.bind(
           serverAddress.type == InternetAddressType.IPv6
               ? InternetAddress.anyIPv6
               : InternetAddress.anyIPv4, bindPort);
       return udpSocket;
-    } on Exception catch(e, t){
-               Logger.print('type:$type: Error bind Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((
-                 failure: ServerFailure(
-                     errorMessage: '${DateTime.now()}:Error bind Socket'
-                 ),
-                 dataEnv: null,
-               ));
-      throw UDPClientSenderReceiverException(
-          errorMessage: 'type:$type: Error bind Socket with:\n$e\n$t'
-      );
-    }
   }
 
   Stream<RawSocketEvent> _timeOut({required RawDatagramSocket udpSocket}){
-    try{
+      Logger.print('_timeOut => streamController type:$type address:$address', level: 1);
       final streamController = udpSocket.timeout(timeLimit,
         onTimeout: (sink) {
-          Logger.print('${DateTime.now()}:Time Out Received. type:$type');
+          Logger.print('${DateTime.now()}:Time Out Received. type:$type', error: true);
           serviceEC.add((
             failure: ServerFailure(
                 errorMessage: '${DateTime.now()}:Time Out Received'
@@ -70,63 +56,22 @@ class UDPClientSenderReceiver {
           ));
           sink.close();
         },
+
       );
       return streamController;
-    } on Exception catch(e, t){
-               Logger.print('type:$type: Error timeOut Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((
-                 failure: ServerFailure(
-                     errorMessage: '${DateTime.now()}:Error timeOut Socket'
-                 ),
-                 dataEnv: null,
-               ));
-      throw UDPClientSenderReceiverException(
-          errorMessage: 'type:$type: Error timeOut Socket with:\n$e\n$t'
-      );
-    }
   }
 
-  Future<int?> _send(String key, {
-    required RawDatagramSocket udpSocket,
-  }) async {
-    try {
+  Future<int?> _send(String key, {required RawDatagramSocket udpSocket}) async {
+      Logger.print('_send type:$type key:$key');
       final serverAddress = (await InternetAddress.lookup(address)).first;
-      Logger.print('${DateTime.now()}:Send Data to server. type:$type');
-      return udpSocket.send(
-          utf8.encode(key), serverAddress, senderPort);
-    } on Exception catch (e, t) {
-               Logger.print('type:$type: Error send Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((
-                 failure: ServerFailure(
-                     errorMessage:'${DateTime.now()}:Error send Socket'
-                 ),
-                 dataEnv: null,
-               ));
-      throw UDPClientSenderReceiverException(
-          errorMessage: 'type:$type: Error send Socket with:\n$e\n$t'
-      );
-    }
+      return udpSocket.send(utf8.encode(key), serverAddress, senderPort);
   }
-
 
   StreamSubscription<RawSocketEvent> _listen({
     required Stream<RawSocketEvent> streamController,
     required RawDatagramSocket udpSocket
   }){
-    void onError(e, t){
-               Logger.print('type:$type: Error streamController.listen with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((
-                 failure: ServerFailure(
-                     errorMessage: '${DateTime.now()}:Error streamController'
-                 ),
-                 dataEnv: null,
-               ));
-      throw UDPClientSenderReceiverException(
-          errorMessage: 'type:$type: Error streamController.listen with:\n$e\n$t'
-      );
-    }
-
-    try{
+    Logger.print('_listen => streamController type:$type address:$address', level: 1);
       return streamController.listen((rawSocketEvent) async {
         final dg = udpSocket.receive();
         if (dg != null) {
@@ -192,27 +137,13 @@ class UDPClientSenderReceiver {
         }
       },
         onDone: udpSocket.close,
-        onError: onError,
       );
-    } on Exception catch(e,t){
-               Logger.print('type:$type: Error listen Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((
-                 failure: ServerFailure(
-                     errorMessage: '${DateTime.now()}:Error listen Socket'
-                 ),
-                 dataEnv: null,
-               ));
-      throw UDPClientSenderReceiverException(
-          errorMessage: 'type:$type: Error listen Socket with:\n$e\n$t'
-      );
-    }
   }
 
   Future<void> _startRcvUdp({
     bool broadcastEnabled = true,
     String key = Constants.key
   }) async {
-    try {
       Logger.print('_startRcvUdp type:$type address:$address', level: 1);
       // if(!(await networkInfo.isConnected)) {
       //   Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
@@ -226,56 +157,29 @@ class UDPClientSenderReceiver {
       //   return;
       // }
       final udpSocket = await _bind();
-      final streamController = _timeOut(udpSocket: udpSocket);
-      udpSocket.broadcastEnabled = broadcastEnabled;
-      final streamSubscription = _listen(
-        streamController: streamController,
-        udpSocket: udpSocket,
-      );
-      if (bindPort == 0) await _send(key, udpSocket: udpSocket);
-      await streamSubscription.asFuture<void>();
-      await streamSubscription.cancel();
-      udpSocket.close();
-    } on Exception catch(e, t) {
-               Logger.print('type:$type: Error startRcvUdp Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-               serviceEC.add((
-                 failure: ServerFailure(
-                     errorMessage: '${DateTime.now()}:Error startRcvUdp Socket'
-                 ),
-                 dataEnv: null,
-               ));
-      throw UDPClientSenderReceiverException(
-          errorMessage: 'type:$type: Error startRcvUdp Socket with:\n$e\n$t'
-      );
-    }
+      try {
+        final streamController = _timeOut(udpSocket: udpSocket);
+        udpSocket.broadcastEnabled = broadcastEnabled;
+        final streamSubscription = _listen(
+          streamController: streamController,
+          udpSocket: udpSocket,
+        );
+        if (bindPort == 0) await _send(key, udpSocket: udpSocket);
+        await streamSubscription.asFuture<void>();
+        await streamSubscription.cancel();
+      } finally {
+        udpSocket.close();
+      }
   }
 
-  Future<void> _startProcess({
-    bool broadcastEnabled = true
-  }) async {
-    try {
-      await _startRcvUdp(broadcastEnabled: broadcastEnabled);
-    }  on UDPClientSenderReceiverException catch(e, t) {
-      Logger.print('type:$type: Error run Socket with:\n$e\n$t', error: true, name: 'err', safeToDisk: true);
-      serviceEC.add((
-        failure: ServerFailure(
-            errorMessage: '${DateTime.now()}:Error run Socket'
-        ),
-        dataEnv: null,
-      ));
-    }
-  }
-
-  ///Запустить Stream
+  ///Запустить
   Future<void> run({
-    bool broadcastEnabled = true
+    ///Широковещательный пакет
+    bool broadcastEnabled = true,
   }) async {
     try {
+      Logger.print('RUN type:$type address:$address', level: 1);
       await _startRcvUdp(broadcastEnabled: broadcastEnabled);
-      _timer = Timer.periodic(periodic, (timer) async {
-          await _startProcess(broadcastEnabled: broadcastEnabled);
-        },
-      );
     } on Exception catch(e, t) {
                Logger.print('type:$type: Error run Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
                serviceEC.add((
@@ -289,34 +193,8 @@ class UDPClientSenderReceiver {
     }
   }
 
-  ///запустить единожды
-  Future<void> startSingle({
-    bool broadcastEnabled = true
-  }) async {
-    try {
-      await _startRcvUdp(broadcastEnabled: broadcastEnabled);
-    } on Exception catch(e, t) {
-      Logger.print('type:$type: Error run Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-      serviceEC.add((
-        failure: ServerFailure(
-            errorMessage: '${DateTime.now()}:Error run Socket'
-        ),
-        dataEnv: null,
-      ));
-      throw UDPClientSenderReceiverException(
-          errorMessage: 'type:$type: Error run Socket with:\n$e\n$t'
-      );
-    }
-  }
-
-  ///Приостановить
-  void suspend(){
-    _timer?.cancel();
-  }
-
   ///Разрушить
   void dispose(){
-    _timer?.cancel();
     serviceEC.dispose();
   }
 }
