@@ -121,8 +121,6 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
             Logger.print(e.toString(), error: true, level: 1);
             clientFailure = const ServerFailure(
                 errorMessage: Constants.cacheFailureMessage);
-          } finally {
-            featureRemoteDataSourceClient.dispose();
           }
         }
 
@@ -161,8 +159,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         Logger.print('multiCastFailure:$multiCastFailure',
             error: true, level: 1);
         Logger.print('clientFailure:$clientFailure', error: true, level: 1);
-        //Возобновляем прием
-        featureRemoteDataSourceMultiCast.launching();
+
         yield (
           failure: (deltaTimeInSecond >= Constants.timeOutShowError ||
                   _data.uuid == Constants.nullUuid)
