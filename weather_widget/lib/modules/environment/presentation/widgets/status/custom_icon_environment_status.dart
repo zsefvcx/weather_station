@@ -19,7 +19,7 @@ class CustomIconEnvironmentStatus extends StatelessWidget {
             Icons.close,
           ),
           loaded: (value) => CustomIcon(
-            value.type != TypeData.external
+            value.type != TypeData.internal
                 ? Icons.leak_add_outlined
                 : Icons.leak_remove,
           ),
