@@ -19,13 +19,15 @@ class ShowStatusEnvironmentWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final settingsApp = Provider.of<Settings>(context, listen: false);
     if(!_data.errorExt) {
-      windowManager.setSize(Constants.sizeLiteDouble);
+      windowManager.setMinimumSize(Constants.sizeLiteDouble);
+      //windowManager.setSize(Constants.sizeLiteDouble);
       if (settingsApp.iDouble == 1){
         settingsApp..iDouble = 2
         ..safeToDisk();
       }
     } else {
-      windowManager.setSize(Constants.sizeLite);
+      windowManager.setMinimumSize(Constants.sizeLite);
+      //windowManager.setSize(Constants.sizeLite);
       if (settingsApp.iDouble == 2){
         settingsApp..iDouble = 1
           ..safeToDisk();

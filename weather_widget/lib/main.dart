@@ -32,17 +32,17 @@ Future<void> main() async {
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.setOpacity(settingsApp.opacity);
       await windowManager.setAlwaysOnTop(settingsApp.floatOnTop);
-      ///Установить максимальные размер
-      await windowManager.setMaximumSize(Constants.sizeLiteDouble);
-      ///Установить минимальные размеры
+      //Установить максимальные размер
+      //await windowManager.setMaximumSize(Constants.sizeLiteDouble);
+      //Установить минимальные размеры
       await windowManager.setMinimumSize(settingsApp.iDouble==1
           ?Constants.sizeLite
           :Constants.sizeLiteDouble
       );
       await windowManager.setPosition(settingsApp.positionStart);
       await windowManager.setSize(Constants.sizeLite);
-      ///Делает окно без возможности изменять размеры
-      await windowManager.setAsFrameless();
+      //Делает окно без возможности изменять размеры
+      //await windowManager.setAsFrameless();
       await windowManager.show();
       await windowManager.focus();
     });
