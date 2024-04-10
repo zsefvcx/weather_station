@@ -17,23 +17,13 @@ class CustomIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: _size*2,
-      width: _size*2,
-      decoration: BoxDecoration(
-        color: AppColors.grey,
-        borderRadius: BorderRadius.all(Radius.circular(_size)),
-      ),
-      child: Center(
-        child: Stack(
-          children: [
-            Icon(_icon,  size: _size, color: _color,),
-            Visibility(
-              visible: _icon2!=null,
-              child: Icon(_icon2, size: _size, color: _color,),
-            ),
-        ]),
-      ),
-    );
+    return Stack(
+      children: [
+        Icon(_icon,  size: _size, color: _color,),
+        Visibility(
+          visible: _icon2!=null,
+          child: Icon(_icon2, size: _size, color: _color,),
+        ),
+    ]);
   }
 }

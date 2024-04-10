@@ -31,9 +31,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     required this.featureRemoteDataSourceClient,
   });
 
-  Future<({
-      EnvironmentDataEntity? data, Failure? failure, TypeData type
-    })> readDataFromCache() async {
+  Future<Failure?> readDataFromCache() async {
       Failure? cacheFailure;
       try {
         if (_data.uuid == Constants.nullUuid) {
@@ -48,11 +46,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         cacheFailure =
         const CacheFailure(errorMessage: Constants.cacheFailureMessage);
       }
-      return (
-        failure: cacheFailure,
-        type: _type,
-        data: _data,
-      );
+      return cacheFailure;
   }
 
   Future<Failure?> safeDataToCache() async{
@@ -154,61 +148,77 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
 
   @override
   Stream<({EnvironmentDataEntity? data, Failure? failure, TypeData type})>
-      receiveData() async* {
+      receiveData() {
     Failure? multiCastFailure;
     Failure? clientFailure;
     Failure? cacheFailure;
 
     //Первый запуск читаем данные из кеша
-    yield await readDataFromCache();
+
     //Читаем основной поток данных
     final stream = featureRemoteDataSourceMultiCast.receiveData();
     //Все что приходить в потоке обрабатываем
-    await for (final value in stream) {
-      Logger.print('final value in stream => value:$value', level: 1);
-      try {
-        //Обработаем полученный ответ
-        multiCastFailure = handleDataMultiCast(value);
-        //Если ошибка данных то обращаемся через клиента, подразумевая что ip внешний
-        if (multiCastFailure is ServerFailure) {
-          clientFailure = await readDataFromServer();
-        }
-        //Записываем новые данные
-        cacheFailure = await safeDataToCache();
-        //Время ожидания для определения как долго должна молчать метеостанция
-        //Все сделано для винды или линуха, для андройд скорее всего надо менять таймауты по приему и работе в фоне
-        final deltaTimeInSecond =
-            _data.dateTime.difference(DateTime.now()).inSeconds.abs();
-        Logger.print('deltaTimeInSecond:$deltaTimeInSecond', level: 1);
-        Logger.print('type:$_type', level: 1);
-        Logger.print('data:$_data', level: 1);
-        Logger.print('cacheFailure:$cacheFailure', error: true, level: 1);
-        Logger.print('multiCastFailure:$multiCastFailure',
-            error: true, level: 1);
-        Logger.print('clientFailure:$clientFailure', error: true, level: 1);
 
-        yield (
-          failure: (deltaTimeInSecond >= Constants.timeOutShowError ||
-                  _data.uuid == Constants.nullUuid)
-              ? (clientFailure ?? multiCastFailure)
-              : cacheFailure,
-          type: _type,
-          data: _data,
-        );
-        //Возобновляем прием
-        featureRemoteDataSourceMultiCast.launching();
-      } on Exception catch (e) {
-        Logger.print(e.toString(), error: true, level: 1);
-        //Возобновляем прием в случае ошибки
-        featureRemoteDataSourceMultiCast.launching();
-        yield (
-          failure:
-              const ServerFailure(errorMessage: Constants.serverFailureMessage),
-          type: TypeData.another,
-          data: _data
-        );
-      }
-    }
+    return stream.map<({EnvironmentDataEntity? data, Failure? failure, TypeData type})>(
+            (event) {
+
+            //cacheFailure = readDataFromCache();
+
+            return (
+                       failure:
+                           const ServerFailure(errorMessage: Constants.serverFailureMessage),
+                       type: TypeData.another,
+                       data: _data
+                     );
+            });
+
+
+
+    // await for (final value in stream) {
+    //   Logger.print('final value in stream => value:$value', level: 1);
+    //   try {
+    //     //Обработаем полученный ответ
+    //     multiCastFailure = handleDataMultiCast(value);
+    //     //Если ошибка данных то обращаемся через клиента, подразумевая что ip внешний
+    //     if (multiCastFailure is ServerFailure) {
+    //       clientFailure = await readDataFromServer();
+    //     }
+    //     //Записываем новые данные
+    //     cacheFailure = await safeDataToCache();
+    //     //Время ожидания для определения как долго должна молчать метеостанция
+    //     //Все сделано для винды или линуха, для андройд скорее всего надо менять таймауты по приему и работе в фоне
+    //     final deltaTimeInSecond =
+    //         _data.dateTime.difference(DateTime.now()).inSeconds.abs();
+    //     Logger.print('deltaTimeInSecond:$deltaTimeInSecond', level: 1);
+    //     Logger.print('type:$_type', level: 1);
+    //     Logger.print('data:$_data', level: 1);
+    //     Logger.print('cacheFailure:$cacheFailure', error: true, level: 1);
+    //     Logger.print('multiCastFailure:$multiCastFailure',
+    //         error: true, level: 1);
+    //     Logger.print('clientFailure:$clientFailure', error: true, level: 1);
+    //
+    //     yield (
+    //       failure: (deltaTimeInSecond >= Constants.timeOutShowError ||
+    //               _data.uuid == Constants.nullUuid)
+    //           ? (clientFailure ?? multiCastFailure)
+    //           : cacheFailure,
+    //       type: _type,
+    //       data: _data,
+    //     );
+    //     //Возобновляем прием
+    //     featureRemoteDataSourceMultiCast.launching();
+    //   } on Exception catch (e) {
+    //     Logger.print(e.toString(), error: true, level: 1);
+    //     //Возобновляем прием в случае ошибки
+    //     featureRemoteDataSourceMultiCast.launching();
+    //     yield (
+    //       failure:
+    //           const ServerFailure(errorMessage: Constants.serverFailureMessage),
+    //       type: TypeData.another,
+    //       data: _data
+    //     );
+    //   }
+    // }
   }
 
   @override
