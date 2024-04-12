@@ -35,7 +35,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
       Failure? cacheFailure;
       try {
         if (_data.uuid == Constants.nullUuid) {
-          Logger.print('stream.asyncMap => read from cache', level: 1);
+          Logger.print('stream => read from cache', level: 1);
           //Если кеш чистый то читаем данные из памяти
           _localDataCache = await featureLocalDataSource.getLastDataFromCache();
           _data = _localDataCache ?? _data;
