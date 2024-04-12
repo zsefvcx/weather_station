@@ -8,8 +8,10 @@ class SettingsAppAction {
   SettingsAppAction({required this.context});
 
   final BuildContext context;
+  final Debouncer _debouncer = Debouncer(const Duration(milliseconds: 10));
 
-  Future<void> opacityChanged(double value) async{
+  Future<void> opacityChanged(double value) async => _debouncer.debounce(() async => _opacityChanged(value), );
+  Future<void> _opacityChanged(double value) async{
     final settingsApp = Provider.of<Settings>(context, listen: false);
     if (value < 0.5) {
       settingsApp.opacity = 0.5;
@@ -20,6 +22,8 @@ class SettingsAppAction {
     await settingsApp.safeToDisk();
   }
 
-
+  void dispose(){
+    _debouncer.dispose();
+  }
 
 }

@@ -13,12 +13,26 @@ class SettingsAppPage extends StatefulWidget {
 }
 
 class _SettingsAppPageState extends State<SettingsAppPage> {
+
+  SettingsAppAction? _settingsAppAction;
+
+  @override
+  void dispose() {
+    _settingsAppAction?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final settingsApp = context.watch<Settings>();
-    final settingsAppAction = SettingsAppAction(context: context);
+    _settingsAppAction = SettingsAppAction(context: context);
+    final settingsAppAction = _settingsAppAction;
     //const heightContainer = 60.0;
-    final widgetList = <Widget>[
+    final widgetList = settingsAppAction==null
+        //Действие нет значит ничего и не надо показывать
+        ?<Widget>[]
+      //Показываем
+      :<Widget>[
       CustomMainBarWin(
         title: Constants.title,
         action: () async => context.router.back(),
@@ -30,7 +44,7 @@ class _SettingsAppPageState extends State<SettingsAppPage> {
         icon: Icons.opacity,
         text: 'Opacity:'.hrd,
         value: settingsApp.opacity,
-        onChanged: settingsAppAction.opacityChanged,
+        onChanged: settingsAppAction?.opacityChanged,
       ),
       ///ipAddress
       Card(

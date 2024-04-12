@@ -23,6 +23,12 @@ class ReceiveDataEnvironment with UseCase<EnvironmentDataEntity, TypeData> {
   }
 
   Failure? stop() {
+    environmentRepository.isReceived = false;
     return environmentRepository.stopGet();
   }
+
+  bool status(){
+    return environmentRepository.isReceived;
+  }
+
 }

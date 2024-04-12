@@ -114,20 +114,10 @@ class UDPClientSenderReceiver {
               if(type == TypeDataRcv.multi){
                 Settings.remoteAddressExt = dg.address.address;
               }
-              // if(                  type == TypeDataRcv.multi
-              //     && (dg.address.address == Settings.remoteAddress
-              //       ||dg.address.address == Settings.remoteAddress2
-              //     )
-              // ) {
                 serviceEC.add((
                   failure: null,
                   dataEnv: dataEC,
                 ), status: isRunning);
-              //}
-              // stackDEC.add(dataEC);
-              // final dataChart = ChartDataValue.fromEnvironmentalConditions(dataEC);
-              // Logger.print(dataChart.toString());
-              // stackCDV.add(dataChart);
             } on EnvironmentalConditionsException catch(e){
               Logger.print(e.toString(), name: 'err',  error: true, safeToDisk: true);
             } on Exception catch(e, t){
@@ -147,17 +137,6 @@ class UDPClientSenderReceiver {
     String key = Constants.key
   }) async {
       Logger.print('_startRcvUdp type:$type address:$address', level: 1);
-      // if(!(await networkInfo.isConnected)) {
-      //   Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
-      //   serviceEC.add((
-      //     failure: const ServerFailure(
-      //         errorMessage: 'No Broadcast Device'
-      //     ),
-      //     dataEnv: null,
-      //   ));
-      //   Settings.remoteAddressExt = null;
-      //   return;
-      // }
       final udpSocket = await _bind();
       try {
         final streamController = _timeOut(udpSocket: udpSocket);
@@ -190,7 +169,7 @@ class UDPClientSenderReceiver {
       await Future.doWhile(() async {
         attempt--;
         if(!(await networkInfo.isConnected)){
-          Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
+          Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device: status:$attempt');
           await Future.delayed(const Duration(seconds: 5));
           attempt--;
           //результат - закончились попытки
@@ -241,6 +220,7 @@ class UDPClientSenderReceiver {
 
   ///Разрушить
   void dispose(){
+    isRunning = false;
     serviceEC.dispose();
   }
 }

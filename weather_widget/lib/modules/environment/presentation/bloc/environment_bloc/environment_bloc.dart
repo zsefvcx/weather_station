@@ -26,6 +26,8 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
     on<EnvironmentEvent>((event, emit) async {
       await event.map<FutureOr<void>>(
         startGet: (value) async {
+          //Eсли данные не полученны - выполнить позже
+          //if (receiveData.status()) return;
           if(_status) return;
           final failure = receiveData.start();
           if (failure != null) {
@@ -37,6 +39,8 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
           _status = true;
         },
         stopGet: (value) async {
+          //Eсли данные не полученны - выполнить позже
+          //if (receiveData.status()) return;
           if(!_status) return;
           final failure = receiveData.stop();
           if (failure != null) {
@@ -51,6 +55,8 @@ class EnvironmentBloc extends Bloc<EnvironmentEvent, EnvironmentState> {
           _status = false;
         },
         receiveData: (value) async {
+          //Eсли данные не полученны - выполнить позже
+          if (receiveData.status()) return;
           emit(const EnvironmentState.loading());
           final stream = receiveData();
           await emit.forEach(stream, onData: (event) {

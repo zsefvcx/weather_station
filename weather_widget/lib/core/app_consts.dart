@@ -59,8 +59,8 @@ abstract final class Constants {
   ///Но он спит и надо бы время увеличит до часу
   static const timeOutShowError = 60*60;
 
-  ///Сохраняем данные в кеш каждые два часа
-  static const timeOutSafeDataToCache = 2*60*60;
+  ///Сохраняем данные в кеш каждые час
+  static const timeOutSafeDataToCache = 60*60;
 
   ///NullUID
   static const nullUuid = '00000000-0000-0000-0000-000000000000';

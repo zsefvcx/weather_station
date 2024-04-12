@@ -3,12 +3,11 @@ import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/data/data.dart';
 
 class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
-
   UDPClientSenderReceiver? receiver;
   final NetworkInfo networkInfo;
   final uuid = const Uuid();
 
-  final TypeDataRcv type;//TypeDataRcv.single;
+  final TypeDataRcv type; //TypeDataRcv.single;
 
   FeatureRemoteDataSourceImpl({
     required super.streamService,
@@ -19,24 +18,24 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   @override
   Stream<({Failure? failure, EnvironmentDataModels? data})?> receiveData() {
     final stream = streamService.stream;
-    return stream.map<({Failure? failure, EnvironmentDataModels? data})>((value) {
-      try{
-        Logger.print('FeatureRemoteDataSourceImpl stream.map V:$value', level: 1);
+    return stream
+        .map<({Failure? failure, EnvironmentDataModels? data})>((value) {
+      try {
+        Logger.print('FeatureRemoteDataSourceImpl stream.map V:$value',
+            level: 1);
         if (value == null) {
           return (
-            failure:const ServerFailure(
-                errorMessage: Constants.serverFailureMessage
-            ),
+            failure: const ServerFailure(
+                errorMessage: Constants.serverFailureMessage),
             data: null
           );
         }
-        if (value.failure != null) return (failure:value.failure, data:null);
+        if (value.failure != null) return (failure: value.failure, data: null);
         final data = value.dataEnv;
         if (data == null) {
           return (
-            failure:const ServerFailure(
-                errorMessage: Constants.unexpectedErrorMessage
-            ),
+            failure: const ServerFailure(
+                errorMessage: Constants.unexpectedErrorMessage),
             data: null
           );
         }
@@ -69,9 +68,12 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
         serviceEC: streamService,
         type: type,
         networkInfo: networkInfo,
-        address: (type == TypeDataRcv.single)?Settings.remoteAddress:Constants.address,
-        bindPort: (type == TypeDataRcv.single)?0:Constants.bindPort,
+        address: (type == TypeDataRcv.single)
+            ? Settings.remoteAddress
+            : Constants.address,
+        bindPort: (type == TypeDataRcv.single) ? 0 : Constants.bindPort,
       );
+      receiver?.isRunning = false;
       // if(type != TypeDataRcv.single){
       //   receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
       // }
@@ -88,6 +90,7 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   @override
   void stopGet() {
     try {
+      receiver?.isRunning = false;
       receiver?.dispose();
       streamService.dispose();
     } on Exception catch (e) {
@@ -100,15 +103,20 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
     }
   }
 
-
   @override
   void launching() {
     receiver?.serviceEC.initial(type);
+    receiver?.isRunning = false;
     receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
   }
 
   @override
   void stopRunning() {
     receiver?.isRunning = false;
+  }
+
+  @override
+  bool? statusRunning() {
+    return receiver?.isRunning;
   }
 }

@@ -63,6 +63,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
             deltaTimeInSecond == null ||
             deltaTimeInSecond > Constants.timeOutSafeDataToCache) &&
             _data.uuid != Constants.nullUuid) {
+          Logger.print('safeDataToCache _data:$_data', level: 1);
           await featureLocalDataSource.dataToCache(_data);
           _localDataCache = _data;
         }
@@ -82,13 +83,15 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     _data.dateTime.difference(DateTime.now()).inSeconds.abs();
     //Если данные не пришли
     //или данных нет в кеше то посылаем обычный запрос
-    Logger.print(
-        'stream => read from server ip:${Settings.remoteAddress}',
-        level: 1);
     try {
       if (_data.uuid == Constants.nullUuid ||
           deltaTimeInSecond >=
               (Constants.periodicECSec + Constants.timeLimitECSec)) {
+        Logger.print(
+          'stream => read from server ip:${Settings.remoteAddress}',
+          level: 1
+        );
+
         //Делаем сингл запрос
         source.launching();
         //Берем поток
@@ -97,7 +100,11 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         final value = await stream.first.timeout(
           //Не более времени сна устройства
           const Duration(seconds: Constants.timeSleepDevices)
-        );
+        ).onError((error, stackTrace) {
+          clientFailure = const ServerFailure(
+            errorMessage: Constants.serverFailureMessage);
+          return null;
+        });
         //Останавливаем опрос, если он сам не остановился до этого
         source.stopRunning();
         //Проверяем сообщение
@@ -128,33 +135,48 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
 
   /// Функция генератор
   @override
-  Stream<({EnvironmentDataEntity? data, Failure? failure, TypeData type})>
-      receiveData() async* {
+  Stream<TypeOfResponse> receiveData() async* {
+    if (isReceived) return;
+    isReceived = true;
     Failure? multiCastFailure;
     Failure? clientFailure;
     Failure? cacheFailure ;
 
     //Первый запуск читаем данные из кеша
-    cacheFailure = await _readDataFromCache();
+    cacheFailure = isReceived? await _readDataFromCache():null;
 
-    //Кидаем в поток результат
-    yield (
-      failure:cacheFailure,
-      type: TypeData.another,
-      data: _data
-    );
+    //Кидаем в поток результат as TypeOfResponse
+    if(isReceived){
+      yield (
+        failure:cacheFailure,
+        type: TypeData.another,
+        data: _data
+      ) as TypeOfResponse;
+    } else {
+      return;
+    }
 
     //Читаем данные на прямую из источника - как клиент
-    clientFailure = await _readDataFromSource(featureRemoteDataSourceClient);
+    clientFailure = isReceived? await _readDataFromSource(featureRemoteDataSourceClient): null;
+    //Проверяем на третье состояние (если релоад то есть)
+    if (featureRemoteDataSourceClient.statusRunning() == null) {
+      isReceived = false;
+      return;
+    }
 
     //Если ошибка Читаем данные из источника - как мультикаст клиент
     if(clientFailure is ServerFailure) {
+      Logger.print('multiCastFailure:$multiCastFailure', error: true, level: 1);
       multiCastFailure =
-      await _readDataFromSource(featureRemoteDataSourceMultiCast);
+      isReceived?await _readDataFromSource(featureRemoteDataSourceMultiCast):null;
+      if (featureRemoteDataSourceMultiCast.statusRunning() == null) {
+        isReceived = false;
+        return;
+      }
     }
 
     //Записываем новые данные
-    cacheFailure = await _safeDataToCache();
+    cacheFailure = isReceived?await _safeDataToCache():null;
 
     //Время ожидания для определения как долго должна молчать метеостанция
     //Все сделано для винды или линуха, для андройд скорее всего надо менять таймауты по приему и работе в фоне
@@ -168,20 +190,24 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     Logger.print('multiCastFailure:$multiCastFailure', error: true, level: 1);
     Logger.print('clientFailure:$clientFailure', error: true, level: 1);
 
-    //возвращаем результат
-    yield (
-      failure: (deltaTimeInSecond >= Constants.timeOutShowError ||
-          _data.uuid == Constants.nullUuid)
-          ? (clientFailure ?? multiCastFailure)
-          : cacheFailure,
-      type: TypeData.another,
-      data: _data
-    );
+    //возвращаем результат as TypeOfResponse
+    if(isReceived) {
+      yield (
+        failure: (deltaTimeInSecond >= Constants.timeOutShowError ||
+            _data.uuid == Constants.nullUuid)
+            ? (clientFailure ?? multiCastFailure)
+            : cacheFailure,
+        type: TypeData.another,
+        data: _data
+      ) as TypeOfResponse;
+    }
+    Logger.print('All Data is update', level: 1);
             //После ожидания 10 минут повторить запрос
             // }).timeout(const Duration(minutes: 10), onTimeout: (_) {
             //     Logger.print('multiCast repeat after 10 minutes', level: 1);
             //     featureRemoteDataSourceMultiCast.launching();
             // },);
+    isReceived = false;
   }
 
   @override
