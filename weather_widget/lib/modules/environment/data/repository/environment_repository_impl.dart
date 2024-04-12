@@ -135,7 +135,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
 
   /// Функция генератор
   @override
-  Stream<TypeOfResponse> receiveData() async* {
+  Stream<TypeOfResponse<EnvironmentDataEntity>> receiveData() async* {
     if (isReceived) return;
     isReceived = true;
     Failure? multiCastFailure;
@@ -151,7 +151,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         failure:cacheFailure,
         type: TypeData.another,
         data: _data
-      ) as TypeOfResponse;
+      ) as TypeOfResponse<EnvironmentDataEntity>;
     } else {
       return;
     }
@@ -199,7 +199,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
             : cacheFailure,
         type: TypeData.another,
         data: _data
-      ) as TypeOfResponse;
+      ) as TypeOfResponse<EnvironmentDataEntity>;
     }
     Logger.print('All Data is update', level: 1);
             //После ожидания 10 минут повторить запрос

@@ -1,7 +1,5 @@
 import 'package:weather_widget/core/core.dart';
-import 'package:weather_widget/modules/environment/domain/domain.dart';
-
-typedef TypeOfResponse = ({Failure? failure, TypeData type, EnvironmentDataEntity? data});
+import 'package:weather_widget/modules/environment/domain/entities/environment_data_entity.dart';
 
 abstract class EnvironmentRepository {
 
@@ -10,7 +8,7 @@ abstract class EnvironmentRepository {
   ///Остановить получение данных, в случае выхода или закрытия программы или окна, для очистки данных
   Failure?  stopGet();
   ///В случае прихода данных наблюдать и получать их.
-  Stream<TypeOfResponse> receiveData();
+  Stream<TypeOfResponse<EnvironmentDataEntity>> receiveData();
 
   ///Статус приема данных
   bool isReceived = false;

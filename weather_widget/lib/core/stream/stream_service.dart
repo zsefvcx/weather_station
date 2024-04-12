@@ -38,10 +38,8 @@ abstract class StreamService<T> {
   }
 }
 
-class EnvironmentStreamService extends StreamService<({
-  Failure? failure,
-  EnvironmentalConditions? dataEnv}
-)> {
+class EnvironmentStreamService extends StreamService<
+TypeOfReceiver<EnvironmentalConditions>> {
   EnvironmentStreamService(){
     super.dispose();
   }

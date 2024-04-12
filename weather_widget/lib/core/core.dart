@@ -1,5 +1,6 @@
 export 'app_consts.dart';
 export 'app_settings.dart';
+export 'app_typedef.dart';
 export 'data/data.dart';
 export 'debouncer.dart';
 export 'error/error.dart';

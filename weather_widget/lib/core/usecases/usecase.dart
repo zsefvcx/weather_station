@@ -1,5 +1,6 @@
-import 'package:weather_widget/core/error/failure.dart';
 
-mixin UseCase<T, TD> {
-  Stream<({Failure? failure, TD type, T? data})> call();
+import 'package:weather_widget/core/core.dart';
+
+mixin UseCase<T> {
+  Stream<TypeOfResponse<T>> call();
 }

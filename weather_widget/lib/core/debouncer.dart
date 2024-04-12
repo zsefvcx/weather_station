@@ -12,11 +12,11 @@ class Debouncer {
 
   Debouncer(this.delay);
 
-  void debounce(VoidCallback action){
+  void debounce(Future<void> Function() action){
       //Отменяем прошлый таймер
       _timer?.cancel();
       //Запускаем таймер по истечении времени запускаем действие.
-      _timer = Timer(delay, () => action);
+      _timer = Timer(delay, () => action());
   }
 
   void dispose() => _timer?.cancel();

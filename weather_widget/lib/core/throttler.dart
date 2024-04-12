@@ -15,18 +15,20 @@ class Throttler {
 
   Throttler(this.delay);
 
-  void throttle(VoidCallback action){
+  Future<T?> throttle<T>(Future<T> Function() action) async {
     // если не выполняется тротлинг, выполняем действие и запускаем таймер для обновление флага
     if (!_isThrottling){
       //Выполняем действие
-      action();
+      final res = action();
       //Обновляем флаг
       _isThrottling = true;
       //Запускаем таймер по истечении времени сбрасываем флаг.
       _timer = Timer(delay, () => _isThrottling = false);
-    } else {
-      Logger.print('${DateTime.now()}:Too Fast');
+
+      return res;
     }
+    Logger.print('${DateTime.now()}:Too Fast');
+    return null;
   }
 
   void dispose() => _timer?.cancel();

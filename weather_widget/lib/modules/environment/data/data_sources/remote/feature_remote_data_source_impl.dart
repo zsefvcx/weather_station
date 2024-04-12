@@ -16,10 +16,10 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
   });
 
   @override
-  Stream<({Failure? failure, EnvironmentDataModels? data})?> receiveData() {
+  Stream<TypeOfReceiver<EnvironmentDataModels>?> receiveData() {
     final stream = streamService.stream;
     return stream
-        .map<({Failure? failure, EnvironmentDataModels? data})>((value) {
+        .map<TypeOfReceiver<EnvironmentDataModels>>((value) {
       try {
         Logger.print('FeatureRemoteDataSourceImpl stream.map V:$value',
             level: 1);
@@ -28,16 +28,16 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
             failure: const ServerFailure(
                 errorMessage: Constants.serverFailureMessage),
             data: null
-          );
+          ) as TypeOfReceiver<EnvironmentDataModels>;
         }
         if (value.failure != null) return (failure: value.failure, data: null);
-        final data = value.dataEnv;
+        final data = value.data;
         if (data == null) {
           return (
             failure: const ServerFailure(
                 errorMessage: Constants.unexpectedErrorMessage),
             data: null
-          );
+          ) as TypeOfReceiver<EnvironmentDataModels>;
         }
         return (
           failure: null,
@@ -52,7 +52,7 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
             humidityExt: data.humidity2 ?? -1,
             pressure: data.pressure ?? -1,
           )
-        );
+        ) as TypeOfReceiver<EnvironmentDataModels>;
       } on Exception catch (e) {
         Logger.print(e.toString(), error: true, level: 1);
         throw ServerException(errorMessage: Constants.serverFailureMessage);
