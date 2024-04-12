@@ -106,4 +106,9 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
     receiver?.serviceEC.initial(type);
     receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
   }
+
+  @override
+  void stopRunning() {
+    receiver?.isRunning = false;
+  }
 }

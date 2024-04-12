@@ -21,8 +21,10 @@ class UDPClientSenderReceiver {
   final NetworkInfo networkInfo;
   // StreamController
   final EnvironmentStreamService serviceEC;
+  /// Статус запуска
+  bool isRunning = false;
 
-  const UDPClientSenderReceiver({
+  UDPClientSenderReceiver({
     required this.serviceEC,
     required this.type,
     required this.networkInfo,
@@ -53,7 +55,7 @@ class UDPClientSenderReceiver {
                 errorMessage: '${DateTime.now()}:Time Out Received'
             ),
             dataEnv: null,
-          ));
+          ), status: isRunning);
           sink.close();
         },
 
@@ -96,7 +98,7 @@ class UDPClientSenderReceiver {
                     errorMessage: '${DateTime.now()}:Error key message'
                 ),
                 dataEnv: null,
-              ));
+              ), status: isRunning);
               throw UDPClientSenderReceiverException(
                 errorMessage: 'type:$type: Error key message key:$key'
               );
@@ -120,7 +122,7 @@ class UDPClientSenderReceiver {
                 serviceEC.add((
                   failure: null,
                   dataEnv: dataEC,
-                ));
+                ), status: isRunning);
               //}
               // stackDEC.add(dataEC);
               // final dataChart = ChartDataValue.fromEnvironmentalConditions(dataEC);
@@ -178,25 +180,31 @@ class UDPClientSenderReceiver {
     bool broadcastEnabled = true,
   }) async {
     try {
-      Logger.print('RUN type:$type address:$address', level: 1);
+      Logger.print('RUN type:$type address:$address isRunning:$isRunning', level: 1);
       //число попыток = (Время сна устройства * 2)/5сек
-      var attempt = 10*60~/5;
+      var attempt = Constants.timeSleepDevices~/5;
+      //Запрос уже запущен и не надо сюда лезть
+      if (isRunning) return;
+      //Не запущенно запускаем....
+      isRunning = true;
       await Future.doWhile(() async {
         attempt--;
         if(!(await networkInfo.isConnected)){
           Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
           await Future.delayed(const Duration(seconds: 5));
           attempt--;
+          //результат - закончились попытки
+          return attempt>=0 && isRunning;
         } else {
           //доступно можно опрашивать
           attempt = -100;
           return false;
         }
-        //результат - закончились попытки
-        return attempt>=0;
+
+
       }).whenComplete(() async {
-        Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: Broadcast Search Complete status:$attempt:');
-        if (attempt == -100) {
+        Logger.print('${DateTime.now()}:type:$type:isRunning:$isRunning:UDPClientSenderReceiver: Broadcast Search Complete status:$attempt:');
+        if (attempt == -100 || isRunning) {
           await _startRcvUdp(broadcastEnabled: broadcastEnabled);
         } else {
           serviceEC.add((
@@ -204,8 +212,9 @@ class UDPClientSenderReceiver {
               errorMessage: 'No Broadcast Device'
             ),
             dataEnv: null,
-          ));
+          ), status: isRunning);
         }
+        isRunning = false;
       });
       // if(!(await networkInfo.isConnected)) {
       //   Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
@@ -222,7 +231,8 @@ class UDPClientSenderReceiver {
                  failure: ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'
                  ),
                  dataEnv: null,
-               ));
+               ),status: isRunning);
+               isRunning = false;
       throw UDPClientSenderReceiverException(
           errorMessage: 'type:$type: Error run Socket with:\n$e\n$t'
       );

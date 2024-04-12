@@ -23,8 +23,8 @@ abstract class StreamService<T> {
   Stream<T?> get stream =>
       (_streamController ?? _initial).stream;
 
-  void add(T? data) {
-    if (data != null) {
+  void add(T? data, {required bool status}) {
+    if (data != null && status) {
       (_streamController ?? _initial).add(data);
     }
   }

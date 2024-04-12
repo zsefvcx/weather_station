@@ -83,4 +83,7 @@ abstract final class Constants {
   static const cacheFailureMessageWrite = 'Cache Failure Write';
   static const timeOutFailureMessage = 'Time Out Failure';
   static const unexpectedErrorMessage = 'Unexpected Error';
+
+  ///Время сна устройства
+  static const timeSleepDevices = 10*60;
 }

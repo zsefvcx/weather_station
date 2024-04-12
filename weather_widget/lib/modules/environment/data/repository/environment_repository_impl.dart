@@ -91,11 +91,16 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
               (Constants.periodicECSec + Constants.timeLimitECSec)) {
         //Делаем сингл запрос
         source.launching();
-
+        //Берем поток
         final stream = source.receiveData();
+        //Ожидаем первое сообщение
         final value = await stream.first.timeout(
-          Constants.periodic,
+          //Не более времени сна устройства
+          const Duration(seconds: Constants.timeSleepDevices)
         );
+        //Останавливаем опрос, если он сам не остановился до этого
+        source.stopRunning();
+        //Проверяем сообщение
         if (value != null) {
           if (value.failure != null) {
             clientFailure = value.failure;
@@ -114,8 +119,10 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     } on Exception catch (e) {
       Logger.print(e.toString(), error: true, level: 1);
       clientFailure = const ServerFailure(
-          errorMessage: Constants.cacheFailureMessage);
+          errorMessage: Constants.serverFailureMessage);
     }
+    //Останавливаем в любом случае, даже если уже все...
+    source.stopRunning();
     return clientFailure;
   }
 
@@ -141,7 +148,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     clientFailure = await _readDataFromSource(featureRemoteDataSourceClient);
 
     //Если ошибка Читаем данные из источника - как мультикаст клиент
-    if(clientFailure == null) {
+    if(clientFailure is ServerFailure) {
       multiCastFailure =
       await _readDataFromSource(featureRemoteDataSourceMultiCast);
     }

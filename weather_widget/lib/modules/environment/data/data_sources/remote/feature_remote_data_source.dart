@@ -21,4 +21,7 @@ abstract class FeatureRemoteDataSource {
 
   ///Возобновить
   void launching();
+
+  ///Прекратить опрос
+  void stopRunning();
 }
