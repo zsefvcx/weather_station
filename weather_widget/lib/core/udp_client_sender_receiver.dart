@@ -156,6 +156,14 @@ class UDPClientSenderReceiver {
         if (bindPort == 0) await _send(key, udpSocket: udpSocket);
         await streamSubscription.asFuture<void>();
         await streamSubscription.cancel();
+      } on Exception catch(e, t) {
+        Logger.print('type:$type: Error _startRcvUdp Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
+        serviceEC.add((
+          failure: ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'),
+          data: null,
+        ) as TypeOfReceiver<EnvironmentalConditions>,status: isRunning);
+        isRunning = false;
+        _isDataRcv = -1;
       } finally {
         udpSocket.close();
       }
@@ -178,14 +186,16 @@ class UDPClientSenderReceiver {
       isRunning = true;
       await Future.doWhile(() async {
         attempt--;
+        //Проверяем есть ли устройство в сети
         if(!(await networkInfo.isConnected)){
           Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Response Device: status:$attempt');
+          //Ждем 5 секунд
           await Future.delayed(const Duration(seconds: 5));
           attempt--;
-
+          //Принудительно послушаем что да как, ну оно может и не отвечать
           await _startRcvUdp(broadcastEnabled: broadcastEnabled);
+          //Ждем сообщения и таймауты
           await Future.doWhile(() => _isDataRcv==0 && isRunning);
-
           //результат - закончились попытки
           return attempt>=0 && isRunning && (_isDataRcv==0 || _isDataRcv==-1);
         }
@@ -208,14 +218,6 @@ class UDPClientSenderReceiver {
         }
         isRunning = false;
       });
-      // if(!(await networkInfo.isConnected)) {
-      //   Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
-      //   Settings.remoteAddressExt = null;
-      //   return;
-      // }
-
-
-
     } on Exception catch(e, t) {
                Logger.print('type:$type: Error run Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
                serviceEC.add((
