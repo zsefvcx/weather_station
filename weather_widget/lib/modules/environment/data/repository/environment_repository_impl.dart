@@ -140,7 +140,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     //Читаем данные на прямую из источника - как клиент
     clientFailure = await _readDataFromSource(featureRemoteDataSourceClient);
 
-    //Если ошибка Читаем данные на прямую из источника - как мультикаст клиент
+    //Если ошибка Читаем данные из источника - как мультикаст клиент
     if(clientFailure == null) {
       multiCastFailure =
       await _readDataFromSource(featureRemoteDataSourceMultiCast);
