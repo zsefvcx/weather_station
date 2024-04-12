@@ -16,10 +16,10 @@ class NetworkInfoImp implements NetworkInfo{
 
  @override
  Future<bool> get isConnected async {
-   final remoteAddressExt = Settings.remoteAddressExt;
+   final remoteAddressExt = Settings.remoteAddressExt??'';
    final optionsList =
    List<AddressCheckOptions>.unmodifiable(<AddressCheckOptions>[
-    if(remoteAddressExt != null && remoteAddressExt.isNotEmpty)AddressCheckOptions(
+    if(remoteAddressExt.isNotEmpty)AddressCheckOptions(
      address: InternetAddress(
       remoteAddressExt,
       type: InternetAddressType.IPv4,
@@ -35,6 +35,10 @@ class NetworkInfoImp implements NetworkInfo{
     ),
    ]);
    internetConnectionChecker.addresses = optionsList;
+
+   //Отладка. Удаленный адрес и отловленный мультикаст адрес
+   Logger.print('${DateTime.now()}:remoteAddress:${Settings.remoteAddress}:remoteAddressExt:${remoteAddressExt==''?'-':remoteAddressExt}');
+
 
    return internetConnectionChecker.hasConnection;
  }

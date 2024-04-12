@@ -72,9 +72,9 @@ class FeatureRemoteDataSourceImpl extends FeatureRemoteDataSource {
         address: (type == TypeDataRcv.single)?Settings.remoteAddress:Constants.address,
         bindPort: (type == TypeDataRcv.single)?0:Constants.bindPort,
       );
-      if(type != TypeDataRcv.single){
-        receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
-      }
+      // if(type != TypeDataRcv.single){
+      //   receiver?.run(broadcastEnabled: type != TypeDataRcv.single);
+      // }
     } on Exception catch (e) {
       Logger.print(
         e.toString(),

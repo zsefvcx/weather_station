@@ -174,12 +174,48 @@ class UDPClientSenderReceiver {
 
   ///Запустить
   Future<void> run({
-    ///Широковещательный пакет
+    ///Широковещательный пакет. Прием.
     bool broadcastEnabled = true,
   }) async {
     try {
       Logger.print('RUN type:$type address:$address', level: 1);
-      await _startRcvUdp(broadcastEnabled: broadcastEnabled);
+      //число попыток = (Время сна устройства * 2)/5сек
+      var attempt = 10*60~/5;
+      await Future.doWhile(() async {
+        attempt--;
+        if(!(await networkInfo.isConnected)){
+          Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
+          await Future.delayed(const Duration(seconds: 5));
+          attempt--;
+        } else {
+          //доступно можно опрашивать
+          attempt = -100;
+          return false;
+        }
+        //результат - закончились попытки
+        return attempt>=0;
+      }).whenComplete(() async {
+        Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: Broadcast Search Complete status:$attempt:');
+        if (attempt == -100) {
+          await _startRcvUdp(broadcastEnabled: broadcastEnabled);
+        } else {
+          serviceEC.add((
+            failure: const ServerFailure(
+              errorMessage: 'No Broadcast Device'
+            ),
+            dataEnv: null,
+          ));
+        }
+      });
+      // if(!(await networkInfo.isConnected)) {
+      //   Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Broadcast Device');
+
+      //   Settings.remoteAddressExt = null;
+      //   return;
+      // }
+
+
+
     } on Exception catch(e, t) {
                Logger.print('type:$type: Error run Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
                serviceEC.add((
