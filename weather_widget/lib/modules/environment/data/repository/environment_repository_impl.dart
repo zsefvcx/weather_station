@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:weather_widget/core/app_consts.dart';
 import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/data/data.dart';
 import 'package:weather_widget/modules/environment/domain/domain.dart';
@@ -99,7 +100,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
         //Ожидаем первое сообщение
         final value = await stream.first.timeout(
           //Не более времени сна устройства
-          const Duration(seconds: Constants.timeSleepDevices)
+          const Duration(seconds: Constants.timeSleepDevSec)
         ).onError((error, stackTrace) {
           clientFailure = const ServerFailure(
             errorMessage: Constants.serverFailureMessage);
@@ -155,7 +156,8 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     } else {
       return;
     }
-
+    
+    
     //Читаем данные на прямую из источника - как клиент
     clientFailure = isReceived? await _readDataFromSource(featureRemoteDataSourceClient): null;
     //Проверяем на третье состояние (если релоад то есть)
@@ -202,11 +204,18 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
       ) as TypeOfResponse<EnvironmentDataEntity>;
     }
     Logger.print('All Data is update', level: 1);
-            //После ожидания 10 минут повторить запрос
-            // }).timeout(const Duration(minutes: 10), onTimeout: (_) {
-            //     Logger.print('multiCast repeat after 10 minutes', level: 1);
-            //     featureRemoteDataSourceMultiCast.launching();
-            // },);
+
+    //После ожидания 10 минут повторить запрос
+
+    Future.delayed(
+      const Duration(minutes: Constants.timeSleepDevMin),
+      receiveData,);
+    
+    // }).timeout(const Duration(minutes: 10), onTimeout: (_) {
+    //     Logger.print('multiCast repeat after 10 minutes', level: 1);
+    //     featureRemoteDataSourceMultiCast.launching();
+    // },);
+    
     isReceived = false;
   }
 

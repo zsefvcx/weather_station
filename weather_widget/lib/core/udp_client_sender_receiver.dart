@@ -179,7 +179,7 @@ class UDPClientSenderReceiver {
     try {
       Logger.print('RUN type:$type address:$address isRunning:$isRunning', level: 1);
       //число попыток = (Время сна устройства * 2)/5сек
-      var attempt = Constants.timeSleepDevices~/5;
+      var attempt = Constants.timeSleepDevSec~/5;
       //Запрос уже запущен и не надо сюда лезть
       if (isRunning) return;
       //Не запущенно запускаем....

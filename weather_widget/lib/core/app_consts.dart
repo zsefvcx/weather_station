@@ -85,5 +85,6 @@ abstract final class Constants {
   static const unexpectedErrorMessage = 'Unexpected Error';
 
   ///Время сна устройства
-  static const timeSleepDevices = 10*60;
+  static const timeSleepDevMin = 10;
+  static const timeSleepDevSec = timeSleepDevMin*60;
 }
