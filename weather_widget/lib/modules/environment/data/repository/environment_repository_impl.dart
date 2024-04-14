@@ -148,18 +148,29 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
 
     //Кидаем в поток результат as TypeOfResponse
     if(isReceived){
+      final deltaTimeInSecond = _data.dateTime
+          .difference(DateTime.now())
+          .inSeconds
+          .abs();
       yield (
-        failure:cacheFailure,
+        failure:(deltaTimeInSecond >= Constants.timeOutShowError ||
+            _data.uuid == Constants.nullUuid)
+            ?const CacheFailure(errorMessage: 'Too old Data cache'):cacheFailure,
         type: TypeData.another,
         data: _data
       ) as TypeOfResponse<EnvironmentDataEntity>;
     } else {
       return;
     }
-    
-    
+  var repeat = 0;
+  do {
+    if (!isReceived) return;
+    repeat++;
+    Logger.print('R:$repeat: Start data update', level: 1);
     //Читаем данные на прямую из источника - как клиент
-    clientFailure = isReceived? await _readDataFromSource(featureRemoteDataSourceClient): null;
+    clientFailure = isReceived
+        ? await _readDataFromSource(featureRemoteDataSourceClient)
+        : null;
     //Проверяем на третье состояние (если релоад то есть)
     if (featureRemoteDataSourceClient.statusRunning() == null) {
       isReceived = false;
@@ -167,10 +178,12 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     }
 
     //Если ошибка Читаем данные из источника - как мультикаст клиент
-    if(clientFailure is ServerFailure) {
+    if (clientFailure is ServerFailure) {
       Logger.print('multiCastFailure:$multiCastFailure', error: true, level: 1);
       multiCastFailure =
-      isReceived?await _readDataFromSource(featureRemoteDataSourceMultiCast):null;
+      isReceived
+          ? await _readDataFromSource(featureRemoteDataSourceMultiCast)
+          : null;
       if (featureRemoteDataSourceMultiCast.statusRunning() == null) {
         isReceived = false;
         return;
@@ -178,50 +191,44 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
     }
 
     //Записываем новые данные
-    cacheFailure = isReceived?await _safeDataToCache():null;
+    cacheFailure = isReceived ? await _safeDataToCache() : null;
 
     //Время ожидания для определения как долго должна молчать метеостанция
-    //Все сделано для винды или линуха, для андройд скорее всего надо менять таймауты по приему и работе в фоне
-    final deltaTimeInSecond = _data.dateTime.difference(DateTime.now()).inSeconds.abs();
+    final deltaTimeInSecond = _data.dateTime
+        .difference(DateTime.now())
+        .inSeconds
+        .abs();
 
     //Отладочная информация
-    Logger.print('deltaTimeInSecond:$deltaTimeInSecond', level: 1);
-    Logger.print('type:$_type', level: 1);
-    Logger.print('data:$_data', level: 1);
-    Logger.print('cacheFailure:$cacheFailure', error: true, level: 1);
-    Logger.print('multiCastFailure:$multiCastFailure', error: true, level: 1);
-    Logger.print('clientFailure:$clientFailure', error: true, level: 1);
+    Logger.print('R:$repeat:deltaTimeInSecond:$deltaTimeInSecond', level: 1);
+    Logger.print('R:$repeat:type:$_type', level: 1);
+    Logger.print('R:$repeat:data:$_data', level: 1);
+    Logger.print('R:$repeat:cacheFailure:$cacheFailure', error: true, level: 1);
+    Logger.print(
+        'R:$repeat:multiCastFailure:$multiCastFailure', error: true, level: 1);
+    Logger.print(
+        'R:$repeat:clientFailure:$clientFailure', error: true, level: 1);
 
     //возвращаем результат as TypeOfResponse
-    if(isReceived) {
+    if (isReceived) {
       yield (
-        failure: (deltaTimeInSecond >= Constants.timeOutShowError ||
-            _data.uuid == Constants.nullUuid)
-            ? (clientFailure ?? multiCastFailure)
-            : cacheFailure,
-        type: TypeData.another,
-        data: _data
+      failure: (deltaTimeInSecond >= Constants.timeOutShowError ||
+          _data.uuid == Constants.nullUuid)
+          ? (clientFailure ?? multiCastFailure)
+          : cacheFailure,
+      type: TypeData.another,
+      data: _data
       ) as TypeOfResponse<EnvironmentDataEntity>;
     }
-    Logger.print('All Data is update', level: 1);
-
-    //После ожидания 10 минут повторить запрос
-
-    Future.delayed(
-      const Duration(minutes: Constants.timeSleepDevMin),
-      receiveData,);
-    
-    // }).timeout(const Duration(minutes: 10), onTimeout: (_) {
-    //     Logger.print('multiCast repeat after 10 minutes', level: 1);
-    //     featureRemoteDataSourceMultiCast.launching();
-    // },);
-    
-    isReceived = false;
+    Logger.print('R:$repeat: All Data is update', level: 1);
+    await Future.delayed(const Duration(minutes: Constants.timeSleepDevMin));
+  } while (isReceived);
   }
 
   @override
   Failure? startGet() {
     try {
+      isReceived = false;
       featureRemoteDataSourceMultiCast.startGet();
       featureRemoteDataSourceClient.startGet();
     } on Exception catch (e) {
@@ -234,6 +241,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
   @override
   Failure? stopGet() {
     try {
+      isReceived = false;
       featureRemoteDataSourceMultiCast.stopGet();
       featureRemoteDataSourceClient.stopGet();
     } on Exception catch (e) {

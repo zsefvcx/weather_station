@@ -53,12 +53,6 @@ class UDPClientSenderReceiver {
       final streamController = udpSocket.timeout(timeLimit,
         onTimeout: (sink) {
           Logger.print('${DateTime.now()}:Time Out Received. type:$type', error: true);
-          serviceEC.add((
-            failure: ServerFailure(
-                errorMessage: '${DateTime.now()}:Time Out Received'
-            ),
-            data: null,
-          ) as TypeOfReceiver<EnvironmentalConditions>, status: isRunning);
           _isDataRcv = -1;
           sink.close();
         },
@@ -97,12 +91,6 @@ class UDPClientSenderReceiver {
             final json = jsonDecode(str) as Map<String, dynamic>;
             final key = json['key'] as String?;
             if(key != null && key != Constants.key) {
-              serviceEC.add((
-                failure: ServerFailure(
-                    errorMessage: '${DateTime.now()}:Error key message'
-                ),
-                data: null,
-              ) as TypeOfReceiver<EnvironmentalConditions>, status: isRunning);
               _isDataRcv = -1;
               throw UDPClientSenderReceiverException(
                 errorMessage: 'type:$type: Error key message key:$key'
@@ -127,7 +115,7 @@ class UDPClientSenderReceiver {
             } on EnvironmentalConditionsException catch(e){
               Logger.print(e.toString(), name: 'err',  error: true, safeToDisk: true);
               _isDataRcv = -1;
-            } on Exception catch(e, t){
+            } on Exception catch(e){
               Logger.print(e.toString(), name: 'err',  error: true, safeToDisk: true);
               _isDataRcv = -1;
             }
@@ -158,11 +146,6 @@ class UDPClientSenderReceiver {
         await streamSubscription.cancel();
       } on Exception catch(e, t) {
         Logger.print('type:$type: Error _startRcvUdp Socket with:\n$e\n$t', name: 'err',  error: true,  safeToDisk: true,);
-        serviceEC.add((
-          failure: ServerFailure(errorMessage: '${DateTime.now()}:Error run Socket'),
-          data: null,
-        ) as TypeOfReceiver<EnvironmentalConditions>,status: isRunning);
-        isRunning = false;
         _isDataRcv = -1;
       } finally {
         udpSocket.close();
@@ -185,13 +168,14 @@ class UDPClientSenderReceiver {
       //Не запущенно запускаем....
       isRunning = true;
       await Future.doWhile(() async {
+        //Уменьшаем
         attempt--;
         //Проверяем есть ли устройство в сети
         if(!(await networkInfo.isConnected)){
+
           Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Response Device: status:$attempt');
           //Ждем 5 секунд
           await Future.delayed(const Duration(seconds: 5));
-          attempt--;
           //Принудительно послушаем что да как, ну оно может и не отвечать
           await _startRcvUdp(broadcastEnabled: broadcastEnabled);
           //Ждем сообщения и таймауты
