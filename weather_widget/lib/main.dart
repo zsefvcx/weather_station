@@ -9,13 +9,14 @@ import 'package:weather_widget/modules/modules.dart';
 import 'package:window_manager/window_manager.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   final settingsApp = Settings();
   FeatureBlocsInit.initState();
   settingsApp.prefs = SharedPreferences.getInstance();
   await settingsApp.readFromDisk();
 
-  if (Platform.isMacOS   || Platform.isLinux || Platform.isWindows) {
-    WidgetsFlutterBinding.ensureInitialized();
+  if (Constants.isNotMobile) {
     await windowManager.ensureInitialized();
 
     const windowOptions = WindowOptions(

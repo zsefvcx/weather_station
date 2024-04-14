@@ -67,7 +67,7 @@ class _CustomMainBarWinState extends State<CustomMainBarWin> {
             tooltip: widget._textAction,
             iconActoin: null,
           ),
-          (
+          if (Constants.isNotMobile)(
             function: mainButtonAction.pinWindows,
             icon: Icons.check_box_outline_blank,
             icon2: Icons.library_add_check_outlined,
@@ -95,14 +95,14 @@ class _CustomMainBarWinState extends State<CustomMainBarWin> {
             tooltip: 'Start'.hrd,
             iconActoin: null,
           ),
-          (
+          if (Constants.isNotMobile)(
             function: mainButtonAction.minimize,
             icon: Icons.minimize,
             icon2: null,
             tooltip: 'Minimize'.hrd,
             iconActoin: null,
           ),
-          (
+          if (Constants.isNotMobile)(
             function: mainButtonAction.close,
             icon: Icons.close,
             icon2: null,

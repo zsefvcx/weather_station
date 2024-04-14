@@ -163,6 +163,7 @@ class EnvironmentRepositoryImpl extends EnvironmentRepository {
       return;
     }
   var repeat = 0;
+  //Бесконечный цикл пока не перезагрузят основной поток
   do {
     if (!isReceived) return;
     repeat++;

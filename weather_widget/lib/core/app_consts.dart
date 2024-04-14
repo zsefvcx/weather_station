@@ -87,4 +87,7 @@ abstract final class Constants {
   ///Время сна устройства
   static const timeSleepDevMin = 10;
   static const timeSleepDevSec = timeSleepDevMin*60;
+
+  ///Это не мобилка
+  static final isNotMobile = Platform.isMacOS || Platform.isLinux || Platform.isWindows;
 }
