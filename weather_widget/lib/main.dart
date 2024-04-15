@@ -31,6 +31,7 @@ Future<void> main() async {
       backgroundColor: Colors.transparent,
     );
     await windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.hide();
       await windowManager.setOpacity(settingsApp.opacity);
       await windowManager.setAlwaysOnTop(settingsApp.floatOnTop);
       //Установить максимальные размер
@@ -43,7 +44,7 @@ Future<void> main() async {
       await windowManager.setPosition(settingsApp.positionStart);
       await windowManager.setSize(Constants.sizeLite);
       //Делает окно без возможности изменять размеры
-      //await windowManager.setAsFrameless();
+      await windowManager.setAsFrameless();
       await windowManager.show();
       await windowManager.focus();
     });

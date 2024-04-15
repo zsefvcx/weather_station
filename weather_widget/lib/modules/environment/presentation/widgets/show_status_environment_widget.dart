@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/provider.dart';
-import 'package:weather_widget/core/core.dart';
 import 'package:weather_widget/modules/environment/domain/entities/environment_data_entity.dart';
 import 'package:weather_widget/modules/environment/presentation/presentation.dart';
-import 'package:window_manager/window_manager.dart';
 
 class ShowStatusEnvironmentWidget extends StatelessWidget {
   const ShowStatusEnvironmentWidget({
@@ -17,26 +14,6 @@ class ShowStatusEnvironmentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settingsApp = Provider.of<Settings>(context, listen: false);
-    if (Constants.isNotMobile) {
-      if (!_data.errorExt) {
-        windowManager..setMinimumSize(Constants.sizeLiteDouble)
-        ..setSize(Constants.sizeLiteDouble);
-        if (settingsApp.iDouble == 1) {
-          settingsApp
-            ..iDouble = 2
-            ..safeToDisk();
-        }
-      } else {
-        windowManager..setMinimumSize(Constants.sizeLite)
-        ..setSize(Constants.sizeLite);
-        if (settingsApp.iDouble == 2) {
-          settingsApp
-            ..iDouble = 1
-            ..safeToDisk();
-        }
-      }
-    }
     return Column(
         children: [
           Row(

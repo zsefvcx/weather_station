@@ -161,8 +161,8 @@ class UDPClientSenderReceiver {
 
     try {
       Logger.print('RUN type:$type address:$address isRunning:$isRunning', level: 1);
-      //число попыток = (Время сна устройства * 2)/5сек
-      var attempt = Constants.timeSleepDevSec~/5;
+      //число попыток = (Время сна устройства * 2)/ время ожидания
+      var attempt = Constants.timeSleepDevSec~/Constants.timeSleepAttempt;
       //Запрос уже запущен и не надо сюда лезть
       if (isRunning) return;
       //Не запущенно запускаем....
@@ -174,8 +174,8 @@ class UDPClientSenderReceiver {
         if(!(await networkInfo.isConnected)){
 
           Logger.print('${DateTime.now()}:type:$type:UDPClientSenderReceiver: No Response Device: status:$attempt');
-          //Ждем 5 секунд
-          await Future.delayed(const Duration(seconds: 5));
+          //Ждем
+          await Future.delayed(const Duration(seconds: Constants.timeSleepAttempt));
           //Принудительно послушаем что да как, ну оно может и не отвечать
           await _startRcvUdp(broadcastEnabled: broadcastEnabled);
           //Ждем сообщения и таймауты
