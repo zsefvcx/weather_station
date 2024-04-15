@@ -54,14 +54,6 @@ abstract final class Constants {
   ///Константа для перевода давления в мм рт.ст.
   static const toMmHg = 0.00750063755419211;
 
-  ///Контроллер должен посылать информацию каждые 10 минут.
-  ///Если сообщение не пришло в течении 30 минут ,то что то пошло не так
-  ///Но он спит и надо бы время увеличит до часу
-  static const timeOutShowError = 60*60;
-
-  ///Сохраняем данные в кеш каждые час
-  static const timeOutSafeDataToCache = 60*60;
-
   ///NullUID
   static const nullUuid = '00000000-0000-0000-0000-000000000000';
 
@@ -73,8 +65,8 @@ abstract final class Constants {
 
   ///Размеры
   static const positionStartDefault = Offset(50, 20);
-  static const sizeLite = Size(160, 105);
-  static const sizeLiteDouble = Size(200, 123);
+  static const sizeLite = Size(160, 135);
+  static const sizeLiteDouble = Size(200, 135);
 
    /// Сообщения от ошибках
   static const serverFailureMessage = 'Server Failure';
@@ -84,9 +76,19 @@ abstract final class Constants {
   static const timeOutFailureMessage = 'Time Out Failure';
   static const unexpectedErrorMessage = 'Unexpected Error';
 
+  ///Время ожидания, после успешного опроса 30 минут
+  static const timeSleepIfSuccessfully = 30;
+
   ///Время сна устройства
   static const timeSleepDevMin = 10;
   static const timeSleepDevSec = timeSleepDevMin*60;
+  ///Микро ожидание между попытками в секундах
+  static const timeSleepAttempt = 10;
+  ///Контроллер должен посылать информацию каждые 10 минут.
+  ///Но он спит и надо бы время увеличит до 2 часов
+  static const timeOutShowError = 2*60*60;
+  ///Сохраняем данные в кеш каждые час
+  static const timeOutSafeDataToCache = 60*60;
 
   ///Это не мобилка
   static final isNotMobile = Platform.isMacOS || Platform.isLinux || Platform.isWindows;
